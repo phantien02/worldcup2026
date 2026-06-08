@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Vòng bảng",
+    "turn": "lượt 1",
+    "active": false
+  },
+  {
+    "id": 2,
+    "name": "Vòng bảng",
+    "turn": "lượt 2",
+    "active": false
+  },
+  {
+    "id": 3,
+    "name": "Vòng bảng",
+    "turn": "lượt 3",
+    "active": false
+  },
+  {
+    "id": 4,
+    "name": "Vòng loại trực tiếp",
+    "turn": "",
+    "active": true
+  }
+]
