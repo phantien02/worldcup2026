@@ -1,6 +1,15 @@
 "use server";
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+
+async function verifyAdmin() {
+  const c = cookies() as any;
+  const cookieStore = c.then ? await c : c;
+  const token = cookieStore.get('admin_token')?.value;
+  if (!token) throw new Error("Unauthorized: Cần quyền Admin để thực hiện hành động này!");
+}
+
 
 export async function updateMatchResult(
   matchId: string, 
@@ -14,6 +23,7 @@ export async function updateMatchResult(
   penaltyHome?: number,
   penaltyAway?: number
 ) {
+  await verifyAdmin();
   // Update match status
   const updateData: any = {
     home_score: homeScore,
@@ -99,6 +109,7 @@ export async function updateMatchResult(
 }
 
 export async function createMatch(homeTeamId: string, awayTeamId: string, kickoffTime: string, round: string = 'Vòng Bảng') {
+  await verifyAdmin();
   const { error } = await supabaseAdmin.from('matches').insert({
     home_team_id: homeTeamId,
     away_team_id: awayTeamId,
@@ -113,6 +124,7 @@ export async function createMatch(homeTeamId: string, awayTeamId: string, kickof
 }
 
 export async function createTeam(name: string, code: string, flagUrl: string) {
+  await verifyAdmin();
   const { error } = await supabaseAdmin.from('teams').insert({
     name, code, flag_url: flagUrl
   });
@@ -121,11 +133,13 @@ export async function createTeam(name: string, code: string, flagUrl: string) {
 }
 
 export async function getPasswordRequests() {
+  await verifyAdmin();
   const { data } = await supabaseAdmin.from('password_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false });
   return data || [];
 }
 
 export async function resetUserPassword(requestId: string, username: string, newPassword: string) {
+  await verifyAdmin();
   // Tìm ID người dùng thông qua bảng profiles
   const { data: profile } = await supabaseAdmin
     .from('profiles')
@@ -162,11 +176,13 @@ export async function resetUserPassword(requestId: string, username: string, new
 }
 
 export async function getAllUsers() {
+  await verifyAdmin();
   const { data } = await supabaseAdmin.from('profiles').select('id, display_name, total_points, created_at').order('display_name');
   return data || [];
 }
 
 export async function deleteUserAccount(userId: string) {
+  await verifyAdmin();
   // Xóa tài khoản khỏi hệ thống Auth của Supabase.
   // Các dữ liệu liên quan ở bảng profiles và predictions sẽ tự động bị xóa do ON DELETE CASCADE.
   const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
@@ -177,6 +193,7 @@ export async function deleteUserAccount(userId: string) {
 }
 
 export async function deleteMatchAdmin(matchId: string) {
+  await verifyAdmin();
   const { error } = await supabaseAdmin.from('matches').update({ round: 'DELETED' }).eq('id', matchId);
   if (error) throw error;
   revalidatePath('/');
