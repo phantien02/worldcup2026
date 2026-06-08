@@ -1,0 +1,452 @@
+"use client";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/components/AuthProvider';
+import { useParams } from 'next/navigation';
+import { isBefore } from 'date-fns';
+import Link from 'next/link';
+import { resolvePlaceholderTeam } from '@/utils/standings';
+
+type Match = {
+  id: string;
+  home_team_id: string;
+  away_team_id: string;
+  home_team: { name: string; flag_url: string };
+  away_team: { name: string; flag_url: string };
+  kickoff_time: string;
+  status: string;
+  home_score: number | null;
+  away_score: number | null;
+  round?: string;
+};
+
+type Prediction = {
+  id: string;
+  prediction_result: string;
+  home_score: number | null;
+  away_score: number | null;
+  updated_at: string;
+  user_id: string;
+  profiles: { display_name: string };
+};
+
+export default function MatchPage() {
+  const { id } = useParams();
+  const { user } = useAuth();
+  
+  const [match, setMatch] = useState<Match | null>(null);
+  const [allMatches, setAllMatches] = useState<any[]>([]);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  
+  const [resultChoice, setResultChoice] = useState<'home_win' | 'draw' | 'away_win' | ''>('');
+  const [myPrediction, setMyPrediction] = useState<{ home: number | '', away: number | '' }>({ home: '', away: '' });
+  
+  // Knockout states
+  const [advancingTeamId, setAdvancingTeamId] = useState<string>('');
+  const [predictedWinMethod, setPredictedWinMethod] = useState<'90_mins' | 'extra_time' | 'penalties' | ''>('');
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({ text: '', type: '' });
+
+  useEffect(() => {
+    async function fetchData() {
+      const { data: matchData } = await supabase
+        .from('matches')
+        .select(`
+          id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id,
+          home_team:home_team_id (name, flag_url),
+          away_team:away_team_id (name, flag_url)
+        `)
+        .eq('id', id)
+        .single();
+
+      if (matchData) setMatch(matchData as any);
+
+      // Fetch all matches to calculate group standings for placeholders
+      const { data: allMatchesData } = await supabase
+        .from('matches')
+        .select(`
+          round, status, home_score, away_score,
+          home_team:home_team_id (name, flag_url),
+          away_team:away_team_id (name, flag_url)
+        `);
+      if (allMatchesData) setAllMatches(allMatchesData);
+
+      const { data: predsData } = await supabase
+        .from('predictions')
+        .select(`
+          id, prediction_result, home_score, away_score, updated_at, user_id,
+          advancing_team_id, predicted_win_method,
+          profiles(display_name)
+        `)
+        .eq('match_id', id);
+
+      if (predsData) {
+        setPredictions(predsData as any);
+        if (user) {
+          const mine = predsData.find(p => p.user_id === user.id);
+          if (mine) {
+            setResultChoice(mine.prediction_result as any);
+            if (mine.home_score !== null && mine.away_score !== null) {
+              setMyPrediction({ home: mine.home_score, away: mine.away_score });
+            }
+            if (mine.advancing_team_id) setAdvancingTeamId(mine.advancing_team_id);
+            if (mine.predicted_win_method) setPredictedWinMethod(mine.predicted_win_method as any);
+          }
+        }
+      }
+
+      setLoading(false);
+    }
+
+    if (id) fetchData();
+  }, [id, user]);
+
+  const isLocked = match ? !isBefore(new Date(), new Date(match.kickoff_time)) || match.status !== 'pending' : true;
+  const isKnockout = match ? match.round && !match.round.startsWith('Bảng') && match.round !== 'Vòng Bảng' : false;
+
+  const handleSavePrediction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      setMessage({ text: 'Bạn cần đăng nhập để dự đoán!', type: 'danger' });
+      return;
+    }
+    if (isLocked) {
+      setMessage({ text: 'Trận đấu đã khóa dự đoán!', type: 'danger' });
+      return;
+    }
+
+    const payload: any = {
+      user_id: user.id,
+      match_id: id,
+      updated_at: new Date().toISOString()
+    };
+
+    if (isKnockout) {
+      if (!advancingTeamId) {
+        setMessage({ text: 'Vui lòng chọn đội đi tiếp!', type: 'danger' });
+        return;
+      }
+      if (!predictedWinMethod) {
+        setMessage({ text: 'Vui lòng chọn hình thức đi tiếp!', type: 'danger' });
+        return;
+      }
+      payload.advancing_team_id = advancingTeamId;
+      payload.predicted_win_method = predictedWinMethod;
+    } else {
+      if (!resultChoice) {
+        setMessage({ text: 'Vui lòng chọn kết quả Thắng/Hòa/Thua!', type: 'danger' });
+        return;
+      }
+      
+      const hasScore = myPrediction.home !== '' && myPrediction.away !== '';
+      if (myPrediction.home !== '' || myPrediction.away !== '') {
+        if (!hasScore) {
+          setMessage({ text: 'Vui lòng nhập đầy đủ tỷ số cả 2 đội hoặc để trống cả hai!', type: 'danger' });
+          return;
+        }
+        const h = Number(myPrediction.home);
+        const a = Number(myPrediction.away);
+        if (resultChoice === 'home_win' && h <= a) {
+          setMessage({ text: 'Tỷ số không khớp với kết quả Đội nhà Thắng!', type: 'danger' });
+          return;
+        }
+        if (resultChoice === 'away_win' && a <= h) {
+          setMessage({ text: 'Tỷ số không khớp với kết quả Đội khách Thắng!', type: 'danger' });
+          return;
+        }
+        if (resultChoice === 'draw' && h !== a) {
+          setMessage({ text: 'Tỷ số không khớp với kết quả Hòa!', type: 'danger' });
+          return;
+        }
+      }
+
+      payload.prediction_result = resultChoice;
+      payload.home_score = hasScore ? Number(myPrediction.home) : null;
+      payload.away_score = hasScore ? Number(myPrediction.away) : null;
+    }
+
+    setSaving(true);
+    setMessage({ text: '', type: '' });
+
+    const { error } = await supabase
+      .from('predictions')
+      .upsert(payload, { onConflict: 'user_id, match_id' });
+
+    if (error) {
+      setMessage({ text: 'Lỗi: ' + error.message, type: 'danger' });
+    } else {
+      setMessage({ text: 'Đã lưu dự đoán thành công!', type: 'success' });
+      const { data: predsData } = await supabase
+        .from('predictions')
+        .select(`id, prediction_result, home_score, away_score, updated_at, user_id, profiles(display_name)`)
+        .eq('match_id', id);
+      if (predsData) setPredictions(predsData as any);
+    }
+    setSaving(false);
+  };
+
+  const stats = { winHome: 0, draw: 0, winAway: 0 };
+  predictions.forEach(p => {
+    if (p.prediction_result === 'home_win') stats.winHome++;
+    else if (p.prediction_result === 'draw') stats.draw++;
+    else if (p.prediction_result === 'away_win') stats.winAway++;
+  });
+  const total = predictions.length || 1;
+
+  if (loading) return <div className="text-center mt-8">Đang tải chi tiết trận đấu...</div>;
+  if (!match) return <div className="text-center mt-8 text-red-500">Không tìm thấy trận đấu!</div>;
+
+  const isPlaceholderName = (name: string) => /^(nhất|nhì|ba|thắng|thua)\s/i.test(name);
+  const renderTeamInfo = (teamData: any) => {
+    if (!teamData) return { name: 'TBD', flag: null };
+    const resolved = resolvePlaceholderTeam(teamData.name, allMatches);
+    if (resolved) return { name: resolved.name, flag: resolved.flag_url };
+    if (isPlaceholderName(teamData.name)) return { name: teamData.name, flag: null };
+    return { name: teamData.name, flag: teamData.flag_url };
+  };
+  const home = renderTeamInfo(match.home_team);
+  const away = renderTeamInfo(match.away_team);
+
+  return (
+    <div className="flex flex-col gap-8 mt-8 pb-16 animate-fade-in" style={{ maxWidth: '1000px', margin: '2rem auto' }}>
+      {/* Match Header */}
+      <div className="glass-panel" style={{ padding: '2rem', position: 'relative' }}>
+        <Link href="/" className="btn btn-secondary" style={{ position: 'absolute', top: '1.5rem', left: '1.5rem', padding: '0.5rem 1rem', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '1.2rem' }}>⬅</span> Quay lại
+        </Link>
+        <div className="text-center mb-6 mt-4">
+          <h2 className="text-2xl font-bold mb-2 uppercase tracking-widest" style={{ color: 'var(--accent)' }}>Chi tiết trận đấu</h2>
+          <span className={`badge ${match.status === 'live' ? 'badge-danger' : match.status === 'finished' ? 'badge-success' : 'badge-warning'}`}>
+            {match.status === 'live' ? 'Đang đá' : match.status === 'finished' ? 'Đã xong' : 'Sắp diễn ra'}
+          </span>
+          <div className="mt-4 font-semibold" style={{ opacity: 0.8 }}>{new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+        </div>
+
+        <div className="flex justify-center items-center gap-4 mt-8" style={{ flexWrap: 'wrap' }}>
+          <div className="flex flex-col items-center gap-4" style={{ width: '150px' }}>
+            {home.flag ? <img src={home.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); }} /> : null}
+            <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: home.flag ? 'none' : 'flex' }} hidden={home.flag ? true : undefined}>?</div>
+            <span className="text-center font-bold text-2xl">{home.name}</span>
+          </div>
+          
+          <div className="flex flex-col items-center gap-2" style={{ margin: '0 2rem' }}>
+            <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '4rem' : '2.5rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
+              {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : 'VS'}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-4" style={{ width: '150px' }}>
+            {away.flag ? <img src={away.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); }} /> : null}
+            <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: away.flag ? 'none' : 'flex' }} hidden={away.flag ? true : undefined}>?</div>
+            <span className="text-center font-bold text-2xl">{away.name}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Prediction Form */}
+        <div className="glass-panel" style={{ padding: '2rem' }}>
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <span style={{ color: 'var(--success)' }}>●</span> Dự đoán của bạn
+          </h3>
+          
+          {message.text && (
+            <div className={`badge badge-${message.type} mb-6 block text-center`} style={{ padding: '0.75rem', fontSize: '1rem' }}>{message.text}</div>
+          )}
+
+          {isLocked ? (
+            <div className="text-center" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <p style={{ color: 'var(--warning)', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.1rem' }}>Đã hết thời gian dự đoán!</p>
+              {isKnockout ? (
+                <div>
+                   <div style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
+                    {match.round === 'Chung kết' ? 'Đội vô địch:' : match.round === 'Tranh hạng ba' ? 'Đội chiến thắng:' : 'Đội đi tiếp:'} <strong style={{ color: 'var(--primary)', textTransform: 'uppercase' }}>{advancingTeamId === match.home_team_id ? match.home_team?.name : advancingTeamId === match.away_team_id ? match.away_team?.name : 'Chưa dự đoán'}</strong>
+                  </div>
+                  {predictedWinMethod && (
+                    <div style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
+                      Hình thức: <strong style={{ color: 'var(--warning)' }}>{predictedWinMethod === '90_mins' ? "Trong 90 Phút" : predictedWinMethod === 'extra_time' ? "Hiệp phụ" : "Luân lưu (Penalty)"}</strong>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
+                    Kết quả đã chọn: <strong style={{ color: 'var(--primary)', textTransform: 'uppercase' }}>{resultChoice === 'home_win' ? `${match.home_team?.name} Thắng` : resultChoice === 'away_win' ? `${match.away_team?.name} Thắng` : resultChoice === 'draw' ? 'Hòa' : 'Chưa dự đoán'}</strong>
+                  </div>
+                  {myPrediction.home !== '' && resultChoice && (
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', padding: '0.75rem', background: 'rgba(255,255,255,0.1)', borderRadius: '12px', display: 'inline-block' }}>
+                      Tỷ số: {myPrediction.home} - {myPrediction.away}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          ) : (
+            <form onSubmit={handleSavePrediction} className="flex flex-col gap-8">
+              
+              {isKnockout ? (
+                <>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      1. {match.round === 'Chung kết' ? 'Chọn Đội vô địch' : match.round === 'Tranh hạng ba' ? 'Chọn Đội chiến thắng' : 'Chọn Đội đi tiếp'} (Bắt buộc)
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                      <button type="button" onClick={() => setAdvancingTeamId(match.home_team_id)} 
+                        style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
+                          background: advancingTeamId === match.home_team_id ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                          boxShadow: advancingTeamId === match.home_team_id ? '0 0 15px var(--primary)' : 'none', color: '#fff' }}>
+                        {match.home_team?.name}
+                      </button>
+                      <button type="button" onClick={() => setAdvancingTeamId(match.away_team_id)} 
+                        style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
+                          background: advancingTeamId === match.away_team_id ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                          boxShadow: advancingTeamId === match.away_team_id ? '0 0 15px var(--primary)' : 'none', color: '#fff' }}>
+                        {match.away_team?.name}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '1rem' }}>
+                      2. Chọn hình thức phân định (Bắt buộc)
+                    </label>
+                    <div className="flex flex-col gap-3">
+                      <label className="flex items-center gap-3 p-3 bg-black/20 rounded cursor-pointer border border-white/5 hover:border-white/20 transition-all">
+                        <input type="radio" name="winMethod" value="90_mins" checked={predictedWinMethod === '90_mins'} onChange={() => setPredictedWinMethod('90_mins')} className="w-5 h-5 accent-primary" />
+                        <span className="text-lg">Trong 90 Phút</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-3 bg-black/20 rounded cursor-pointer border border-white/5 hover:border-white/20 transition-all">
+                        <input type="radio" name="winMethod" value="extra_time" checked={predictedWinMethod === 'extra_time'} onChange={() => setPredictedWinMethod('extra_time')} className="w-5 h-5 accent-primary" />
+                        <span className="text-lg">Hiệp phụ (120 Phút)</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-3 bg-black/20 rounded cursor-pointer border border-white/5 hover:border-white/20 transition-all">
+                        <input type="radio" name="winMethod" value="penalties" checked={predictedWinMethod === 'penalties'} onChange={() => setPredictedWinMethod('penalties')} className="w-5 h-5 accent-primary" />
+                        <span className="text-lg">Luân lưu (Penalty)</span>
+                      </label>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Primary Choice: W/D/L */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.1rem' }}>1. Chọn Kết Quả (Bắt buộc)</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                      <button type="button" onClick={() => setResultChoice('home_win')} 
+                        style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
+                          background: resultChoice === 'home_win' ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                          boxShadow: resultChoice === 'home_win' ? '0 0 15px var(--primary)' : 'none',
+                          color: '#fff'
+                        }}>
+                        {match.home_team?.name}
+                      </button>
+                      <button type="button" onClick={() => setResultChoice('draw')} 
+                        style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
+                          background: resultChoice === 'draw' ? 'var(--warning)' : 'rgba(255,255,255,0.05)',
+                          boxShadow: resultChoice === 'draw' ? '0 0 15px var(--warning)' : 'none',
+                          color: resultChoice === 'draw' ? '#000' : '#fff'
+                        }}>
+                        HÒA
+                      </button>
+                      <button type="button" onClick={() => setResultChoice('away_win')} 
+                        style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
+                          background: resultChoice === 'away_win' ? 'var(--danger)' : 'rgba(255,255,255,0.05)',
+                          boxShadow: resultChoice === 'away_win' ? '0 0 15px var(--danger)' : 'none',
+                          color: '#fff'
+                        }}>
+                        {match.away_team?.name}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Secondary Choice: Score */}
+                  <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '1rem' }}>
+                      2. Dự đoán Tỷ số chính xác (Tùy chọn)
+                    </label>
+                    
+                    <div className="flex justify-center items-center gap-4 mt-4">
+                      <input 
+                        type="number" min="0" max="20" placeholder="-"
+                        value={myPrediction.home} 
+                        onChange={e => setMyPrediction({...myPrediction, home: e.target.value === '' ? '' : Number(e.target.value)})}
+                        style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 'bold', background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(255,255,255,0.1)', width: '90px', height: '90px', borderRadius: '16px', color: '#fff' }}
+                      />
+                      <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.5)' }}>-</span>
+                      <input 
+                        type="number" min="0" max="20" placeholder="-"
+                        value={myPrediction.away} 
+                        onChange={e => setMyPrediction({...myPrediction, away: e.target.value === '' ? '' : Number(e.target.value)})}
+                        style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 'bold', background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(255,255,255,0.1)', width: '90px', height: '90px', borderRadius: '16px', color: '#fff' }}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', fontSize: '1.1rem', padding: '1rem', marginTop: '0.5rem' }} disabled={saving}>
+                {saving ? 'Đang lưu...' : 'XÁC NHẬN DỰ ĐOÁN'}
+              </button>
+            </form>
+          )}
+        </div>
+
+        {/* Stats Chart */}
+        <div className="glass-panel" style={{ padding: '2rem' }}>
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <span style={{ color: 'var(--accent)' }}>●</span> Thống kê ({predictions.length} người đoán)
+          </h3>
+          
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              <div style={{ width: '120px', fontWeight: 600 }}>{match.home_team?.name} thắng</div>
+              <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                <div style={{ width: `${(stats.winHome / total) * 100}%`, background: 'linear-gradient(90deg, var(--primary), #8b5cf6)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+              </div>
+              <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.winHome / total) * 100)}%</div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div style={{ width: '120px', fontWeight: 600 }}>Hòa</div>
+              <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                <div style={{ width: `${(stats.draw / total) * 100}%`, background: 'linear-gradient(90deg, var(--warning), #fde047)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+              </div>
+              <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.draw / total) * 100)}%</div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div style={{ width: '120px', fontWeight: 600 }}>{match.away_team?.name} thắng</div>
+              <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                <div style={{ width: `${(stats.winAway / total) * 100}%`, background: 'linear-gradient(90deg, var(--danger), #f43f5e)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+              </div>
+              <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.winAway / total) * 100)}%</div>
+            </div>
+          </div>
+          
+          {isLocked && predictions.length > 0 && (
+            <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--success)' }}>Lựa chọn của mọi người:</h4>
+              <div style={{ maxHeight: '240px', overflowY: 'auto', paddingRight: '1rem' }} className="flex flex-col gap-2">
+                {predictions.map(p => (
+                  <div key={p.id} className="flex justify-between items-center py-3 last:border-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>{p.profiles?.display_name}</span>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 'bold', textTransform: 'uppercase', color: p.prediction_result === 'home_win' ? 'var(--primary)' : p.prediction_result === 'away_win' ? 'var(--danger)' : 'var(--warning)' }}>
+                        {p.prediction_result === 'home_win' ? match.home_team?.name : p.prediction_result === 'away_win' ? match.away_team?.name : 'HÒA'}
+                      </div>
+                      {p.home_score !== null && p.away_score !== null && (
+                        <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>Tỷ số: {p.home_score} - {p.away_score}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
