@@ -5,6 +5,7 @@ import { useAuth } from '@/components/AuthProvider';
 import Link from 'next/link';
 import WorldCupStandings from '@/components/WorldCupStandings';
 import { resolvePlaceholderTeam } from '@/utils/standings';
+import matchMapping from '../data/matchMapping.json';
 
 type Profile = {
   id: string;
@@ -450,8 +451,8 @@ export default function HomePage() {
                         
                         <div className="flex justify-between items-center mb-6">
                           <div className="flex items-center gap-3">
-                            <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '6px', fontWeight: 'bold', color: '#00d2ff', fontSize: '0.9rem' }}>
-                              TRẬN {globalIndex}
+                            <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '6px', fontWeight: 'bold', color: '#00d2ff', fontSize: '0.9rem', textTransform: 'uppercase' }}>
+                              {(matchMapping as any)[`${home.name} vs ${away.name}`] || `TRẬN ${globalIndex}`}
                             </span>
                             <div style={{ fontSize: '0.9rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                               {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}

@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { isBefore } from 'date-fns';
 import Link from 'next/link';
 import { resolvePlaceholderTeam } from '@/utils/standings';
+import matchMapping from '@/data/matchMapping.json';
 
 type Match = {
   id: string;
@@ -246,7 +247,11 @@ export default function MatchPage() {
           <span style={{ fontSize: '1.2rem' }}>⬅</span> Quay lại
         </Link>
         <div className="text-center mb-6 mt-4">
-          <h2 className="text-2xl font-bold mb-2 uppercase tracking-widest" style={{ color: 'var(--accent)' }}>Chi tiết trận đấu</h2>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <span style={{ background: 'rgba(255,255,255,0.1)', padding: '6px 16px', borderRadius: '8px', fontWeight: 'bold', color: '#00d2ff', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              {(matchMapping as any)[`${home.name} vs ${away.name}`] || 'TRẬN ĐẤU'}
+            </span>
+          </div>
           <span className={`badge ${match.status === 'live' ? 'badge-danger' : match.status === 'finished' ? 'badge-success' : 'badge-warning'}`}>
             {match.status === 'live' ? 'Đang đá' : match.status === 'finished' ? 'Đã xong' : 'Sắp diễn ra'}
           </span>
