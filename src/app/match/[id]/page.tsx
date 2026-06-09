@@ -27,6 +27,8 @@ type Prediction = {
   away_score: number | null;
   updated_at: string;
   user_id: string;
+  advancing_team_id?: string;
+  predicted_win_method?: string;
   profiles: { display_name: string };
 };
 
