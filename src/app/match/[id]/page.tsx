@@ -111,7 +111,9 @@ export default function MatchPage() {
   }, [id, user]);
 
   const isLocked = match ? !isBefore(new Date(), new Date(match.kickoff_time)) || match.status !== 'pending' : true;
-  const isKnockout = match ? match.round && !match.round.startsWith('Bảng') && match.round !== 'Vòng Bảng' : false;
+  
+  const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Chung kết'];
+  const isKnockout = match ? knockoutRounds.includes(match.round || '') : false;
 
   const handleSavePrediction = async (e: React.FormEvent) => {
     e.preventDefault();
