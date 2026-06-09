@@ -180,7 +180,7 @@ export default function MatchPage() {
       setMessage({ text: 'Đã lưu dự đoán thành công!', type: 'success' });
       const { data: predsData } = await supabase
         .from('predictions')
-        .select(`id, prediction_result, home_score, away_score, updated_at, user_id, profiles(display_name)`)
+        .select(`id, prediction_result, home_score, away_score, updated_at, user_id, advancing_team_id, predicted_win_method, profiles(display_name)`)
         .eq('match_id', id);
       if (predsData) setPredictions(predsData as any);
     }
@@ -188,12 +188,30 @@ export default function MatchPage() {
   };
 
   const stats = { winHome: 0, draw: 0, winAway: 0 };
+  const statsKnockout = { homeAdvancing: 0, awayAdvancing: 0, win90: 0, win120: 0, winPen: 0 };
+  const scoreCounts: Record<string, number> = {};
+
   predictions.forEach(p => {
     if (p.prediction_result === 'home_win') stats.winHome++;
     else if (p.prediction_result === 'draw') stats.draw++;
     else if (p.prediction_result === 'away_win') stats.winAway++;
+
+    if (p.home_score !== null && p.away_score !== null) {
+      const scoreStr = `${p.home_score} - ${p.away_score}`;
+      scoreCounts[scoreStr] = (scoreCounts[scoreStr] || 0) + 1;
+    }
+
+    if (p.advancing_team_id && match) {
+      if (p.advancing_team_id === match.home_team_id) statsKnockout.homeAdvancing++;
+      if (p.advancing_team_id === match.away_team_id) statsKnockout.awayAdvancing++;
+    }
+    if (p.predicted_win_method === '90_mins') statsKnockout.win90++;
+    if (p.predicted_win_method === 'extra_time') statsKnockout.win120++;
+    if (p.predicted_win_method === 'penalties') statsKnockout.winPen++;
   });
   const total = predictions.length || 1;
+  const topScores = Object.entries(scoreCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
 
   if (loading) return <div className="text-center mt-8">Đang tải chi tiết trận đấu...</div>;
   if (!match) return <div className="text-center mt-8 text-red-500">Không tìm thấy trận đấu!</div>;
@@ -399,45 +417,128 @@ export default function MatchPage() {
             <span style={{ color: 'var(--accent)' }}>●</span> Thống kê ({predictions.length} người đoán)
           </h3>
           
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-4">
-              <div style={{ width: '120px', fontWeight: 600 }}>{match.home_team?.name} thắng</div>
-              <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
-                <div style={{ width: `${(stats.winHome / total) * 100}%`, background: 'linear-gradient(90deg, var(--primary), #8b5cf6)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
-              </div>
-              <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.winHome / total) * 100)}%</div>
-            </div>
+          {!isKnockout ? (
+            <>
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-4">
+                  <div style={{ width: '120px', fontWeight: 600 }}>{match.home_team?.name} thắng</div>
+                  <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                    <div style={{ width: `${(stats.winHome / total) * 100}%`, background: 'linear-gradient(90deg, var(--primary), #8b5cf6)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+                  </div>
+                  <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.winHome / total) * 100)}%</div>
+                </div>
 
-            <div className="flex items-center gap-4">
-              <div style={{ width: '120px', fontWeight: 600 }}>Hòa</div>
-              <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
-                <div style={{ width: `${(stats.draw / total) * 100}%`, background: 'linear-gradient(90deg, var(--warning), #fde047)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
-              </div>
-              <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.draw / total) * 100)}%</div>
-            </div>
+                <div className="flex items-center gap-4">
+                  <div style={{ width: '120px', fontWeight: 600 }}>Hòa</div>
+                  <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                    <div style={{ width: `${(stats.draw / total) * 100}%`, background: 'linear-gradient(90deg, var(--warning), #fde047)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+                  </div>
+                  <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.draw / total) * 100)}%</div>
+                </div>
 
-            <div className="flex items-center gap-4">
-              <div style={{ width: '120px', fontWeight: 600 }}>{match.away_team?.name} thắng</div>
-              <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
-                <div style={{ width: `${(stats.winAway / total) * 100}%`, background: 'linear-gradient(90deg, var(--danger), #f43f5e)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+                <div className="flex items-center gap-4">
+                  <div style={{ width: '120px', fontWeight: 600 }}>{match.away_team?.name} thắng</div>
+                  <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '28px', borderRadius: '14px', overflow: 'hidden', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)' }}>
+                    <div style={{ width: `${(stats.winAway / total) * 100}%`, background: 'linear-gradient(90deg, var(--danger), #f43f5e)', height: '100%', transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+                  </div>
+                  <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.winAway / total) * 100)}%</div>
+                </div>
               </div>
-              <div style={{ width: '50px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((stats.winAway / total) * 100)}%</div>
+
+              {topScores.length > 0 && (
+                <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--success)' }}>Top dự đoán tỷ số:</h4>
+                  <div className="flex flex-col gap-3">
+                    {topScores.map(([score, count], i) => (
+                      <div key={score} className="flex items-center gap-4">
+                        <div style={{ width: '60px', fontWeight: 'bold', fontSize: '1.1rem', color: i === 0 ? 'var(--warning)' : 'white' }}>{score}</div>
+                        <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ width: `${(count / total) * 100}%`, background: i === 0 ? 'var(--warning)' : 'var(--primary)', height: '100%' }}></div>
+                        </div>
+                        <div style={{ width: '50px', textAlign: 'right', fontSize: '0.9rem', opacity: 0.8 }}>{Math.round((count / total) * 100)}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col gap-8">
+              <div>
+                <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--success)' }}>Đội đi tiếp:</h4>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <div style={{ width: '120px', fontWeight: 600 }}>{match.home_team?.name}</div>
+                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '24px', borderRadius: '12px', overflow: 'hidden' }}>
+                      <div style={{ width: `${(statsKnockout.homeAdvancing / total) * 100}%`, background: 'var(--primary)', height: '100%' }}></div>
+                    </div>
+                    <div style={{ width: '40px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((statsKnockout.homeAdvancing / total) * 100)}%</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div style={{ width: '120px', fontWeight: 600 }}>{match.away_team?.name}</div>
+                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '24px', borderRadius: '12px', overflow: 'hidden' }}>
+                      <div style={{ width: `${(statsKnockout.awayAdvancing / total) * 100}%`, background: 'var(--danger)', height: '100%' }}></div>
+                    </div>
+                    <div style={{ width: '40px', textAlign: 'right', fontWeight: 'bold' }}>{Math.round((statsKnockout.awayAdvancing / total) * 100)}%</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--warning)' }}>Hình thức chiến thắng:</h4>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-4">
+                    <div style={{ width: '80px', fontSize: '0.9rem' }}>90 Phút</div>
+                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
+                      <div style={{ width: `${(statsKnockout.win90 / total) * 100}%`, background: '#3b82f6', height: '100%' }}></div>
+                    </div>
+                    <div style={{ width: '40px', textAlign: 'right', fontSize: '0.8rem' }}>{Math.round((statsKnockout.win90 / total) * 100)}%</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div style={{ width: '80px', fontSize: '0.9rem' }}>Hiệp phụ</div>
+                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
+                      <div style={{ width: `${(statsKnockout.win120 / total) * 100}%`, background: '#8b5cf6', height: '100%' }}></div>
+                    </div>
+                    <div style={{ width: '40px', textAlign: 'right', fontSize: '0.8rem' }}>{Math.round((statsKnockout.win120 / total) * 100)}%</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div style={{ width: '80px', fontSize: '0.9rem' }}>Luân lưu</div>
+                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
+                      <div style={{ width: `${(statsKnockout.winPen / total) * 100}%`, background: '#f59e0b', height: '100%' }}></div>
+                    </div>
+                    <div style={{ width: '40px', textAlign: 'right', fontSize: '0.8rem' }}>{Math.round((statsKnockout.winPen / total) * 100)}%</div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
           
           {isLocked && predictions.length > 0 && (
             <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
               <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--success)' }}>Lựa chọn của mọi người:</h4>
-              <div style={{ maxHeight: '240px', overflowY: 'auto', paddingRight: '1rem' }} className="flex flex-col gap-2">
+              <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '1rem' }} className="flex flex-col gap-2">
                 {predictions.map(p => (
                   <div key={p.id} className="flex justify-between items-center py-3 last:border-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>{p.profiles?.display_name}</span>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 'bold', textTransform: 'uppercase', color: p.prediction_result === 'home_win' ? 'var(--primary)' : p.prediction_result === 'away_win' ? 'var(--danger)' : 'var(--warning)' }}>
-                        {p.prediction_result === 'home_win' ? match.home_team?.name : p.prediction_result === 'away_win' ? match.away_team?.name : 'HÒA'}
-                      </div>
-                      {p.home_score !== null && p.away_score !== null && (
-                        <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>Tỷ số: {p.home_score} - {p.away_score}</div>
+                      {!isKnockout ? (
+                        <>
+                          <div style={{ fontWeight: 'bold', textTransform: 'uppercase', color: p.prediction_result === 'home_win' ? 'var(--primary)' : p.prediction_result === 'away_win' ? 'var(--danger)' : 'var(--warning)' }}>
+                            {p.prediction_result === 'home_win' ? match.home_team?.name : p.prediction_result === 'away_win' ? match.away_team?.name : 'HÒA'}
+                          </div>
+                          {p.home_score !== null && p.away_score !== null && (
+                            <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>Tỷ số: {p.home_score} - {p.away_score}</div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ fontWeight: 'bold', textTransform: 'uppercase', color: p.advancing_team_id === match.home_team_id ? 'var(--primary)' : 'var(--danger)' }}>
+                            {p.advancing_team_id === match.home_team_id ? match.home_team?.name : match.away_team?.name}
+                          </div>
+                          <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>
+                            {p.predicted_win_method === '90_mins' ? "Thắng trong 90'" : p.predicted_win_method === 'extra_time' ? "Thắng Hiệp phụ" : "Thắng Luân lưu"}
+                          </div>
+                        </>
                       )}
                     </div>
                   </div>
