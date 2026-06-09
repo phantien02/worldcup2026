@@ -52,29 +52,7 @@ export default function AdminPage() {
     } catch(err) { console.error("Lỗi tải dữ liệu", err); }
   }
 
-  const handleCreateTeam = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await createTeam(newTeamName, newTeamCode, newTeamFlag);
-      alert('Tạo đội thành công');
-      fetchData();
-    } catch(err: any) { alert(err.message); }
-    setLoading(false);
-  };
-
-  const handleCreateMatch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await createMatch(newMatchHome, newMatchAway, new Date(newMatchTime).toISOString(), newMatchRound);
-      alert('Tạo trận đấu thành công');
-      fetchData();
-    } catch(err: any) { alert(err.message); }
-    setLoading(false);
-  };
-
-  const [activeTab, setActiveTab] = useState<'create' | 'results' | 'passwords' | 'users'>('create');
+  const [activeTab, setActiveTab] = useState<'results' | 'passwords' | 'users'>('results');
   
   const [updatingMatch, setUpdatingMatch] = useState<any>(null);
   const [adminResult, setAdminResult] = useState({
@@ -263,12 +241,6 @@ export default function AdminPage() {
       {/* Tabs Navigation */}
       <div className="flex flex-wrap justify-center gap-4 mb-4">
         <button 
-          onClick={() => setActiveTab('create')} 
-          className={`btn ${activeTab === 'create' ? 'btn-primary' : 'btn-secondary'}`}
-        >
-          Tạo Đội & Trận
-        </button>
-        <button 
           onClick={() => setActiveTab('results')} 
           className={`btn ${activeTab === 'results' ? 'btn-primary' : 'btn-secondary'}`}
         >
@@ -293,47 +265,6 @@ export default function AdminPage() {
           Quản Lý Người Dùng
         </button>
       </div>
-
-      {activeTab === 'create' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
-          {/* Tạo Đội Bóng */}
-          <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h2 className="text-xl font-bold mb-4">Thêm Đội Bóng</h2>
-            <form onSubmit={handleCreateTeam} className="flex flex-col gap-4">
-              <input type="text" placeholder="Tên Đội (VD: Việt Nam)" required value={newTeamName} onChange={e => setNewTeamName(e.target.value)} />
-              <input type="text" placeholder="Mã (VD: VIE)" required value={newTeamCode} onChange={e => setNewTeamCode(e.target.value)} />
-              <input type="url" placeholder="URL Quốc kỳ (không bắt buộc)" value={newTeamFlag} onChange={e => setNewTeamFlag(e.target.value)} />
-              <button type="submit" className="btn btn-primary" disabled={loading}>Tạo Đội</button>
-            </form>
-          </div>
-
-          {/* Tạo Trận Đấu */}
-          <div className="glass-panel" style={{ padding: '2rem' }}>
-            <h2 className="text-xl font-bold mb-4">Tạo Trận Đấu Mới</h2>
-            <form onSubmit={handleCreateMatch} className="flex flex-col gap-4">
-              <select required value={newMatchRound} onChange={e => setNewMatchRound(e.target.value)}>
-                <option value="Vòng Bảng">Vòng Bảng</option>
-                <option value="Vòng 32 đội">Vòng 32 đội</option>
-                <option value="Vòng 16 đội">Vòng 16 đội</option>
-                <option value="Tứ kết">Tứ kết</option>
-                <option value="Bán kết">Bán kết</option>
-                <option value="Tranh hạng ba">Tranh hạng ba</option>
-                <option value="Chung kết">Chung kết</option>
-              </select>
-              <select required value={newMatchHome} onChange={e => setNewMatchHome(e.target.value)}>
-                <option value="">-- Chọn đội nhà --</option>
-                {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-              <select required value={newMatchAway} onChange={e => setNewMatchAway(e.target.value)}>
-                <option value="">-- Chọn đội khách --</option>
-                {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-              <input type="datetime-local" required value={newMatchTime} onChange={e => setNewMatchTime(e.target.value)} />
-              <button type="submit" className="btn btn-success" disabled={loading}>Tạo Trận Đấu</button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Yêu cầu quên mật khẩu */}
       {activeTab === 'passwords' && (

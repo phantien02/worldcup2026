@@ -39,11 +39,18 @@ export default function MatchPage() {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   
   const [resultChoice, setResultChoice] = useState<'home_win' | 'draw' | 'away_win' | ''>('');
-  const [myPrediction, setMyPrediction] = useState<{ home: number | '', away: number | '' }>({ home: '', away: '' });
+  const [myPrediction, setMyPrediction] = useState({ home: '' as number | '', away: '' as number | '' });
+  const [advancingTeamId, setAdvancingTeamId] = useState('');
+  const [predictedWinMethod, setPredictedWinMethod] = useState<'90_mins'|'extra_time'|'penalties'|''>('');
   
-  // Knockout states
-  const [advancingTeamId, setAdvancingTeamId] = useState<string>('');
-  const [predictedWinMethod, setPredictedWinMethod] = useState<'90_mins' | 'extra_time' | 'penalties' | ''>('');
+  const [isAdminMode, setIsAdminMode] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/check')
+      .then(r => r.json())
+      .then(d => setIsAdminMode(d.isAdmin))
+      .catch(() => {});
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -274,7 +281,12 @@ export default function MatchPage() {
             <div className={`badge badge-${message.type} mb-6 block text-center`} style={{ padding: '0.75rem', fontSize: '1rem' }}>{message.text}</div>
           )}
 
-          {isLocked ? (
+          {isAdminMode ? (
+            <div className="text-center" style={{ padding: '1.5rem', background: 'rgba(255,0,76,0.1)', borderRadius: '16px', border: '1px solid var(--danger)' }}>
+              <p style={{ color: 'var(--danger)', marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '1.1rem' }}>Bạn đang ở Chế độ Admin</p>
+              <p style={{ opacity: 0.8 }}>Tài khoản Admin chỉ có quyền xem dữ liệu, không thể tham gia dự đoán.</p>
+            </div>
+          ) : isLocked ? (
             <div className="text-center" style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <p style={{ color: 'var(--warning)', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.1rem' }}>Đã hết thời gian dự đoán!</p>
               {isKnockout ? (
