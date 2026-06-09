@@ -459,9 +459,9 @@ export default function MatchPage() {
                 </div>
               </div>
 
-              {topScores.length > 0 && (
-                <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--success)' }}>Top dự đoán tỷ số:</h4>
+              <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--success)' }}>Top dự đoán tỷ số:</h4>
+                {topScores.length > 0 ? (
                   <div className="flex flex-col gap-3">
                     {topScores.map(([score, count], i) => (
                       <div key={score} className="flex items-center gap-4">
@@ -473,8 +473,10 @@ export default function MatchPage() {
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: '0.95rem' }}>Chưa có dự đoán tỷ số nào (hoặc các dự đoán tỷ số đã bị ẩn cho đến khi trận đấu bắt đầu).</div>
+                )}
+              </div>
             </>
           ) : (
             <div className="flex flex-col gap-8">
