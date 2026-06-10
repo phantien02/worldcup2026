@@ -57,10 +57,25 @@ export default function HomePage() {
           home_team:home_team_id (name, flag_url),
           away_team:away_team_id (name, flag_url)
         `)
-        .order('kickoff_time', { ascending: true });
 
       if (matchesData) {
         const validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
+        
+        // Sort explicitly by Match Number
+        validMatches.sort((a: any, b: any) => {
+          const homeA = a.home_team?.name || '';
+          const awayA = a.away_team?.name || '';
+          const labelA = (matchMapping as any)[`${homeA} vs ${awayA}`] || '';
+          const numA = labelA.match(/Trận (\d+)/i) ? parseInt(labelA.match(/Trận (\d+)/i)[1]) : 999;
+          
+          const homeB = b.home_team?.name || '';
+          const awayB = b.away_team?.name || '';
+          const labelB = (matchMapping as any)[`${homeB} vs ${awayB}`] || '';
+          const numB = labelB.match(/Trận (\d+)/i) ? parseInt(labelB.match(/Trận (\d+)/i)[1]) : 999;
+          
+          return numA - numB;
+        });
+        
         setMatches(validMatches);
       }
       
