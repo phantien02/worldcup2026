@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { updateMatchResult, createMatch, createTeam, getPasswordRequests, resetUserPassword, getAllUsers, deleteUserAccount, deleteMatchAdmin } from './actions';
+import matchMapping from '@/data/matchMapping.json';
 
 type Team = { id: string; name: string; flag_url?: string; code?: string };
 type Match = { id: string; home_team: Team; away_team: Team; status: string; home_score: number; away_score: number; kickoff_time: string; round?: string; home_team_id: string; away_team_id: string };
@@ -40,7 +41,21 @@ export default function AdminPage() {
 
     const { data: matchesData } = await supabase.from('matches').select('id, status, home_score, away_score, kickoff_time, round, home_team:home_team_id(name, flag_url, code), away_team:away_team_id(name, flag_url, code)').order('kickoff_time', { ascending: true });
     if (matchesData) {
-      setMatches((matchesData as any).filter((m: any) => m.round !== 'DELETED'));
+      const validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
+      validMatches.sort((a: any, b: any) => {
+          const homeA = a.home_team?.name || '';
+          const awayA = a.away_team?.name || '';
+          const labelA = (matchMapping as any)[`${homeA} vs ${awayA}`] || '';
+          const numA = labelA.match(/Trận (\d+)/i) ? parseInt(labelA.match(/Trận (\d+)/i)[1]) : 999;
+          
+          const homeB = b.home_team?.name || '';
+          const awayB = b.away_team?.name || '';
+          const labelB = (matchMapping as any)[`${homeB} vs ${awayB}`] || '';
+          const numB = labelB.match(/Trận (\d+)/i) ? parseInt(labelB.match(/Trận (\d+)/i)[1]) : 999;
+          
+          return numA - numB;
+      });
+      setMatches(validMatches);
     }
     
     try {
