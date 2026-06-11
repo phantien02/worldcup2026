@@ -7,6 +7,7 @@ import { isBefore } from 'date-fns';
 import Link from 'next/link';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '@/data/matchMapping.json';
+import CountdownTimer from '@/components/CountdownTimer';
 
 type Match = {
   id: string;
@@ -58,6 +59,7 @@ export default function MatchPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [isLocked, setIsLocked] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -113,7 +115,15 @@ export default function MatchPage() {
     if (id) fetchData();
   }, [id, user]);
 
-  const isLocked = match ? !isBefore(new Date(), new Date(match.kickoff_time)) || match.status !== 'pending' : true;
+  useEffect(() => {
+    if (match && match.status !== 'pending') {
+      setIsLocked(true);
+    } else {
+      // CountdownTimer will set isLocked if it expires, 
+      // but initially we assume unlocked until timer says otherwise if status is pending
+      setIsLocked(false);
+    }
+  }, [match]);
   
   const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Chung kết'];
   const isKnockout = match ? knockoutRounds.includes(match.round || '') : false;
@@ -182,21 +192,36 @@ export default function MatchPage() {
     setSaving(true);
     setMessage({ text: '', type: '' });
 
-    const { error } = await supabase
-      .from('predictions')
-      .upsert(payload, { onConflict: 'user_id, match_id' });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      
+      const res = await fetch('/api/predictions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Có lỗi xảy ra khi lưu dự đoán');
+      }
 
-    if (error) {
-      setMessage({ text: 'Lỗi: ' + error.message, type: 'danger' });
-    } else {
       setMessage({ text: 'Đã lưu dự đoán thành công!', type: 'success' });
       const { data: predsData } = await supabase
         .from('predictions')
         .select(`id, prediction_result, home_score, away_score, updated_at, user_id, advancing_team_id, predicted_win_method, profiles(display_name)`)
         .eq('match_id', id);
       if (predsData) setPredictions(predsData as any);
+    } catch (error: any) {
+      setMessage({ text: 'Lỗi: ' + error.message, type: 'danger' });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const stats = { winHome: 0, draw: 0, winAway: 0 };
@@ -256,6 +281,10 @@ export default function MatchPage() {
             {match.status === 'live' ? 'Đang đá' : match.status === 'finished' ? 'Đã xong' : 'Sắp diễn ra'}
           </span>
           <div className="mt-4 font-semibold" style={{ opacity: 0.8 }}>{new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
+          
+          {match.status === 'pending' && !isLocked && (
+            <CountdownTimer kickoffTime={match.kickoff_time} onExpire={() => setIsLocked(true)} />
+          )}
         </div>
 
         <div className="flex justify-center items-center gap-4 mt-8" style={{ flexWrap: 'wrap' }}>
