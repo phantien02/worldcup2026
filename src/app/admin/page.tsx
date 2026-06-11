@@ -255,9 +255,13 @@ export default function AdminPage() {
   let groupedMatches: Record<string, Match[]> = {};
 
   if (filterRound === 'Tất cả') {
-    groupedMatches = {
-      'Tất cả các trận (Sắp xếp theo thời gian)': [...filteredMatches].sort((a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime())
-    };
+    groupedMatches = filteredMatches.reduce((acc, m) => {
+      const dateStr = new Date(m.kickoff_time).toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+      const groupName = `Lịch thi đấu: ${dateStr}`;
+      if (!acc[groupName]) acc[groupName] = [];
+      acc[groupName].push(m);
+      return acc;
+    }, {} as Record<string, Match[]>);
   } else {
     groupedMatches = filteredMatches.reduce((acc, m) => {
       const roundName = m.round || 'Vòng Bảng';
