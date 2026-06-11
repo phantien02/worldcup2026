@@ -129,8 +129,12 @@ export default function HomePage() {
       </div>
 
       {(() => {
+        const now = new Date();
+        const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
         const unpredicted = matches.filter(m => {
           if (m.status !== 'pending') return false;
+          const time = new Date(m.kickoff_time);
+          if (time < now || time > next24Hours) return false;
           return !myPredictions.some(p => p.match_id === m.id);
         });
         
@@ -141,7 +145,7 @@ export default function HomePage() {
                 <span style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 0 10px var(--danger))' }}>⏰</span>
                 <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: '0 0 0.25rem 0', fontWeight: 'bold' }}>Cảnh báo: Bạn sắp bỏ lỡ điểm số!</h3>
                 <p style={{ color: 'var(--danger)', margin: 0, fontWeight: 500, opacity: 0.9 }}>
-                  Có <strong>{unpredicted.length} trận đấu</strong> sắp diễn ra mà bạn chưa dự đoán. Đừng để tuột mất cơ hội!
+                  Có <strong>{unpredicted.length} trận đấu</strong> diễn ra trong vòng 24 giờ tới mà bạn chưa dự đoán. Đừng để tuột mất cơ hội!
                 </p>
               </div>
             </div>
