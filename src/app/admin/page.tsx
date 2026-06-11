@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import { updateMatchResult, createMatch, createTeam, getPasswordRequests, resetUserPassword, getAllUsers, deleteUserAccount, deleteMatchAdmin } from './actions';
 import matchMapping from '@/data/matchMapping.json';
@@ -35,8 +36,10 @@ export default function AdminPage() {
   const [loadingPredictions, setLoadingPredictions] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchData();
   }, []);
 
@@ -535,8 +538,8 @@ export default function AdminPage() {
       )}
 
       {/* Modal Lịch sử dự đoán của User */}
-      {selectedUser && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {mounted && selectedUser && createPortal(
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="backdrop-blur-sm">
           <div className="glass-panel" style={{ width: '90%', maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem' }}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold" style={{ color: '#00d2ff' }}>Lịch sử dự đoán: {selectedUser.display_name}</h2>
@@ -568,11 +571,12 @@ export default function AdminPage() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
       {/* Modal Cập nhật Knockout */}
-      {updatingMatch && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {mounted && updatingMatch && createPortal(
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="backdrop-blur-sm">
           <div className="glass-panel" style={{ width: '90%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', border: '1px solid var(--primary)' }}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold" style={{ color: '#00d2ff' }}>Cập nhật: {updatingMatch.home_team?.name} vs {updatingMatch.away_team?.name}</h2>
@@ -650,12 +654,13 @@ export default function AdminPage() {
 
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal: View Predictions */}
-      {isPredictionsModalOpen && selectedMatchForPredictions && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      {mounted && isPredictionsModalOpen && selectedMatchForPredictions && createPortal(
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] p-4 backdrop-blur-md">
           <div className="bg-[#111] border border-gray-700 rounded-xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-scale-in" style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
             <div className="flex justify-between items-center p-5 border-b border-gray-800 bg-[#1a1a1a]">
               <div>
@@ -733,7 +738,8 @@ export default function AdminPage() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
