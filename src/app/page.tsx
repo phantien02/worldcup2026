@@ -140,23 +140,12 @@ export default function HomePage() {
         if (unpredicted.length > 0) {
           return (
             <div className="animate-fade-in mx-auto" style={{ maxWidth: '800px', width: '90%' }}>
-              <div style={{ background: 'rgba(255,0,76,0.15)', border: '2px solid var(--danger)', padding: '1.5rem', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
-                <div className="flex items-center gap-4">
-                  <span style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 0 10px var(--danger))' }}>⏰</span>
-                  <div>
-                    <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: '0 0 0.25rem 0', fontWeight: 'bold' }}>Cảnh báo: Bạn sắp bỏ lỡ điểm số!</h3>
-                    <p style={{ color: 'var(--danger)', margin: 0, fontWeight: 500, opacity: 0.9 }}>
-                      Có <strong>{unpredicted.length} trận đấu</strong> diễn ra trong vòng 24 giờ tới mà bạn chưa dự đoán. Đừng để tuột mất cơ hội!
-                    </p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setActiveTab('matches')} 
-                  className="btn btn-primary" 
-                  style={{ background: 'var(--danger)', color: '#fff', padding: '0.75rem 1.5rem', whiteSpace: 'nowrap', borderRadius: '8px', boxShadow: '0 4px 15px rgba(255,0,76,0.4)' }}
-                >
-                  DỰ ĐOÁN NGAY
-                </button>
+              <div style={{ background: 'rgba(255,0,76,0.15)', border: '2px solid var(--danger)', padding: '1.5rem', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textAlign: 'center' }}>
+                <span style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 0 10px var(--danger))' }}>⏰</span>
+                <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: '0 0 0.25rem 0', fontWeight: 'bold' }}>Cảnh báo: Bạn sắp bỏ lỡ điểm số!</h3>
+                <p style={{ color: 'var(--danger)', margin: 0, fontWeight: 500, opacity: 0.9 }}>
+                  Có <strong>{unpredicted.length} trận đấu</strong> diễn ra trong vòng 24 giờ tới mà bạn chưa dự đoán. Đừng để tuột mất cơ hội!
+                </p>
               </div>
             </div>
           );
