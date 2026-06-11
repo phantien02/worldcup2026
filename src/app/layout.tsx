@@ -5,6 +5,7 @@ import Navigation from '@/components/Navigation';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import BackgroundChanger from '@/components/BackgroundChanger';
+import BackgroundMusic from '@/components/BackgroundMusic';
 
 export const metadata: Metadata = {
   title: 'Cháy cùng World Cup 2026 - Phòng Mạng Lõi',
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="vi">
       <body>
         <BackgroundChanger />
+        <BackgroundMusic />
         <AuthProvider>
           <Navigation />
 
