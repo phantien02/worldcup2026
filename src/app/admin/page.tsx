@@ -660,36 +660,35 @@ export default function AdminPage() {
 
       {/* Modal: View Predictions */}
       {mounted && isPredictionsModalOpen && selectedMatchForPredictions && createPortal(
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] p-4 backdrop-blur-md">
-          <div className="bg-[#111] border border-gray-700 rounded-xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-scale-in" style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
-            <div className="flex justify-between items-center p-5 border-b border-gray-800 bg-[#1a1a1a]">
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)', padding: '1rem' }}>
+          <div className="glass-panel animate-scale-in" style={{ width: '100%', maxWidth: '900px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', padding: 0, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: 'rgba(0,0,0,0.4)' }}>
               <div>
-                <h3 className="text-xl font-bold text-white mb-1">Thông tin dự đoán của người chơi</h3>
-                <p className="text-sm text-gray-400 flex items-center gap-2">
-                  <span className="text-primary font-bold">{selectedMatchForPredictions.round}</span>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white', marginBottom: '0.25rem' }}>Thông tin dự đoán của người chơi</h3>
+                <p style={{ fontSize: '0.875rem', color: '#a3a3a3', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{selectedMatchForPredictions.round}</span>
                   <span>|</span>
-                  <span className="text-white font-bold">{selectedMatchForPredictions.home_team?.name} vs {selectedMatchForPredictions.away_team?.name}</span>
+                  <span style={{ color: 'white', fontWeight: 'bold' }}>{selectedMatchForPredictions.home_team?.name} vs {selectedMatchForPredictions.away_team?.name}</span>
                 </p>
               </div>
               <button 
                 onClick={() => setIsPredictionsModalOpen(false)}
-                className="text-gray-400 hover:text-white p-2 text-xl font-bold leading-none bg-transparent border-none cursor-pointer"
+                style={{ background: 'transparent', border: 'none', color: '#a3a3a3', fontSize: '1.25rem', fontWeight: 'bold', cursor: 'pointer', padding: '0.5rem' }}
               >
                 ✕
               </button>
             </div>
-            
-            <div className="p-0 overflow-y-auto flex-1">
+            <div style={{ padding: 0, overflowY: 'auto', flex: 1 }}>
               {loadingPredictions ? (
-                <div className="p-10 text-center text-gray-400">Đang tải dữ liệu...</div>
+                <div style={{ padding: '2.5rem', textAlign: 'center', color: '#a3a3a3' }}>Đang tải dữ liệu...</div>
               ) : (
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs uppercase bg-[#0a0a0a] text-gray-400 sticky top-0 z-10 shadow-md">
+                <table style={{ width: '100%', fontSize: '0.875rem', textAlign: 'left', borderCollapse: 'collapse' }}>
+                  <thead style={{ fontSize: '0.75rem', textTransform: 'uppercase', backgroundColor: 'rgba(0,0,0,0.6)', color: '#a3a3a3', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
                     <tr>
-                      <th className="px-6 py-4 font-bold border-b border-gray-800">Người chơi</th>
-                      <th className="px-6 py-4 font-bold text-center border-b border-gray-800">Dự đoán</th>
-                      <th className="px-6 py-4 font-bold text-center border-b border-gray-800">Điểm số</th>
-                      <th className="px-6 py-4 font-bold border-b border-gray-800">Phân tích</th>
+                      <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Người chơi</th>
+                      <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Dự đoán</th>
+                      <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Điểm số</th>
+                      <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Phân tích</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -698,34 +697,34 @@ export default function AdminPage() {
                       const p = item.prediction;
                       
                       return (
-                        <tr key={index} className="border-b border-gray-800/50 hover:bg-white/5 transition-colors">
-                          <td className="px-6 py-4">
-                            <div className="font-bold text-white text-base">{item.user.display_name || item.user.email?.split('@')[0]}</div>
-                            <div className="text-xs text-gray-500 mt-1">{item.user.email}</div>
+                        <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background-color 0.2s', backgroundColor: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                          <td style={{ padding: '1rem 1.5rem' }}>
+                            <div style={{ fontWeight: 'bold', color: 'white', fontSize: '1rem' }}>{item.user.display_name || item.user.email?.split('@')[0]}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>{item.user.email}</div>
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                             {!p ? (
-                              <span className="text-gray-600 italic">Chưa dự đoán</span>
+                              <span style={{ color: '#4b5563', fontStyle: 'italic' }}>Chưa dự đoán</span>
                             ) : isKnockout ? (
-                              <div className="text-cyan-400 font-bold">{p.prediction_result} <span className="text-gray-400 font-normal text-xs ml-1">({p.prediction_method === '90_mins' ? "90'" : p.prediction_method === 'extra_time' ? "120'" : "Pen"})</span></div>
+                              <div style={{ color: '#22d3ee', fontWeight: 'bold' }}>{p.prediction_result} <span style={{ color: '#9ca3af', fontWeight: 'normal', fontSize: '0.75rem', marginLeft: '0.25rem' }}>({p.prediction_method === '90_mins' ? "90'" : p.prediction_method === 'extra_time' ? "120'" : "Pen"})</span></div>
                             ) : (
-                              <div className="text-cyan-400 font-bold text-lg tracking-widest">{p.home_score} - {p.away_score}</div>
+                              <div style={{ color: '#22d3ee', fontWeight: 'bold', fontSize: '1.125rem', letterSpacing: '0.1em' }}>{p.home_score} - {p.away_score}</div>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-center">
+                          <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                             {!p || selectedMatchForPredictions.status !== 'finished' ? (
-                              <span className="text-gray-600">-</span>
+                              <span style={{ color: '#4b5563' }}>-</span>
                             ) : (
-                              <span className={`font-bold text-lg ${p.points_earned > 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
+                              <span style={{ fontWeight: 'bold', fontSize: '1.125rem', color: p.points_earned > 0 ? 'var(--success)' : 'var(--danger)' }}>
                                 {p.points_earned > 0 ? `+${p.points_earned}` : '0'}
                               </span>
                             )}
                           </td>
-                          <td className="px-6 py-4">
+                          <td style={{ padding: '1rem 1.5rem' }}>
                             {!p || selectedMatchForPredictions.status !== 'finished' ? (
-                              <span className="text-gray-600">-</span>
+                              <span style={{ color: '#4b5563' }}>-</span>
                             ) : (
-                              <span className="text-gray-300 text-xs bg-[#222] px-3 py-1.5 rounded font-medium border border-gray-700">
+                              <span style={{ color: '#d1d5db', fontSize: '0.75rem', backgroundColor: 'rgba(255,255,255,0.05)', padding: '0.375rem 0.75rem', borderRadius: '0.25rem', fontWeight: 500, border: '1px solid rgba(255,255,255,0.1)' }}>
                                 {getPredictionAnalysis(p.points_earned, isKnockout)}
                               </span>
                             )}
