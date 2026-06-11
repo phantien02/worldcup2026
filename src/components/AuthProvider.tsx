@@ -25,7 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActivityRef = useRef<number>(typeof window !== 'undefined' ? Date.now() : 0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const signOut = async () => {
     await fetch('/api/admin/logout', { method: 'POST' }).catch(() => {});
@@ -33,25 +34,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleTimeout = useCallback(() => {
-    signOut();
-    alert("Phiên làm việc đã tự động kết thúc do 30 phút không có hoạt động. Vui lòng tải lại trang hoặc đăng nhập lại.");
-    router.push('/');
+    signOut().then(() => {
+      alert("Phiên làm việc đã tự động kết thúc do 30 phút không có hoạt động. Vui lòng tải lại trang hoặc đăng nhập lại.");
+      router.push('/');
+    });
   }, [router]);
 
-  const resetTimer = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(handleTimeout, TIMEOUT_MS);
-  }, [handleTimeout]);
+  const updateActivity = useCallback(() => {
+    lastActivityRef.current = Date.now();
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('last_activity', lastActivityRef.current.toString());
+    }
+  }, []);
 
   useEffect(() => {
-    resetTimer();
-    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-    events.forEach(e => window.addEventListener(e, resetTimer));
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      events.forEach(e => window.removeEventListener(e, resetTimer));
+    if (typeof window === 'undefined') return;
+    
+    // Khôi phục thời gian thao tác cuối cùng nếu có
+    const storedActivity = window.localStorage.getItem('last_activity');
+    if (storedActivity) {
+      lastActivityRef.current = parseInt(storedActivity, 10);
+    } else {
+      updateActivity();
+    }
+
+    // Lắng nghe thay đổi từ các tab khác
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'last_activity' && e.newValue) {
+        lastActivityRef.current = parseInt(e.newValue, 10);
+      }
     };
-  }, [resetTimer]);
+    window.addEventListener('storage', handleStorage);
+
+    // Kiểm tra timeout mỗi 10 giây
+    intervalRef.current = setInterval(() => {
+      if (Date.now() - lastActivityRef.current > TIMEOUT_MS) {
+        // Chỉ log out nếu thực sự có user
+        supabase.auth.getSession().then(({ data }) => {
+           if (data.session) {
+             handleTimeout();
+           }
+        });
+      }
+    }, 10000);
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    events.forEach(e => window.addEventListener(e, updateActivity));
+    
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      events.forEach(e => window.removeEventListener(e, updateActivity));
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [handleTimeout, updateActivity]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
