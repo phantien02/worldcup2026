@@ -93,7 +93,7 @@ export default function HomePage() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center animate-fade-in" style={{ minHeight: '80vh', padding: '2rem 1rem' }}>
-        <h1 className="logo mb-6 text-center" style={{ fontSize: '4.5rem', lineHeight: 1.1 }}>
+        <h1 className="logo mb-6 text-center text-5xl md:text-7xl" style={{ lineHeight: 1.1 }}>
           Dự Đoán World Cup 2026
         </h1>
         <p className="text-center mb-10" style={{ fontSize: '1.25rem', color: '#a3a3a3', maxWidth: '700px', lineHeight: 1.6 }}>
@@ -119,7 +119,7 @@ export default function HomePage() {
     <div className="flex flex-col gap-12 mt-8 pb-16">
       {/* Hero Section */}
       <div className="text-center animate-fade-in" style={{ padding: '2rem 1rem' }}>
-        <h1 className="logo mb-4" style={{ fontSize: '3rem', lineHeight: 1.2 }}>
+        <h1 className="logo mb-4 text-4xl md:text-6xl" style={{ lineHeight: 1.2 }}>
           Dự Đoán World Cup 2026
         </h1>
         <p style={{ fontSize: '1.1rem', color: '#a3a3a3', maxWidth: '600px', margin: '0 auto' }}>
@@ -154,39 +154,39 @@ export default function HomePage() {
       })()}
 
       {/* Tabs Navigation */}
-      <div className="flex flex-wrap justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+      <div className="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3 md:gap-4 animate-fade-in overflow-x-auto no-scrollbar pb-2 px-1" style={{ animationDelay: '0.1s' }}>
         <button 
           onClick={() => setActiveTab('matches')} 
-          className={`btn ${activeTab === 'matches' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
-          style={{ padding: '0.75rem 1.5rem', fontSize: '1.05rem', borderRadius: '50px' }}
+          className={`btn ${activeTab === 'matches' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>⚽</span> LỊCH THI ĐẤU
         </button>
         <button 
           onClick={() => setActiveTab('standings')} 
-          className={`btn ${activeTab === 'standings' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
-          style={{ padding: '0.75rem 1.5rem', fontSize: '1.05rem', borderRadius: '50px' }}
+          className={`btn ${activeTab === 'standings' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>📊</span> BXH WORLD CUP
         </button>
         <button 
           onClick={() => setActiveTab('leaderboard')} 
-          className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
-          style={{ padding: '0.75rem 1.5rem', fontSize: '1.05rem', borderRadius: '50px' }}
+          className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>🏆</span> BXH NGƯỜI CHƠI
         </button>
         <button 
           onClick={() => setActiveTab('rules')} 
-          className={`btn ${activeTab === 'rules' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
-          style={{ padding: '0.75rem 1.5rem', fontSize: '1.05rem', borderRadius: '50px' }}
+          className={`btn ${activeTab === 'rules' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>📖</span> HƯỚNG DẪN
         </button>
         <button 
           onClick={() => setActiveTab('profile')} 
-          className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
-          style={{ padding: '0.75rem 1.5rem', fontSize: '1.05rem', borderRadius: '50px' }}
+          className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>👤</span> TÀI KHOẢN
         </button>
@@ -526,21 +526,21 @@ export default function HomePage() {
                           </span>
                         </div>
 
-                    <div className="flex justify-between items-center">
+                    <div className="grid grid-cols-3 gap-2 items-center w-full">
                       {/* Home Team */}
-                      <div className="flex flex-col items-center gap-3" style={{ flex: 1 }}>
+                      <div className="flex flex-col items-center gap-2" style={{ minWidth: 0 }}>
                         {home.flag ? 
-                          <img src={home.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
+                          <img src={home.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
                           : null
                         }
-                        <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: home.flag ? 'none' : 'flex' }} hidden={home.flag ? true : undefined}>?</div>
-                        <span className="text-center font-bold text-xl">{home.name}</span>
+                        <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '60px', height: '45px', background: 'rgba(255,255,255,0.05)', fontSize: '1.2rem', display: home.flag ? 'none' : 'flex' }} hidden={home.flag ? true : undefined}>?</div>
+                        <span className="text-center font-bold text-sm md:text-xl truncate w-full px-1">{home.name}</span>
                       </div>
                       
                       {/* Score / VS */}
-                      <div className="flex flex-col items-center justify-center" style={{ flex: '1.2' }}>
+                      <div className="flex flex-col items-center justify-center">
                         <div className="text-center" style={{ 
-                          fontSize: match.status !== 'pending' ? '3.5rem' : '2.5rem', 
+                          fontSize: match.status !== 'pending' ? '2.2rem' : '1.8rem', 
                           fontWeight: '900', 
                           color: '#fff',
                           whiteSpace: 'nowrap',
@@ -549,21 +549,21 @@ export default function HomePage() {
                           {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : 'VS'}
                         </div>
                         {match.status !== 'pending' && match.win_method && match.win_method !== '90_mins' && (
-                          <div className="text-center mt-1" style={{ fontSize: '1.1rem', color: 'var(--warning)', fontWeight: 'bold' }}>
+                          <div className="text-center mt-1" style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 'bold' }}>
                             {match.win_method === 'extra_time' ? "(Hiệp phụ)" : `(Pen: ${match.penalty_home} - ${match.penalty_away})`}
                           </div>
                         )}
-                        {match.status === 'pending' && <div className="mt-1 font-bold" style={{ fontSize: '0.9rem', color: 'var(--success)' }}>DỰ ĐOÁN NGAY</div>}
+                        {match.status === 'pending' && <div className="mt-1 font-bold text-center" style={{ fontSize: '0.75rem', color: 'var(--success)' }}>DỰ ĐOÁN NGAY</div>}
                       </div>
 
                       {/* Away Team */}
-                      <div className="flex flex-col items-center gap-3" style={{ flex: 1 }}>
+                      <div className="flex flex-col items-center gap-2" style={{ minWidth: 0 }}>
                         {away.flag ? 
-                          <img src={away.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
+                          <img src={away.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
                           : null
                         }
-                        <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: away.flag ? 'none' : 'flex' }} hidden={away.flag ? true : undefined}>?</div>
-                        <span className="text-center font-bold text-xl">{away.name}</span>
+                        <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '60px', height: '45px', background: 'rgba(255,255,255,0.05)', fontSize: '1.2rem', display: away.flag ? 'none' : 'flex' }} hidden={away.flag ? true : undefined}>?</div>
+                        <span className="text-center font-bold text-sm md:text-xl truncate w-full px-1">{away.name}</span>
                       </div>
                     </div>
                   </div>

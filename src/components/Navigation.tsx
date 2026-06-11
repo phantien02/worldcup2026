@@ -11,10 +11,10 @@ export default function Navigation() {
 
   return (
     <header className="header">
-      <Link href="/" className="logo">
+      <Link href="/" className="logo" style={{ whiteSpace: 'nowrap' }}>
         <span style={{ color: 'var(--success)' }}>WC 2026</span> <span style={{ color: 'var(--primary)', filter: 'brightness(1.5)' }}>PREDICTOR</span>
       </Link>
-      <nav className="flex gap-4 items-center">
+      <nav className="flex flex-wrap justify-center gap-2 md:gap-4 items-center">
 
         {isAdminPage ? (
           <>

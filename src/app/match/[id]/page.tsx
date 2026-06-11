@@ -287,23 +287,23 @@ export default function MatchPage() {
           )}
         </div>
 
-        <div className="flex justify-center items-center gap-4 mt-8" style={{ flexWrap: 'wrap' }}>
-          <div className="flex flex-col items-center gap-4" style={{ width: '150px' }}>
-            {home.flag ? <img src={home.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> : null}
-            <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: home.flag ? 'none' : 'flex' }} hidden={home.flag ? true : undefined}>?</div>
-            <span className="text-center font-bold text-2xl">{home.name}</span>
+        <div className="grid grid-cols-3 gap-2 items-center w-full mt-8">
+          <div className="flex flex-col items-center gap-2 md:gap-4" style={{ minWidth: 0 }}>
+            {home.flag ? <img src={home.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> : null}
+            <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '60px', height: '45px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: home.flag ? 'none' : 'flex' }} hidden={home.flag ? true : undefined}>?</div>
+            <span className="text-center font-bold text-sm md:text-2xl truncate w-full px-1">{home.name}</span>
           </div>
           
-          <div className="flex flex-col items-center gap-2" style={{ margin: '0 2rem' }}>
-            <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '4rem' : '2.5rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
+          <div className="flex flex-col items-center justify-center">
+            <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '2.5rem' : '2rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
               {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : 'VS'}
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-4" style={{ width: '150px' }}>
-            {away.flag ? <img src={away.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> : null}
-            <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: away.flag ? 'none' : 'flex' }} hidden={away.flag ? true : undefined}>?</div>
-            <span className="text-center font-bold text-2xl">{away.name}</span>
+          <div className="flex flex-col items-center gap-2 md:gap-4" style={{ minWidth: 0 }}>
+            {away.flag ? <img src={away.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> : null}
+            <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '60px', height: '45px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: away.flag ? 'none' : 'flex' }} hidden={away.flag ? true : undefined}>?</div>
+            <span className="text-center font-bold text-sm md:text-2xl truncate w-full px-1">{away.name}</span>
           </div>
         </div>
       </div>
@@ -360,7 +360,7 @@ export default function MatchPage() {
                     <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.1rem' }}>
                       1. {match.round === 'Chung kết' ? 'Chọn Đội vô địch' : match.round === 'Tranh hạng ba' ? 'Chọn Đội chiến thắng' : 'Chọn Đội đi tiếp'} (Bắt buộc)
                     </label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <button type="button" onClick={() => setAdvancingTeamId(match.home_team_id)} 
                         style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
                           background: advancingTeamId === match.home_team_id ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
@@ -401,7 +401,7 @@ export default function MatchPage() {
                   {/* Primary Choice: W/D/L */}
                   <div>
                     <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.1rem' }}>1. Chọn Kết Quả (Bắt buộc)</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <button type="button" onClick={() => setResultChoice('home_win')} 
                         style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
                           background: resultChoice === 'home_win' ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
