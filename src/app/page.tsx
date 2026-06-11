@@ -139,7 +139,7 @@ export default function HomePage() {
         
         if (unpredicted.length > 0) {
           return (
-            <div className="animate-fade-in flex justify-center" style={{ width: '100%' }}>
+            <div className="animate-fade-in flex justify-center" style={{ width: '100%', marginBottom: '2rem' }}>
               <div style={{ width: '90%', maxWidth: '800px', background: 'rgba(255,0,76,0.15)', border: '2px solid var(--danger)', padding: '1.5rem', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textAlign: 'center', margin: '0 auto' }}>
                 <span style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 0 10px var(--danger))' }}>⏰</span>
                 <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: '0 0 0.25rem 0', fontWeight: 'bold' }}>Cảnh báo: Bạn sắp bỏ lỡ điểm số!</h3>
