@@ -52,16 +52,18 @@ export default function Navigation() {
             )}
           </>
         ) : user ? (
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-end leading-tight">
-              <span style={{ fontWeight: 600 }}>{user.email === 'guest@wc2026.local' ? 'Khách Tham Quan' : (user.user_metadata?.display_name || user.email)}</span>
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="flex flex-col items-end justify-center" style={{ lineHeight: '1.2' }}>
+              <span style={{ fontWeight: 700, fontSize: '1rem', color: '#fff', letterSpacing: '0.5px' }}>
+                {user.email === 'guest@wc2026.local' ? 'Khách Tham Quan' : (user.user_metadata?.display_name || user.email)}
+              </span>
               {points !== null && (
-                <span style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 'bold' }}>
+                <span style={{ fontSize: '0.95rem', color: 'var(--accent)', fontWeight: 'bold' }}>
                   {points} điểm
                 </span>
               )}
             </div>
-            <button onClick={signOut} className="btn btn-danger" style={{ padding: '0.4rem 1rem' }}>Đăng xuất</button>
+            <button onClick={signOut} className="btn btn-danger" style={{ padding: '0.5rem 1.2rem', whiteSpace: 'nowrap' }}>ĐĂNG XUẤT</button>
           </div>
         ) : (
           <Link href="/login" className="btn btn-primary">Đăng nhập</Link>
