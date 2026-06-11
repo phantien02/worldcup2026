@@ -118,7 +118,7 @@ ON CONFLICT (code) DO NOTHING;
 INSERT INTO public.matches (home_team_id, away_team_id, kickoff_time, status) VALUES
 ('b097f00d-77e1-4d43-a999-39d06b255118', 'a4480164-1553-470b-bd57-87a43a51948f', '2026-06-11T12:00:00.000Z', 'pending'),
 ('a7d0b8ac-0709-485f-9291-c2362c1106b2', '41e38a9a-592f-452e-b821-bc0c46d8794d', '2026-06-11T16:00:00.000Z', 'pending'),
-('3443e076-09e1-4956-9e78-f8da3969d093', 'c9c9b9c8-c0fb-43bb-b6d9-14d11ef7c6f7', '2026-06-11T20:00:00.000Z', 'pending'),
+('3443e076-09e1-4956-9e78-f8da3969d093', 'c9c9b9c8-c0fb-43bb-b6d9-14d11ef7c6f7', '2026-06-12T19:00:00.000Z', 'pending'),
 ('18475c0b-8541-45e4-a374-f9aedb290785', 'ed789b9a-b0e4-45bc-900c-6169163fe5f2', '2026-06-12T00:00:00.000Z', 'pending'),
 ('2be78813-34f5-4a6c-a707-44112a33f6a9', '315c855c-a1ba-4a37-9f7c-2d5afada6a44', '2026-06-12T04:00:00.000Z', 'pending'),
 ('84abc3ea-3849-44f3-a4e0-42ba35171f5a', '43e0ee09-8aaf-4d93-bd84-ca3103865ab3', '2026-06-12T08:00:00.000Z', 'pending'),
