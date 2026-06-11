@@ -199,20 +199,20 @@ export default function HomePage() {
       <div className="md:hidden relative w-full mx-auto mb-8 z-50" style={{ maxWidth: '320px' }}>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-          className="btn btn-primary w-full flex justify-center items-center gap-2"
-          style={{ padding: '1rem', borderRadius: isMobileMenuOpen ? '20px 20px 0 0' : '50px', transition: 'border-radius 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}
+          className="btn btn-primary w-full flex justify-center items-center"
+          style={{ padding: '0.8rem 1rem', borderRadius: isMobileMenuOpen ? '20px 20px 0 0' : '50px', transition: 'border-radius 0.2s', boxShadow: '0 4px 20px rgba(0,0,0,0.4)', gap: '0.5rem' }}
         >
           <span style={{ fontSize: '1.2rem' }}>
             {activeTab === 'matches' ? '⚽' : activeTab === 'standings' ? '📊' : activeTab === 'leaderboard' ? '🏆' : activeTab === 'rules' ? '📖' : '👤'}
           </span>
-          <span className="font-bold text-lg uppercase tracking-wider">
+          <span className="font-bold uppercase tracking-wider" style={{ fontSize: '1rem' }}>
             {activeTab === 'matches' ? 'LỊCH THI ĐẤU' : activeTab === 'standings' ? 'BXH WORLD CUP' : activeTab === 'leaderboard' ? 'BXH NGƯỜI CHƠI' : activeTab === 'rules' ? 'HƯỚNG DẪN' : 'TÀI KHOẢN'}
           </span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-5 h-5 ml-2 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`}><path d="M19 9l-7 7-7-7"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '20px', height: '20px', marginLeft: '8px', transition: 'transform 0.2s', transform: isMobileMenuOpen ? 'rotate(180deg)' : 'none' }}><path d="M19 9l-7 7-7-7"/></svg>
         </button>
 
         {isMobileMenuOpen && (
-          <div className="absolute top-full left-0 w-full flex flex-col border border-white/10 shadow-2xl overflow-hidden animate-fade-in" style={{ background: 'rgba(22, 27, 34, 0.95)', backdropFilter: 'blur(10px)', borderRadius: '0 0 20px 20px', borderTop: 'none' }}>
+          <div className="absolute top-full left-0 w-full flex flex-col shadow-2xl overflow-hidden animate-fade-in" style={{ background: 'rgba(22, 27, 34, 0.98)', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none', borderRadius: '0 0 20px 20px' }}>
             {[
               { id: 'matches', icon: '⚽', label: 'LỊCH THI ĐẤU' },
               { id: 'standings', icon: '📊', label: 'BXH WORLD CUP' },
@@ -223,14 +223,18 @@ export default function HomePage() {
               <button 
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id as any); setIsMobileMenuOpen(false); }} 
-                className="p-4 w-full flex justify-center items-center gap-3 transition-all hover:bg-white/5"
+                className="flex justify-center items-center w-full hover-card"
                 style={{ 
+                  padding: '1rem',
+                  gap: '0.75rem',
                   borderBottom: idx < arr.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
                   background: activeTab === tab.id ? 'rgba(0, 210, 255, 0.15)' : 'transparent',
-                  color: activeTab === tab.id ? 'var(--primary)' : '#e5e7eb'
+                  color: activeTab === tab.id ? 'var(--primary)' : '#e5e7eb',
+                  cursor: 'pointer'
                 }}
               >
-                <span className="text-xl">{tab.icon}</span> <span className="font-bold text-md uppercase tracking-wider">{tab.label}</span>
+                <span style={{ fontSize: '1.25rem' }}>{tab.icon}</span> 
+                <span className="font-bold uppercase tracking-wider" style={{ fontSize: '0.95rem' }}>{tab.label}</span>
               </button>
             ))}
           </div>
