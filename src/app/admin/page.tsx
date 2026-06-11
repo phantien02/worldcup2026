@@ -244,7 +244,7 @@ export default function AdminPage() {
     return `${points} điểm`;
   };
 
-  const [filterRound, setFilterRound] = useState('Vòng Bảng');
+  const [filterRound, setFilterRound] = useState('Tất cả');
 
   const filteredMatches = matches.filter(m => {
     if (filterRound === 'Tất cả') return true;
