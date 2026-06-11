@@ -32,6 +32,7 @@ export default function AdminPage() {
   const [selectedMatchForPredictions, setSelectedMatchForPredictions] = useState<any>(null);
   const [matchPredictionsList, setMatchPredictionsList] = useState<any[]>([]);
   const [isPredictionsModalOpen, setIsPredictionsModalOpen] = useState(false);
+  const [loadingPredictions, setLoadingPredictions] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -203,7 +204,7 @@ export default function AdminPage() {
   const handleViewMatchPredictions = async (match: any) => {
     setSelectedMatchForPredictions(match);
     setIsPredictionsModalOpen(true);
-    setLoading(true);
+    setLoadingPredictions(true);
     const { data } = await supabase
       .from('predictions')
       .select('*')
@@ -224,7 +225,7 @@ export default function AdminPage() {
     });
 
     setMatchPredictionsList(combined);
-    setLoading(false);
+    setLoadingPredictions(false);
   };
 
   const getPredictionAnalysis = (points: number, isKnockout: boolean) => {
@@ -485,6 +486,7 @@ export default function AdminPage() {
                         )}
                         <div className="flex justify-center mt-3">
                           <button 
+                            type="button"
                             onClick={() => handleViewMatchPredictions(m)} 
                             className="btn btn-secondary flex items-center justify-center gap-2" 
                             style={{ padding: '6px 16px', fontSize: '13px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: '#e5e7eb', transition: 'all 0.2s' }}
@@ -673,7 +675,7 @@ export default function AdminPage() {
             </div>
             
             <div className="p-0 overflow-y-auto flex-1">
-              {loading ? (
+              {loadingPredictions ? (
                 <div className="p-10 text-center text-gray-400">Đang tải dữ liệu...</div>
               ) : (
                 <table className="w-full text-sm text-left">
