@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { signAdminToken } from '@/lib/jwt';
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +12,8 @@ export async function POST(request: Request) {
 
     // Set cookie on response
     const response = NextResponse.json({ success: true });
-    response.cookies.set('admin_token', 'authenticated', {
+    const jwtToken = await signAdminToken();
+    response.cookies.set('admin_token', jwtToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

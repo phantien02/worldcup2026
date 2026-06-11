@@ -2,12 +2,15 @@
 import { supabaseAdmin } from '@/lib/supabase-server';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { verifyAdminToken } from '@/lib/jwt';
 
 async function verifyAdmin() {
   const c = cookies() as any;
   const cookieStore = c.then ? await c : c;
   const token = cookieStore.get('admin_token')?.value;
   if (!token) throw new Error("Unauthorized: Cần quyền Admin để thực hiện hành động này!");
+  const isValid = await verifyAdminToken(token);
+  if (!isValid) throw new Error("Unauthorized: Token không hợp lệ hoặc đã hết hạn!");
 }
 
 
