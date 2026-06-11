@@ -267,11 +267,13 @@ export default function MatchPage() {
   return (
     <div className="flex flex-col gap-8 mt-8 pb-16 animate-fade-in" style={{ maxWidth: '1000px', margin: '2rem auto' }}>
       {/* Match Header */}
-      <div className="glass-panel" style={{ padding: '2rem', position: 'relative' }}>
-        <Link href="/" className="btn btn-secondary" style={{ position: 'absolute', top: '1.5rem', left: '1.5rem', padding: '0.5rem 1rem', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '1.2rem' }}>⬅</span> Quay lại
-        </Link>
-        <div className="text-center mb-6 mt-4">
+      <div className="glass-panel relative" style={{ padding: '1.5rem 1rem' }}>
+        <div className="mb-4 md:absolute md:top-6 md:left-6 z-10 flex justify-start">
+          <Link href="/" className="btn btn-secondary inline-flex items-center justify-center gap-2" style={{ padding: '0.4rem 0.8rem', borderRadius: '50px' }}>
+            <span style={{ fontSize: '1.1rem' }}>⬅</span> <span className="text-sm font-bold">QUAY LẠI</span>
+          </Link>
+        </div>
+        <div className="text-center mb-6 pt-2 md:pt-0">
           <div style={{ marginBottom: '0.5rem' }}>
             <span style={{ background: 'rgba(255,255,255,0.1)', padding: '6px 16px', borderRadius: '8px', fontWeight: 'bold', color: '#00d2ff', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               {(matchMapping as any)[`${home.name} vs ${away.name}`] || 'TRẬN ĐẤU'}
@@ -287,20 +289,20 @@ export default function MatchPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-2 items-center w-full mt-8">
-          <div className="flex flex-col items-center gap-2 md:gap-4" style={{ minWidth: 0 }}>
+        <div className="flex justify-between items-center w-full mt-6 px-1 md:px-8">
+          <div className="flex flex-col items-center gap-2 md:gap-4" style={{ flex: 1, minWidth: 0 }}>
             {home.flag ? <img src={home.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> : null}
             <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '60px', height: '45px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: home.flag ? 'none' : 'flex' }} hidden={home.flag ? true : undefined}>?</div>
             <span className="text-center font-bold text-sm md:text-2xl truncate w-full px-1">{home.name}</span>
           </div>
           
-          <div className="flex flex-col items-center justify-center">
-            <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '2.5rem' : '2rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
+          <div className="flex flex-col items-center justify-center" style={{ flexShrink: 0, padding: '0 0.5rem' }}>
+            <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '2.5rem' : '1.8rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
               {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : 'VS'}
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2 md:gap-4" style={{ minWidth: 0 }}>
+          <div className="flex flex-col items-center gap-2 md:gap-4" style={{ flex: 1, minWidth: 0 }}>
             {away.flag ? <img src={away.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> : null}
             <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '60px', height: '45px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: away.flag ? 'none' : 'flex' }} hidden={away.flag ? true : undefined}>?</div>
             <span className="text-center font-bold text-sm md:text-2xl truncate w-full px-1">{away.name}</span>
