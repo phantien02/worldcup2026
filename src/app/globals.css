@@ -231,3 +231,14 @@ input:focus, select:focus {
   background: rgba(35, 35, 40, 0.8);
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+@keyframes shine {
+  100% {
+    left: 200%;
+  }
+}
+
+.animate-shine {
+  left: -200%;
+  animation: shine 2.5s infinite linear;
+}
