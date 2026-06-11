@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/AuthProvider';
 import Link from 'next/link';
 import WorldCupStandings from '@/components/WorldCupStandings';
+import ProfileUpdateForm from '@/components/ProfileUpdateForm';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '../data/matchMapping.json';
 
@@ -35,7 +36,7 @@ export default function HomePage() {
   const [leaderboard, setLeaderboard] = useState<Profile[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'matches' | 'standings' | 'rules'>('matches');
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'matches' | 'standings' | 'rules' | 'profile'>('matches');
   const [filterRound, setFilterRound] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
 
@@ -45,7 +46,7 @@ export default function HomePage() {
         const { data: preds } = await supabase
           .from('predictions')
           .select('match_id')
-          .eq('user_id', user.id);
+          .eq('user_id', user!.id);
         if (preds) setMyPredictions(preds);
       }
       fetchPreds();
@@ -193,9 +194,28 @@ export default function HomePage() {
         >
           <span style={{ fontSize: '1.2rem' }}>📖</span> HƯỚNG DẪN
         </button>
+        <button 
+          onClick={() => setActiveTab('profile')} 
+          className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+          style={{ padding: '0.75rem 1.5rem', fontSize: '1.05rem', borderRadius: '50px' }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>👤</span> TÀI KHOẢN
+        </button>
       </div>
 
       <div className="flex justify-center px-4 md:px-0">
+        {/* Profile Tab */}
+        {activeTab === 'profile' && (
+          <div className="w-full max-w-2xl flex flex-col gap-6 animate-fade-in">
+            <div className="glass-panel" style={{ padding: '2rem' }}>
+              <h2 className="text-2xl font-bold uppercase tracking-wider mb-6 flex items-center gap-2">
+                <span style={{ color: 'var(--accent)' }}>●</span> Cập Nhật Thông Tin
+              </h2>
+              <ProfileUpdateForm user={user} />
+            </div>
+          </div>
+        )}
+
         {/* Standings Tab */}
         {activeTab === 'standings' && (
           <div className="w-full max-w-5xl flex flex-col gap-6">
