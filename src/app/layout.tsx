@@ -21,8 +21,8 @@ export default function RootLayout({
     <html lang="vi">
       <body>
         <BackgroundChanger />
-        <BackgroundMusic />
         <AuthProvider>
+          <BackgroundMusic />
           <Navigation />
 
           <main className="container animate-fade-in">
