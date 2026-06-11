@@ -155,8 +155,48 @@ export default function HomePage() {
       })()}
 
       {/* Tabs Navigation */}
-      {/* Dropdown Navigation Menu */}
-      <div className="relative w-full max-w-[320px] md:max-w-[400px] mx-auto mb-8 z-50">
+      
+      {/* Desktop Tabs Navigation (Hidden on Mobile) */}
+      <div className="hidden md:flex flex-wrap justify-center gap-4 animate-fade-in w-full mb-8" style={{ animationDelay: '0.1s' }}>
+        <button 
+          onClick={() => setActiveTab('matches')} 
+          className={`btn ${activeTab === 'matches' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+          style={{ borderRadius: '50px', padding: '0.8rem 1.5rem' }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>⚽</span> LỊCH THI ĐẤU
+        </button>
+        <button 
+          onClick={() => setActiveTab('standings')} 
+          className={`btn ${activeTab === 'standings' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+          style={{ borderRadius: '50px', padding: '0.8rem 1.5rem' }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>📊</span> BXH WORLD CUP
+        </button>
+        <button 
+          onClick={() => setActiveTab('leaderboard')} 
+          className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+          style={{ borderRadius: '50px', padding: '0.8rem 1.5rem' }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>🏆</span> BXH NGƯỜI CHƠI
+        </button>
+        <button 
+          onClick={() => setActiveTab('rules')} 
+          className={`btn ${activeTab === 'rules' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+          style={{ borderRadius: '50px', padding: '0.8rem 1.5rem' }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>📖</span> HƯỚNG DẪN
+        </button>
+        <button 
+          onClick={() => setActiveTab('profile')} 
+          className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+          style={{ borderRadius: '50px', padding: '0.8rem 1.5rem' }}
+        >
+          <span style={{ fontSize: '1.2rem' }}>👤</span> TÀI KHOẢN
+        </button>
+      </div>
+
+      {/* Mobile Dropdown Navigation Menu (Hidden on Desktop) */}
+      <div className="md:hidden relative w-full max-w-[320px] mx-auto mb-8 z-50">
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
           className="btn btn-primary w-full flex justify-center items-center gap-2"
