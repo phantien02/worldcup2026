@@ -664,7 +664,9 @@ export default function AdminPage() {
           <div className="glass-panel animate-scale-in" style={{ width: '100%', maxWidth: '900px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', padding: 0, border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: 'rgba(0,0,0,0.4)' }}>
               <div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white', marginBottom: '0.25rem' }}>Thông tin dự đoán của người chơi</h3>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white', marginBottom: '0.25rem' }}>
+                  Thông tin dự đoán của người chơi <span style={{ fontSize: '0.875rem', color: '#a3a3a3', fontWeight: 'normal', marginLeft: '0.5rem' }}>({matchPredictionsList.filter(i => i.prediction).length}/{matchPredictionsList.length} người đã dự đoán)</span>
+                </h3>
                 <p style={{ fontSize: '0.875rem', color: '#a3a3a3', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{selectedMatchForPredictions.round}</span>
                   <span>|</span>
@@ -675,11 +677,11 @@ export default function AdminPage() {
                 <button 
                   onClick={() => {
                     const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + 
-                      "Người chơi,Email,Kết quả chọn,Dự đoán tỷ số/Hình thức,Điểm số,Phân tích\n" + 
-                      matchPredictionsList.map(item => {
+                      "STT,Người chơi,Email,Thời gian dự đoán,Kết quả chọn,Dự đoán tỷ số/Hình thức,Điểm số,Phân tích\n" + 
+                      matchPredictionsList.map((item, index) => {
                         const isKnockout = selectedMatchForPredictions.round && !selectedMatchForPredictions.round.startsWith('Bảng') && selectedMatchForPredictions.round !== 'Vòng Bảng';
                         const p = item.prediction;
-                        if (!p) return `"${item.user.display_name}","${item.user.email}","Chưa dự đoán","-","-","-"`;
+                        if (!p) return `"${index + 1}","${item.user.display_name}","${item.user.email}","-","Chưa dự đoán","-","-","-"`;
                         let voteResult = "";
                         let predDetails = "";
                         if (isKnockout) {
@@ -693,7 +695,8 @@ export default function AdminPage() {
                         }
                         const pts = p.points_earned || 0;
                         const analysis = selectedMatchForPredictions.status !== 'finished' ? "-" : getPredictionAnalysis(pts, isKnockout);
-                        return `"${item.user.display_name}","${item.user.email}","${voteResult}","${predDetails}","${pts}","${analysis}"`;
+                        const timeStr = p.updated_at ? new Date(p.updated_at).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-';
+                        return `"${index + 1}","${item.user.display_name}","${item.user.email}","${timeStr}","${voteResult}","${predDetails}","${pts}","${analysis}"`;
                       }).join("\n");
                     const encodedUri = encodeURI(csvContent);
                     const link = document.createElement("a");
@@ -723,7 +726,9 @@ export default function AdminPage() {
                 <table style={{ width: '100%', fontSize: '0.875rem', textAlign: 'left', borderCollapse: 'collapse' }}>
                   <thead style={{ fontSize: '0.75rem', textTransform: 'uppercase', backgroundColor: 'rgba(0,0,0,0.6)', color: '#a3a3a3', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
                     <tr>
+                      <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)', width: '60px', textAlign: 'center' }}>STT</th>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Người chơi</th>
+                      <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Thời gian dự đoán</th>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Kết quả chọn</th>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Dự đoán</th>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Điểm số</th>
@@ -737,9 +742,13 @@ export default function AdminPage() {
                       
                       return (
                         <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background-color 0.2s', backgroundColor: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                          <td style={{ padding: '1rem 1.5rem', textAlign: 'center', color: '#6b7280', fontWeight: 'bold' }}>{index + 1}</td>
                           <td style={{ padding: '1rem 1.5rem' }}>
                             <div style={{ fontWeight: 'bold', color: 'white', fontSize: '1rem' }}>{item.user.display_name || item.user.email?.split('@')[0]}</div>
                             <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>{item.user.email}</div>
+                          </td>
+                          <td style={{ padding: '1rem 1.5rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+                            {p && p.updated_at ? new Date(p.updated_at).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'}
                           </td>
                           <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                             {!p ? (
