@@ -37,6 +37,7 @@ export default function HomePage() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'matches' | 'standings' | 'rules' | 'profile'>('matches');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filterRound, setFilterRound] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
 
@@ -154,42 +155,78 @@ export default function HomePage() {
       })()}
 
       {/* Tabs Navigation */}
-      <div className="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3 md:gap-4 animate-fade-in overflow-x-auto no-scrollbar pb-2 px-1" style={{ animationDelay: '0.1s' }}>
+      {/* Desktop Tabs Navigation */}
+      <div className="hidden md:flex flex-wrap justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
         <button 
           onClick={() => setActiveTab('matches')} 
-          className={`btn ${activeTab === 'matches' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          className={`btn ${activeTab === 'matches' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
           style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>⚽</span> LỊCH THI ĐẤU
         </button>
         <button 
           onClick={() => setActiveTab('standings')} 
-          className={`btn ${activeTab === 'standings' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          className={`btn ${activeTab === 'standings' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
           style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>📊</span> BXH WORLD CUP
         </button>
         <button 
           onClick={() => setActiveTab('leaderboard')} 
-          className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
           style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>🏆</span> BXH NGƯỜI CHƠI
         </button>
         <button 
           onClick={() => setActiveTab('rules')} 
-          className={`btn ${activeTab === 'rules' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          className={`btn ${activeTab === 'rules' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
           style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>📖</span> HƯỚNG DẪN
         </button>
         <button 
           onClick={() => setActiveTab('profile')} 
-          className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2 flex-shrink-0 whitespace-nowrap`}
+          className={`btn ${activeTab === 'profile' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
           style={{ borderRadius: '50px' }}
         >
           <span style={{ fontSize: '1.2rem' }}>👤</span> TÀI KHOẢN
         </button>
+      </div>
+
+      {/* Mobile Hamburger Navigation */}
+      <div className="md:hidden w-full px-4 mb-2 relative z-20 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+          className="flex items-center gap-3 p-4 rounded-xl border border-white/10 w-full transition-all"
+          style={{ background: 'rgba(255,255,255,0.05)' }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-white"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          <span className="font-bold text-lg flex-1 text-left uppercase" style={{ color: 'var(--primary)', letterSpacing: '0.05em' }}>
+            {activeTab === 'matches' ? 'Lịch Thi Đấu' : activeTab === 'standings' ? 'BXH World Cup' : activeTab === 'leaderboard' ? 'BXH Người Chơi' : activeTab === 'rules' ? 'Hướng Dẫn' : 'Tài Khoản'}
+          </span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-5 h-5 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`}><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-4 right-4 mt-2 border border-white/10 rounded-xl shadow-2xl overflow-hidden flex flex-col animate-fade-in" style={{ background: '#161b22', zIndex: 50 }}>
+            <button onClick={() => { setActiveTab('matches'); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 p-4 transition-all hover:bg-white/5" style={{ background: activeTab === 'matches' ? 'rgba(0, 210, 255, 0.1)' : 'transparent', color: activeTab === 'matches' ? 'var(--primary)' : '#d1d5db' }}>
+              <span className="text-2xl">⚽</span> <span className="font-bold text-lg">Lịch thi đấu</span>
+            </button>
+            <button onClick={() => { setActiveTab('standings'); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 p-4 transition-all hover:bg-white/5 border-t border-white/5" style={{ background: activeTab === 'standings' ? 'rgba(0, 210, 255, 0.1)' : 'transparent', color: activeTab === 'standings' ? 'var(--primary)' : '#d1d5db' }}>
+              <span className="text-2xl">📊</span> <span className="font-bold text-lg">BXH World Cup</span>
+            </button>
+            <button onClick={() => { setActiveTab('leaderboard'); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 p-4 transition-all hover:bg-white/5 border-t border-white/5" style={{ background: activeTab === 'leaderboard' ? 'rgba(0, 210, 255, 0.1)' : 'transparent', color: activeTab === 'leaderboard' ? 'var(--primary)' : '#d1d5db' }}>
+              <span className="text-2xl">🏆</span> <span className="font-bold text-lg">BXH Người chơi</span>
+            </button>
+            <button onClick={() => { setActiveTab('rules'); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 p-4 transition-all hover:bg-white/5 border-t border-white/5" style={{ background: activeTab === 'rules' ? 'rgba(0, 210, 255, 0.1)' : 'transparent', color: activeTab === 'rules' ? 'var(--primary)' : '#d1d5db' }}>
+              <span className="text-2xl">📖</span> <span className="font-bold text-lg">Hướng dẫn</span>
+            </button>
+            <button onClick={() => { setActiveTab('profile'); setIsMobileMenuOpen(false); }} className="flex items-center gap-4 p-4 transition-all hover:bg-white/5 border-t border-white/5" style={{ background: activeTab === 'profile' ? 'rgba(0, 210, 255, 0.1)' : 'transparent', color: activeTab === 'profile' ? 'var(--primary)' : '#d1d5db' }}>
+              <span className="text-2xl">👤</span> <span className="font-bold text-lg">Tài khoản</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center px-4 md:px-0">
