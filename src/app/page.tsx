@@ -64,7 +64,7 @@ export default function HomePage() {
         .select('*')
         .order('total_points', { ascending: false });
 
-      if (profiles) setLeaderboard(profiles);
+      if (profiles) setLeaderboard((profiles as Profile[]).filter(p => p.display_name !== 'guest'));
 
       // Fetch matches
       const { data: matchesData } = await supabase

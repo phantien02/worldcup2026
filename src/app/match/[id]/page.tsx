@@ -95,7 +95,8 @@ export default function MatchPage() {
         .eq('match_id', id);
 
       if (predsData) {
-        setPredictions(predsData as any);
+        const validPreds = (predsData as any[]).filter(p => p.profiles?.display_name !== 'guest');
+        setPredictions(validPreds);
         if (user) {
           const mine = predsData.find(p => p.user_id === user.id);
           if (mine) {

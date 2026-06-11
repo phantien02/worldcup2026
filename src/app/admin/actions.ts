@@ -181,7 +181,7 @@ export async function resetUserPassword(requestId: string, username: string, new
 export async function getAllUsers() {
   await verifyAdmin();
   const { data } = await supabaseAdmin.from('profiles').select('id, display_name, total_points, created_at').order('display_name');
-  return data || [];
+  return (data || []).filter(u => u.display_name !== 'guest');
 }
 
 export async function deleteUserAccount(userId: string) {
