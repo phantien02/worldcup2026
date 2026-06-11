@@ -671,12 +671,50 @@ export default function AdminPage() {
                   <span style={{ color: 'white', fontWeight: 'bold' }}>{selectedMatchForPredictions.home_team?.name} vs {selectedMatchForPredictions.away_team?.name}</span>
                 </p>
               </div>
-              <button 
-                onClick={() => setIsPredictionsModalOpen(false)}
-                style={{ background: 'transparent', border: 'none', color: '#a3a3a3', fontSize: '1.25rem', fontWeight: 'bold', cursor: 'pointer', padding: '0.5rem' }}
-              >
-                ✕
-              </button>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <button 
+                  onClick={() => {
+                    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + 
+                      "Người chơi,Email,Kết quả chọn,Dự đoán tỷ số/Hình thức,Điểm số,Phân tích\n" + 
+                      matchPredictionsList.map(item => {
+                        const isKnockout = selectedMatchForPredictions.round && !selectedMatchForPredictions.round.startsWith('Bảng') && selectedMatchForPredictions.round !== 'Vòng Bảng';
+                        const p = item.prediction;
+                        if (!p) return `"${item.user.display_name}","${item.user.email}","Chưa dự đoán","-","-","-"`;
+                        let voteResult = "";
+                        let predDetails = "";
+                        if (isKnockout) {
+                          voteResult = p.prediction_result;
+                          predDetails = p.prediction_method === '90_mins' ? "90'" : p.prediction_method === 'extra_time' ? "120'" : "Pen";
+                        } else {
+                          if (p.home_score > p.away_score) voteResult = `${selectedMatchForPredictions.home_team?.name} thắng`;
+                          else if (p.home_score < p.away_score) voteResult = `${selectedMatchForPredictions.away_team?.name} thắng`;
+                          else voteResult = "Hòa";
+                          predDetails = `${p.home_score} - ${p.away_score}`;
+                        }
+                        const pts = p.points_earned || 0;
+                        const analysis = selectedMatchForPredictions.status !== 'finished' ? "-" : getPredictionAnalysis(pts, isKnockout);
+                        return `"${item.user.display_name}","${item.user.email}","${voteResult}","${predDetails}","${pts}","${analysis}"`;
+                      }).join("\n");
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `predictions_${selectedMatchForPredictions.home_team?.name}_vs_${selectedMatchForPredictions.away_team?.name}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+                >
+                  📥 XUẤT CSV
+                </button>
+                <button 
+                  onClick={() => setIsPredictionsModalOpen(false)}
+                  style={{ background: 'transparent', border: 'none', color: '#a3a3a3', fontSize: '1.25rem', fontWeight: 'bold', cursor: 'pointer', padding: '0.5rem' }}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
             <div style={{ padding: 0, overflowY: 'auto', flex: 1 }}>
               {loadingPredictions ? (
@@ -686,6 +724,7 @@ export default function AdminPage() {
                   <thead style={{ fontSize: '0.75rem', textTransform: 'uppercase', backgroundColor: 'rgba(0,0,0,0.6)', color: '#a3a3a3', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
                     <tr>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Người chơi</th>
+                      <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Kết quả chọn</th>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Dự đoán</th>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Điểm số</th>
                       <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Phân tích</th>
@@ -701,6 +740,17 @@ export default function AdminPage() {
                           <td style={{ padding: '1rem 1.5rem' }}>
                             <div style={{ fontWeight: 'bold', color: 'white', fontSize: '1rem' }}>{item.user.display_name || item.user.email?.split('@')[0]}</div>
                             <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>{item.user.email}</div>
+                          </td>
+                          <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
+                            {!p ? (
+                              <span style={{ color: '#4b5563', fontStyle: 'italic' }}>-</span>
+                            ) : isKnockout ? (
+                              <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>{p.prediction_result}</span>
+                            ) : (
+                              <span style={{ color: p.home_score > p.away_score ? '#00d2ff' : p.home_score < p.away_score ? '#ff004c' : '#ffcc00', fontWeight: 'bold' }}>
+                                {p.home_score > p.away_score ? `${selectedMatchForPredictions.home_team?.name} thắng` : p.home_score < p.away_score ? `${selectedMatchForPredictions.away_team?.name} thắng` : 'Hòa'}
+                              </span>
+                            )}
                           </td>
                           <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                             {!p ? (
