@@ -52,6 +52,45 @@ export default function LoginPage() {
     }
   };
 
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    
+    const guestEmail = 'guest@wc2026.local';
+    const guestPassword = 'Guest_Password_123!';
+
+    let { error } = await supabase.auth.signInWithPassword({
+      email: guestEmail,
+      password: guestPassword,
+    });
+
+    if (error && error.message === 'Invalid login credentials') {
+      try {
+        const { registerUserAdmin } = await import('../register/actions');
+        await registerUserAdmin('guest', guestPassword);
+        
+        const fallback = await supabase.auth.signInWithPassword({
+          email: guestEmail,
+          password: guestPassword,
+        });
+        if (fallback.error) throw fallback.error;
+        error = null;
+      } catch (err: any) {
+        setError('Lỗi tạo tài khoản Khách: ' + err.message);
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      router.push('/');
+    }
+  };
+
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim()) {
@@ -142,6 +181,25 @@ export default function LoginPage() {
               {loading ? 'Đang xử lý...' : 'ĐĂNG NHẬP'}
             </button>
           </form>
+        )}
+
+        {!isForgotPassword && (
+          <>
+            <div className="flex items-center my-6">
+              <div className="flex-1 border-t border-gray-600"></div>
+              <span className="px-4 text-sm text-gray-400">HOẶC</span>
+              <div className="flex-1 border-t border-gray-600"></div>
+            </div>
+            <button 
+              type="button" 
+              onClick={handleGuestLogin}
+              className="btn btn-secondary w-full" 
+              disabled={loading}
+              style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              🎭 TRẢI NGHIỆM TƯ CÁCH KHÁCH
+            </button>
+          </>
         )}
 
         {!isForgotPassword && (

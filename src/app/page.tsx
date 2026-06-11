@@ -33,6 +33,8 @@ type Match = {
 
 export default function HomePage() {
   const { user } = useAuth();
+  const isGuest = user?.email === 'guest@wc2026.local';
+  
   const [leaderboard, setLeaderboard] = useState<Profile[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,7 @@ export default function HomePage() {
           Dự Đoán World Cup 2026
         </h1>
         <p style={{ fontSize: '1.1rem', color: '#a3a3a3', maxWidth: '600px', margin: '0 auto' }}>
-          Chào mừng trở lại, <span style={{ color: '#fff', fontWeight: 'bold' }}>{user.user_metadata?.display_name}</span>! Hãy bắt đầu dự đoán các trận đấu bên dưới.
+          Chào mừng trở lại, <span style={{ color: '#fff', fontWeight: 'bold' }}>{isGuest ? 'Khách Tham Quan' : user.user_metadata?.display_name}</span>! Hãy bắt đầu dự đoán các trận đấu bên dưới.
         </p>
       </div>
 
@@ -172,13 +174,15 @@ export default function HomePage() {
         >
           <span style={{ fontSize: '1.2rem' }}>📊</span> BXH WORLD CUP
         </button>
-        <button 
-          onClick={() => setActiveTab('leaderboard')} 
-          className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
-          style={{ borderRadius: '50px', padding: '0.8rem 1.5rem' }}
-        >
-          <span style={{ fontSize: '1.2rem' }}>🏆</span> BXH NGƯỜI CHƠI
-        </button>
+        {!isGuest && (
+          <button 
+            onClick={() => setActiveTab('leaderboard')} 
+            className={`btn ${activeTab === 'leaderboard' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
+            style={{ borderRadius: '50px', padding: '0.8rem 1.5rem' }}
+          >
+            <span style={{ fontSize: '1.2rem' }}>🏆</span> BXH NGƯỜI CHƠI
+          </button>
+        )}
         <button 
           onClick={() => setActiveTab('rules')} 
           className={`btn ${activeTab === 'rules' ? 'btn-primary' : 'btn-secondary'} flex items-center gap-2`}
@@ -219,7 +223,7 @@ export default function HomePage() {
               { id: 'leaderboard', icon: '🏆', label: 'BXH NGƯỜI CHƠI' },
               { id: 'rules', icon: '📖', label: 'HƯỚNG DẪN' },
               { id: 'profile', icon: '👤', label: 'TÀI KHOẢN' }
-            ].map((tab, idx, arr) => (
+            ].filter(t => !isGuest || t.id !== 'leaderboard').map((tab, idx, arr) => (
               <button 
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id as any); setIsMobileMenuOpen(false); }} 

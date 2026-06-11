@@ -128,10 +128,16 @@ export default function MatchPage() {
   const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Chung kết'];
   const isKnockout = match ? knockoutRounds.includes(match.round || '') : false;
 
+  const isGuest = user?.email === 'guest@wc2026.local';
+
   const handleSavePrediction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       setMessage({ text: 'Bạn cần đăng nhập để dự đoán!', type: 'danger' });
+      return;
+    }
+    if (isGuest) {
+      setMessage({ text: 'Đây là tài khoản Khách. Vui lòng đăng ký tài khoản thật để lưu dự đoán của bạn nhé!', type: 'danger' });
       return;
     }
     if (isLocked) {

@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export default function ProfileUpdateForm({ user }: { user: any }) {
-  const [displayName, setDisplayName] = useState(user.user_metadata?.display_name || '');
+  const isGuest = user?.email === 'guest@wc2026.local';
+  const [displayName, setDisplayName] = useState(isGuest ? 'Khách Tham Quan' : (user.user_metadata?.display_name || ''));
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,6 +17,12 @@ export default function ProfileUpdateForm({ user }: { user: any }) {
     e.preventDefault();
     setLoading(true);
     setMessage({ text: '', type: '' });
+
+    if (isGuest) {
+      setMessage({ text: 'Tài khoản Khách dùng chung không được phép thay đổi thông tin.', type: 'danger' });
+      setLoading(false);
+      return;
+    }
 
     try {
       // 1. Cập nhật Tên hiển thị
@@ -87,6 +94,7 @@ export default function ProfileUpdateForm({ user }: { user: any }) {
           type="text" 
           value={displayName} 
           onChange={(e) => setDisplayName(e.target.value)}
+          disabled={isGuest}
           className="bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
           placeholder="Nhập tên hiển thị mới"
         />
@@ -103,6 +111,7 @@ export default function ProfileUpdateForm({ user }: { user: any }) {
           type="password" 
           value={currentPassword} 
           onChange={(e) => setCurrentPassword(e.target.value)}
+          disabled={isGuest}
           className="bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
           placeholder="Nhập mật khẩu hiện tại"
         />
@@ -114,6 +123,7 @@ export default function ProfileUpdateForm({ user }: { user: any }) {
           type="password" 
           value={newPassword} 
           onChange={(e) => setNewPassword(e.target.value)}
+          disabled={isGuest}
           className="bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
           placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)"
         />
@@ -125,6 +135,7 @@ export default function ProfileUpdateForm({ user }: { user: any }) {
           type="password" 
           value={confirmPassword} 
           onChange={(e) => setConfirmPassword(e.target.value)}
+          disabled={isGuest}
           className="bg-black/50 border border-gray-700 rounded-lg p-3 text-white focus:border-purple-500 focus:outline-none transition-colors"
           placeholder="Nhập lại mật khẩu mới"
         />
