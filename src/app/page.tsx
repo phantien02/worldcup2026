@@ -571,9 +571,9 @@ export default function HomePage() {
                           </span>
                         </div>
 
-                    <div className="grid grid-cols-3 gap-2 items-center w-full">
+                    <div className="flex justify-between items-center w-full px-1 md:px-6">
                       {/* Home Team */}
-                      <div className="flex flex-col items-center gap-2" style={{ minWidth: 0 }}>
+                      <div className="flex flex-col items-center gap-2" style={{ flex: 1, minWidth: 0 }}>
                         {home.flag ? 
                           <img src={home.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
                           : null
@@ -583,7 +583,7 @@ export default function HomePage() {
                       </div>
                       
                       {/* Score / VS */}
-                      <div className="flex flex-col items-center justify-center">
+                      <div className="flex flex-col items-center justify-center" style={{ flexShrink: 0, padding: '0 0.5rem' }}>
                         <div className="text-center" style={{ 
                           fontSize: match.status !== 'pending' ? '2.2rem' : '1.8rem', 
                           fontWeight: '900', 
@@ -602,7 +602,7 @@ export default function HomePage() {
                       </div>
 
                       {/* Away Team */}
-                      <div className="flex flex-col items-center gap-2" style={{ minWidth: 0 }}>
+                      <div className="flex flex-col items-center gap-2" style={{ flex: 1, minWidth: 0 }}>
                         {away.flag ? 
                           <img src={away.flag} className="flag-icon" style={{ width: '60px', height: '45px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
                           : null
