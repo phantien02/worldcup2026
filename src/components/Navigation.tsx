@@ -1,13 +1,32 @@
 "use client";
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from './AuthProvider';
 import { usePathname } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
 export default function Navigation() {
   const { user, signOut } = useAuth();
   const pathname = usePathname();
-  
   const isAdminPage = pathname?.startsWith('/admin');
+  const [points, setPoints] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (user && !isAdminPage) {
+      if (user.email === 'guest@wc2026.local') {
+        setPoints(999);
+      } else {
+        supabase
+          .from('profiles')
+          .select('total_points')
+          .eq('id', user.id)
+          .single()
+          .then(({ data }) => {
+            if (data) setPoints(data.total_points);
+          });
+      }
+    }
+  }, [user, isAdminPage]);
 
   return (
     <header className="header">
@@ -33,10 +52,17 @@ export default function Navigation() {
             )}
           </>
         ) : user ? (
-          <>
-            <span style={{ fontWeight: 600 }}>{user.user_metadata?.display_name || user.email}</span>
-            <button onClick={signOut} className="btn btn-danger">Đăng xuất</button>
-          </>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end leading-tight">
+              <span style={{ fontWeight: 600 }}>{user.email === 'guest@wc2026.local' ? 'Khách Tham Quan' : (user.user_metadata?.display_name || user.email)}</span>
+              {points !== null && (
+                <span style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 'bold' }}>
+                  {points} điểm
+                </span>
+              )}
+            </div>
+            <button onClick={signOut} className="btn btn-danger" style={{ padding: '0.4rem 1rem' }}>Đăng xuất</button>
+          </div>
         ) : (
           <Link href="/login" className="btn btn-primary">Đăng nhập</Link>
         )}
