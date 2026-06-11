@@ -270,3 +270,13 @@ input:focus, select:focus {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Responsive Utilities added for Tabs */
+.hidden { display: none !important; }
+.w-full { width: 100%; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+@media (min-width: 768px) {
+  .md\:hidden { display: none !important; }
+  .md\:flex { display: flex !important; }
+}

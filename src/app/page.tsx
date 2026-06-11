@@ -196,7 +196,7 @@ export default function HomePage() {
       </div>
 
       {/* Mobile Dropdown Navigation Menu (Hidden on Desktop) */}
-      <div className="md:hidden relative w-full max-w-[320px] mx-auto mb-8 z-50">
+      <div className="md:hidden relative w-full mx-auto mb-8 z-50" style={{ maxWidth: '320px' }}>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
           className="btn btn-primary w-full flex justify-center items-center gap-2"
