@@ -92,77 +92,110 @@ const SONGS = [
   }
 ];
 
+import { useAuth } from '@/components/AuthProvider';
+
+// Thuật toán xáo trộn mảng Fisher-Yates
+function shuffleArray(array: number[]) {
+  const newArr = [...array];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+}
+
+function generateQueue(lastSongIndex: number = -1) {
+  const indices = Array.from({ length: SONGS.length }, (_, i) => i);
+  let shuffled = shuffleArray(indices);
+  // Đảm bảo bài hát đầu tiên của danh sách mới không trùng với bài hát cuối cùng vừa phát
+  if (lastSongIndex !== -1 && shuffled[0] === lastSongIndex && SONGS.length > 1) {
+    [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+  }
+  return shuffled;
+}
+
 export default function BackgroundMusic() {
+  const { user, loading } = useAuth();
+  
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [currentSong, setCurrentSong] = useState(SONGS[0]);
   const [showPopup, setShowPopup] = useState(false);
+  
+  const [queue, setQueue] = useState<number[]>([]);
+  const [queueIndex, setQueueIndex] = useState(0);
+  
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Khởi tạo bài hát ngẫu nhiên khi vào trang
+  // Khởi tạo danh sách phát xáo trộn
   useEffect(() => {
-    const randomSong = SONGS[Math.floor(Math.random() * SONGS.length)];
-    setCurrentSong(randomSong);
-    
-    // Thử auto-play. Trình duyệt có thể chặn autoplay nếu người dùng chưa tương tác
-    const tryAutoplay = async () => {
-      if (audioRef.current) {
-        try {
-          await audioRef.current.play();
-          setIsPlaying(true);
-          setShowPopup(true);
-        } catch (err) {
-          // Bị chặn autoplay -> Đợi người dùng click bất kỳ đâu để bật nhạc
-          const handleInteraction = () => {
-            if (audioRef.current) {
-              audioRef.current.play().then(() => {
-                setIsPlaying(true);
-                setShowPopup(true);
-                document.removeEventListener('click', handleInteraction);
-              }).catch(() => {});
-            }
-          };
-          document.addEventListener('click', handleInteraction);
-          return () => document.removeEventListener('click', handleInteraction);
-        }
-      }
-    };
-    
-    tryAutoplay();
+    setQueue(generateQueue(-1));
   }, []);
 
-  // Phát bài tiếp theo ngẫu nhiên khi bài hiện tại kết thúc
-  const playNextRandom = () => {
-    const randomSong = SONGS[Math.floor(Math.random() * SONGS.length)];
-    setCurrentSong(randomSong);
-    setShowPopup(false);
-    
-    setTimeout(() => {
-      if (audioRef.current) {
+  // Mỗi khi chuyển bài (queueIndex thay đổi), gọi lệnh play()
+  useEffect(() => {
+    if (audioRef.current && queue.length > 0) {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+        setShowPopup(true);
+      }).catch(() => {
+        // Bị trình duyệt chặn Autoplay
+        setIsPlaying(false);
+      });
+    }
+  }, [queueIndex, queue]);
+
+  // Global listener để tự động bật nhạc ngay khi người dùng thao tác vào web (nếu bị chặn autoplay)
+  useEffect(() => {
+    if (isPlaying || isMuted || queue.length === 0) return;
+
+    const unlockAudio = () => {
+      if (audioRef.current && !isMuted) {
         audioRef.current.play().then(() => {
           setIsPlaying(true);
           setShowPopup(true);
         }).catch(() => {});
       }
+    };
+    
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('keydown', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio);
+    document.addEventListener('scroll', unlockAudio);
+    
+    return () => {
+      document.removeEventListener('click', unlockAudio);
+      document.removeEventListener('keydown', unlockAudio);
+      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('scroll', unlockAudio);
+    };
+  }, [isPlaying, isMuted, queue]);
+
+  const playNext = () => {
+    setShowPopup(false);
+    setTimeout(() => {
+      if (queueIndex < queue.length - 1) {
+        setQueueIndex(prev => prev + 1);
+      } else {
+        // Hết danh sách -> Tạo danh sách xáo trộn mới
+        setQueue(generateQueue(queue[queue.length - 1]));
+        setQueueIndex(0);
+      }
     }, 100);
   };
 
-  // Toggle Mute
   const toggleMute = () => {
     if (audioRef.current) {
       if (!isPlaying) {
-        // Nếu bị chặn autoplay từ đầu, bấm nút sẽ bắt đầu phát
         audioRef.current.play().then(() => {
           setIsPlaying(true);
           if (!showPopup) setShowPopup(true);
-        });
+        }).catch(() => {});
       }
       audioRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
   };
 
-  // Ẩn pop-up sau 5 giây
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     if (showPopup) {
@@ -171,16 +204,20 @@ export default function BackgroundMusic() {
     return () => clearTimeout(timeout);
   }, [showPopup]);
 
+  // CHỈ HIỂN THỊ NÚT VÀ PHÁT NHẠC KHI NGƯỜI DÙNG ĐÃ ĐĂNG NHẬP
+  if (loading || !user || queue.length === 0) return null;
+
+  const currentSong = SONGS[queue[queueIndex]];
+
   return (
     <>
       <audio 
         ref={audioRef} 
         src={currentSong.url} 
-        onEnded={playNextRandom} 
+        onEnded={playNext} 
         preload="auto"
       />
 
-      {/* Nút Bật/Tắt Nhạc (Góc dưới bên trái) */}
       <button
         onClick={toggleMute}
         className="hover-card"
@@ -206,7 +243,6 @@ export default function BackgroundMusic() {
         {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
       </button>
 
-      {/* Pop-up hiển thị tên bài hát (Trên cùng ở giữa) */}
       <div 
         style={{
           position: 'fixed',
