@@ -429,7 +429,7 @@ export default function HomePage() {
                   filteredMatches.map((match) => {
                     const globalIndex = matches.findIndex(m => m.id === match.id) + 1;
                     
-                    const isPlaceholderName = (name: string) => /^(nhất|nhì|ba|thắng|thua)\s/i.test(name);
+                    const isPlaceholderName = (name: string) => /^(nhất|nhì|ba|thứ\s*3|thắng|thua)\s/i.test(name);
                     const renderTeamInfo = (teamData: any) => {
                       if (!teamData) return { name: 'TBD', flag: null };
                       const resolved = resolvePlaceholderTeam(teamData.name, matches);
@@ -470,7 +470,7 @@ export default function HomePage() {
                       {/* Home Team */}
                       <div className="flex flex-col items-center gap-3" style={{ flex: 1 }}>
                         {home.flag ? 
-                          <img src={home.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); }} /> 
+                          <img src={home.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
                           : null
                         }
                         <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: home.flag ? 'none' : 'flex' }} hidden={home.flag ? true : undefined}>?</div>
@@ -499,7 +499,7 @@ export default function HomePage() {
                       {/* Away Team */}
                       <div className="flex flex-col items-center gap-3" style={{ flex: 1 }}>
                         {away.flag ? 
-                          <img src={away.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); }} /> 
+                          <img src={away.flag} className="flag-icon" style={{ width: '80px', height: '60px', objectFit: 'cover' }} onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling!.removeAttribute('hidden'); (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} /> 
                           : null
                         }
                         <div className="flag-icon flex items-center justify-center text-gray-400 font-bold" style={{ width: '80px', height: '60px', background: 'rgba(255,255,255,0.05)', fontSize: '1.5rem', display: away.flag ? 'none' : 'flex' }} hidden={away.flag ? true : undefined}>?</div>
