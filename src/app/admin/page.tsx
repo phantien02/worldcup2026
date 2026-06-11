@@ -252,12 +252,24 @@ export default function AdminPage() {
     return m.round === filterRound;
   });
 
-  const groupedMatches = filteredMatches.reduce((acc, m) => {
-    const roundName = m.round || 'Vòng Bảng';
-    if (!acc[roundName]) acc[roundName] = [];
-    acc[roundName].push(m);
-    return acc;
-  }, {} as Record<string, Match[]>);
+  let groupedMatches: Record<string, Match[]> = {};
+
+  if (filterRound === 'Tất cả') {
+    groupedMatches = {
+      'Tất cả các trận (Sắp xếp theo thời gian)': [...filteredMatches].sort((a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime())
+    };
+  } else {
+    groupedMatches = filteredMatches.reduce((acc, m) => {
+      const roundName = m.round || 'Vòng Bảng';
+      if (!acc[roundName]) acc[roundName] = [];
+      acc[roundName].push(m);
+      return acc;
+    }, {} as Record<string, Match[]>);
+    
+    Object.values(groupedMatches).forEach(matches => {
+      matches.sort((a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
+    });
+  }
 
   const getFlagEmoji = (teamName: string | undefined) => {
     if (!teamName) return '🏳️';
@@ -356,7 +368,18 @@ export default function AdminPage() {
                 className="bg-black/40 border border-gray-600 rounded-md p-2 font-bold text-white"
               >
                 <option value="Tất cả">-- Tất cả --</option>
-                <option value="Vòng Bảng">Vòng Bảng</option>
+                <option value="Bảng A">Bảng A</option>
+                <option value="Bảng B">Bảng B</option>
+                <option value="Bảng C">Bảng C</option>
+                <option value="Bảng D">Bảng D</option>
+                <option value="Bảng E">Bảng E</option>
+                <option value="Bảng F">Bảng F</option>
+                <option value="Bảng G">Bảng G</option>
+                <option value="Bảng H">Bảng H</option>
+                <option value="Bảng I">Bảng I</option>
+                <option value="Bảng J">Bảng J</option>
+                <option value="Bảng K">Bảng K</option>
+                <option value="Bảng L">Bảng L</option>
                 <option value="Vòng 32 đội">Vòng 32 đội</option>
                 <option value="Vòng 16 đội">Vòng 16 đội</option>
                 <option value="Tứ kết">Tứ kết</option>
