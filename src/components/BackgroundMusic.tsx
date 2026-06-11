@@ -201,7 +201,7 @@ export default function BackgroundMusic() {
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     if (showPopup) {
-      timeout = setTimeout(() => setShowPopup(false), 5000);
+      timeout = setTimeout(() => setShowPopup(false), 10000);
     }
     return () => clearTimeout(timeout);
   }, [showPopup]);
