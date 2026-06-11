@@ -37,6 +37,20 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'matches' | 'standings' | 'rules'>('matches');
   const [filterRound, setFilterRound] = useState('All');
+  const [myPredictions, setMyPredictions] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      async function fetchPreds() {
+        const { data: preds } = await supabase
+          .from('predictions')
+          .select('match_id')
+          .eq('user_id', user.id);
+        if (preds) setMyPredictions(preds);
+      }
+      fetchPreds();
+    }
+  }, [user]);
 
   useEffect(() => {
     async function fetchData() {
@@ -111,6 +125,43 @@ export default function HomePage() {
           Chào mừng trở lại, <span style={{ color: '#fff', fontWeight: 'bold' }}>{user.user_metadata?.display_name}</span>! Hãy bắt đầu dự đoán các trận đấu bên dưới.
         </p>
       </div>
+
+      {(() => {
+        const now = new Date();
+        const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        const unpredicted = matches.filter(m => {
+          if (m.status !== 'pending') return false;
+          const time = new Date(m.kickoff_time);
+          if (time < now || time > next24Hours) return false;
+          return !myPredictions.some(p => p.match_id === m.id);
+        });
+        
+        if (unpredicted.length > 0) {
+          return (
+            <div className="animate-fade-in mx-auto" style={{ maxWidth: '800px', width: '90%' }}>
+              <div style={{ background: 'rgba(255,0,76,0.15)', border: '2px solid var(--danger)', padding: '1.5rem', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1.5rem' }}>
+                <div className="flex items-center gap-4">
+                  <span style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 0 10px var(--danger))' }}>⏰</span>
+                  <div>
+                    <h3 style={{ color: '#fff', fontSize: '1.25rem', margin: '0 0 0.25rem 0', fontWeight: 'bold' }}>Cảnh báo: Bạn sắp bỏ lỡ điểm số!</h3>
+                    <p style={{ color: 'var(--danger)', margin: 0, fontWeight: 500, opacity: 0.9 }}>
+                      Có <strong>{unpredicted.length} trận đấu</strong> diễn ra trong vòng 24 giờ tới mà bạn chưa dự đoán. Đừng để tuột mất cơ hội!
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setActiveTab('matches')} 
+                  className="btn btn-primary" 
+                  style={{ background: 'var(--danger)', color: '#fff', padding: '0.75rem 1.5rem', whiteSpace: 'nowrap', borderRadius: '8px', boxShadow: '0 4px 15px rgba(255,0,76,0.4)' }}
+                >
+                  DỰ ĐOÁN NGAY
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {/* Tabs Navigation */}
       <div className="flex flex-wrap justify-center gap-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
