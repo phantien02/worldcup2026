@@ -88,7 +88,7 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
         <span style={{ color: '#00d2ff' }}>●</span> BXH World Cup 2026
       </h2>
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {sortedGroups.map(group => (
           <div key={group.name} className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
             <div style={{ backgroundColor: 'rgba(20, 20, 28, 0.8)', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
