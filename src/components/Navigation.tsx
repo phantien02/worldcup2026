@@ -15,7 +15,7 @@ export default function Navigation() {
         <span style={{ color: 'var(--success)' }}>WC 2026</span> <span style={{ color: 'var(--primary)', filter: 'brightness(1.5)' }}>PREDICTOR</span>
       </Link>
       <nav className="flex gap-4 items-center">
-        <Link href="/" className="btn btn-secondary">{isAdminPage ? 'Về Trang Giao Diện Người Dùng' : 'Trang chủ'}</Link>
+        {!isAdminPage && <Link href="/" className="btn btn-secondary">Trang chủ</Link>}
         {isAdminPage ? (
           <>
             <span style={{ fontWeight: 900, color: 'var(--danger)', padding: '0 0.5rem' }}>HỆ THỐNG ADMIN</span>
