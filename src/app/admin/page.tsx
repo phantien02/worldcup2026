@@ -29,6 +29,10 @@ export default function AdminPage() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [userPredictions, setUserPredictions] = useState<any[]>([]);
 
+  const [selectedMatchForPredictions, setSelectedMatchForPredictions] = useState<any>(null);
+  const [matchPredictionsList, setMatchPredictionsList] = useState<any[]>([]);
+  const [isPredictionsModalOpen, setIsPredictionsModalOpen] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -194,6 +198,46 @@ export default function AdminPage() {
       .eq('user_id', user.id);
     setUserPredictions(data || []);
     setLoading(false);
+  };
+
+  const handleViewMatchPredictions = async (match: any) => {
+    setSelectedMatchForPredictions(match);
+    setIsPredictionsModalOpen(true);
+    setLoading(true);
+    const { data } = await supabase
+      .from('predictions')
+      .select('*')
+      .eq('match_id', match.id);
+    
+    const combined = allUsers.map(u => {
+      const pred = data?.find(p => p.user_id === u.id);
+      return {
+        user: u,
+        prediction: pred || null
+      };
+    });
+
+    combined.sort((a, b) => {
+      const ptA = a.prediction?.points_earned || 0;
+      const ptB = b.prediction?.points_earned || 0;
+      return ptB - ptA;
+    });
+
+    setMatchPredictionsList(combined);
+    setLoading(false);
+  };
+
+  const getPredictionAnalysis = (points: number, isKnockout: boolean) => {
+    if (points === 0) return "Sai / Chưa dự đoán";
+    if (isKnockout) {
+      if (points === 15) return "Đúng đội đi tiếp & Hình thức";
+      if (points === 10) return "Chỉ đúng đội đi tiếp";
+    } else {
+      if (points === 8) return "Đúng tỷ số 100%";
+      if (points === 6) return "Sai tỷ số, đúng hiệu số";
+      if (points === 5) return "Chỉ đúng kết quả (T/H/B)";
+    }
+    return `${points} điểm`;
   };
 
   const [filterRound, setFilterRound] = useState('Vòng Bảng');
@@ -439,6 +483,15 @@ export default function AdminPage() {
                             </div>
                           </form>
                         )}
+                        <div className="flex justify-center mt-3">
+                          <button 
+                            onClick={() => handleViewMatchPredictions(m)} 
+                            className="btn btn-secondary flex items-center justify-center gap-2" 
+                            style={{ padding: '6px 16px', fontSize: '13px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px', color: '#e5e7eb', transition: 'all 0.2s' }}
+                          >
+                            <span>👁️</span> Xem thông tin dự đoán
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -593,6 +646,89 @@ export default function AdminPage() {
                 XÁC NHẬN KẾT QUẢ KNOCK-OUT
               </button>
 
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: View Predictions */}
+      {isPredictionsModalOpen && selectedMatchForPredictions && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111] border border-gray-700 rounded-xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-scale-in" style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
+            <div className="flex justify-between items-center p-5 border-b border-gray-800 bg-[#1a1a1a]">
+              <div>
+                <h3 className="text-xl font-bold text-white mb-1">Thông tin dự đoán của người chơi</h3>
+                <p className="text-sm text-gray-400 flex items-center gap-2">
+                  <span className="text-primary font-bold">{selectedMatchForPredictions.round}</span>
+                  <span>|</span>
+                  <span className="text-white font-bold">{selectedMatchForPredictions.home_team?.name} vs {selectedMatchForPredictions.away_team?.name}</span>
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsPredictionsModalOpen(false)}
+                className="text-gray-400 hover:text-white p-2 text-xl font-bold leading-none bg-transparent border-none cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-0 overflow-y-auto flex-1">
+              {loading ? (
+                <div className="p-10 text-center text-gray-400">Đang tải dữ liệu...</div>
+              ) : (
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs uppercase bg-[#0a0a0a] text-gray-400 sticky top-0 z-10 shadow-md">
+                    <tr>
+                      <th className="px-6 py-4 font-bold border-b border-gray-800">Người chơi</th>
+                      <th className="px-6 py-4 font-bold text-center border-b border-gray-800">Dự đoán</th>
+                      <th className="px-6 py-4 font-bold text-center border-b border-gray-800">Điểm số</th>
+                      <th className="px-6 py-4 font-bold border-b border-gray-800">Phân tích</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {matchPredictionsList.map((item, index) => {
+                      const isKnockout = selectedMatchForPredictions.round && !selectedMatchForPredictions.round.startsWith('Bảng') && selectedMatchForPredictions.round !== 'Vòng Bảng';
+                      const p = item.prediction;
+                      
+                      return (
+                        <tr key={index} className="border-b border-gray-800/50 hover:bg-white/5 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-white text-base">{item.user.display_name || item.user.email?.split('@')[0]}</div>
+                            <div className="text-xs text-gray-500 mt-1">{item.user.email}</div>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {!p ? (
+                              <span className="text-gray-600 italic">Chưa dự đoán</span>
+                            ) : isKnockout ? (
+                              <div className="text-cyan-400 font-bold">{p.prediction_result} <span className="text-gray-400 font-normal text-xs ml-1">({p.prediction_method === '90_mins' ? "90'" : p.prediction_method === 'extra_time' ? "120'" : "Pen"})</span></div>
+                            ) : (
+                              <div className="text-cyan-400 font-bold text-lg tracking-widest">{p.home_score} - {p.away_score}</div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {!p || selectedMatchForPredictions.status !== 'finished' ? (
+                              <span className="text-gray-600">-</span>
+                            ) : (
+                              <span className={`font-bold text-lg ${p.points_earned > 0 ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
+                                {p.points_earned > 0 ? `+${p.points_earned}` : '0'}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            {!p || selectedMatchForPredictions.status !== 'finished' ? (
+                              <span className="text-gray-600">-</span>
+                            ) : (
+                              <span className="text-gray-300 text-xs bg-[#222] px-3 py-1.5 rounded font-medium border border-gray-700">
+                                {getPredictionAnalysis(p.points_earned, isKnockout)}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
