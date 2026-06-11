@@ -5,9 +5,91 @@ import { Volume2, VolumeX, Music } from 'lucide-react';
 
 // Danh sách nhạc mặc định (Bạn có thể tự thay link file mp3 của bạn vào đây)
 const SONGS = [
-  { title: "FIFA World Cup 2026 Theme", artist: "Official", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { title: "Dreamers", artist: "Jungkook", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { title: "Hayya Hayya", artist: "Trinidad Cardona", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+  {
+    "title": "Goals",
+    "artist": "LISA, Anitta, Rema",
+    "url": "/music/01_-_LISA%2C%20Anitta%2C%20Rema%2C%20FIFA%20Sound%20-%20Goals%20(FIFA%20World%20Cup%202026%E2%84%A2)%20%5BOfficial%20Music%20Video%5D.webm"
+  },
+  {
+    "title": "Illuminate",
+    "artist": "Jessie Reyez, Elyanna",
+    "url": "/music/02_-_Jessie%20Reyez%2C%20Elyanna%2C%20FIFA%20Sound%20-%20Illuminate%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Lighter",
+    "artist": "Jelly Roll, Carín León",
+    "url": "/music/03_-_Jelly%20Roll%2C%20Car%C3%ADn%20Le%C3%B3n%2C%20FIFA%20Sound%20-%20Lighter%20(FIFA%20World%20Cup%202026%E2%84%A2)%20%5BOfficial%20Lyric%20Video%5D.webm"
+  },
+  {
+    "title": "Game Time",
+    "artist": "Future, Tyla",
+    "url": "/music/04_-_Future%2C%20Tyla%2C%20FIFA%20Sound%20-%20Game%20Time%20(FIFA%20World%20Cup%202026%E2%84%A2)%20%5BOfficial%20Music%20Video%5D.webm"
+  },
+  {
+    "title": "Lighter",
+    "artist": "Jelly Roll, Carín León",
+    "url": "/music/05_-_Jelly%20Roll%2C%20Car%C3%ADn%20Le%C3%B3n%2C%20FIFA%20Sound%20-%20Lighter%20(FIFA%20World%20Cup%202026%E2%84%A2)%20%5BOfficial%20Music%20Video%5D.webm"
+  },
+  {
+    "title": "Echo",
+    "artist": "Daddy Yankee, Shenseea",
+    "url": "/music/06_-_Daddy%20Yankee%2C%20Shenseea%2C%20FIFA%20Sound%20-%20Echo%20(FIFA%20World%20Cup%202026%E2%84%A2)%20%5BOfficial%20Music%20Video%5D.webm"
+  },
+  {
+    "title": "Por Ella",
+    "artist": "Los Ángeles Azules, Belinda",
+    "url": "/music/07_-_Los%20%C3%81ngeles%20Azules%2C%20Belinda%2C%20FIFA%20Sound%20-%20Por%20Ella%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Shaggy, Cimafunk, Zema - “Love Always Wins” (FIFA World Cup 2026)",
+    "artist": "FIFA Sound",
+    "url": "/music/08_-_Shaggy%2C%20Cimafunk%2C%20Zema%20-%C2%A0%E2%80%9CLove%20Always%20Wins%E2%80%9D%C2%A0(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "No Place Like Home",
+    "artist": "Major Lazer, Nelly Furtado, Davido",
+    "url": "/music/09_-_Major%20Lazer%2C%20Nelly%20Furtado%2C%20Davido%20%20-%20No%20Place%20Like%20Home%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Three Nations",
+    "artist": "21 Savage, Nata Cano, French Montana",
+    "url": "/music/10_-_21%20Savage%2C%20Nata%20Cano%2C%20French%20Montana%20%20-%20Three%20Nations%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Energy",
+    "artist": "Ava Max, BIA",
+    "url": "/music/11_-_Ava%20Max%2C%20BIA%20%20-%20Energy%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Show Me",
+    "artist": "Ayra Starr, Latto",
+    "url": "/music/12_-_Ayra%20Starr%2C%20Latto%20-%20Show%20Me%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Partidazo",
+    "artist": "Danny Ocean",
+    "url": "/music/13_-_Danny%20Ocean%20-%20Partidazo%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Mi Mexico Lindo",
+    "artist": "Alejandro Fernández",
+    "url": "/music/14_-_Alejandro%20Fern%C3%A1ndez%20-%20Mi%20Mexico%20Lindo%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "In The Stars (Remix)",
+    "artist": "The Rolling Stones",
+    "url": "/music/15_-_The%20Rolling%20Stones%20-%20In%20The%20Stars%20(Remix)%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "Blessings",
+    "artist": "Stormzy, Fridayy, Angel",
+    "url": "/music/16_-_Stormzy%2C%20Fridayy%2C%20Angel%20-%20Blessings%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  },
+  {
+    "title": "DNA",
+    "artist": "Andrea Bocelli, David Guetta, EJAE, Megan Thee Stallion",
+    "url": "/music/17_-_Andrea%20Bocelli%2C%20David%20Guetta%2C%20EJAE%2C%20Megan%20Thee%20Stallion%20-%20DNA%20(FIFA%20World%20Cup%202026%E2%84%A2).webm"
+  }
 ];
 
 export default function BackgroundMusic() {
