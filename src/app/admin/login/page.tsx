@@ -43,7 +43,7 @@ export default function AdminLogin() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-pink-600/20 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <div className="glass-panel w-full max-w-md p-8 relative z-10 animate-fade-in border border-white/5 shadow-2xl rounded-2xl" style={{ background: 'rgba(20, 20, 28, 0.7)' }}>
+      <div className="glass-panel relative z-10 animate-fade-in" style={{ width: '100%', maxWidth: '500px', padding: '3rem 2.5rem', background: 'rgba(20, 20, 28, 0.7)', margin: '0 auto', borderRadius: '16px' }}>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">
             ADMIN PORTAL
@@ -51,7 +51,7 @@ export default function AdminLogin() {
           <p className="text-gray-400 text-sm">Khu vực bảo mật. Vui lòng nhập mật mã.</p>
         </div>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-6">
+        <form onSubmit={handleLogin} className="flex flex-col" style={{ gap: '1.5rem' }}>
           <div className="flex flex-col gap-2">
             <label className="text-sm font-bold text-gray-300 uppercase tracking-widest ml-1">Mật khẩu hệ thống</label>
             <input 
@@ -74,7 +74,8 @@ export default function AdminLogin() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(255,0,128,0.3)] hover:shadow-[0_0_30px_rgba(255,0,128,0.5)] border border-pink-500/30"
+            className="btn btn-primary"
+            style={{ width: '100%' }}
           >
             {loading ? (
               <>
@@ -90,13 +91,12 @@ export default function AdminLogin() {
           </button>
         </form>
         
-        <div className="mt-8 flex justify-center">
+        <div className="flex justify-center" style={{ marginTop: '1.5rem' }}>
           <button 
             onClick={() => router.push('/')} 
-            className="group flex items-center gap-2 text-sm text-white font-bold transition-all bg-gray-800/80 hover:bg-gray-700 px-6 py-3 rounded-full border border-gray-600 shadow-[0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+            className="btn btn-secondary"
           >
-            <span className="transform transition-transform group-hover:-translate-x-1 text-white">←</span>
-            Quay lại trang chủ
+            ← Quay lại trang chủ
           </button>
         </div>
       </div>
