@@ -290,7 +290,7 @@ export default function MatchPage() {
             <div className={`badge badge-${message.type} mb-6 block text-center`} style={{ padding: '0.75rem', fontSize: '1rem' }}>{message.text}</div>
           )}
 
-          {isAdminMode ? (
+          {isAdminMode && !user ? (
             <div className="text-center" style={{ padding: '1.5rem', background: 'rgba(255,0,76,0.1)', borderRadius: '16px', border: '1px solid var(--danger)' }}>
               <p style={{ color: 'var(--danger)', marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '1.1rem' }}>Bạn đang ở Chế độ Admin</p>
               <p style={{ opacity: 0.8 }}>Tài khoản Admin chỉ có quyền xem dữ liệu, không thể tham gia dự đoán.</p>

@@ -47,6 +47,7 @@ export default function LoginPage() {
       }
       setLoading(false);
     } else {
+      await fetch('/api/admin/logout', { method: 'POST' }).catch(() => {});
       router.push('/');
     }
   };
