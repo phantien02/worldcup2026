@@ -1,0 +1,14 @@
+name: Sync Scores Cron
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Sync API
+        run: |
+          curl -X GET "https://worldcup2026-kappa-lake.vercel.app/api/cron/sync-scores?secret=BaoMatCronJob2026"
