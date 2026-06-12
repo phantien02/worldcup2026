@@ -365,6 +365,25 @@ export default function AdminPage() {
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h2 className="text-xl font-bold">Cập Nhật Kết Quả ({filteredMatches.length} trận)</h2>
             <div className="flex items-center gap-3">
+              <button 
+                onClick={async () => {
+                  try {
+                    const res = await fetch('/api/cron/sync-scores');
+                    const data = await res.json();
+                    if(data.success) { 
+                      alert('Đồng bộ thành công! Đã cập nhật: ' + data.processed.length + ' trận'); 
+                      window.location.reload(); 
+                    } else {
+                      alert('Lỗi đồng bộ: ' + (data.error || data.message || 'Unknown'));
+                    }
+                  } catch(e:any) { alert(e.message); }
+                }}
+                className="btn btn-primary font-bold px-3 py-2 rounded-md"
+                style={{ fontSize: '0.85rem' }}
+                title="Lấy dữ liệu tỷ số tự động từ API-Football"
+              >
+                🔄 ĐỒNG BỘ API
+              </button>
               <span className="font-bold text-gray-400">Lọc theo vòng:</span>
               <select 
                 value={filterRound} 
