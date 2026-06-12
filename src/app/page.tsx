@@ -622,7 +622,7 @@ export default function HomePage() {
                         </div>
                         {match.status !== 'pending' && match.win_method && match.win_method !== '90_mins' && (
                           <div className="text-center mt-1" style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 'bold' }}>
-                            {match.win_method === 'extra_time' ? "(Hiệp phụ)" : `(Pen: ${match.penalty_home} - ${match.penalty_away})`}
+                            {match.win_method === 'extra_time' ? "(Hiệp phụ)" : `(Pen: ${match.penalty_home ?? '?'} - ${match.penalty_away ?? '?'})`}
                           </div>
                         )}
                         {match.status === 'pending' && !isLive && (
