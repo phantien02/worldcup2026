@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '@/data/matchMapping.json';
 import CountdownTimer from '@/components/CountdownTimer';
+import confetti from 'canvas-confetti';
 
 type Match = {
   id: string;
@@ -46,6 +47,9 @@ export default function MatchPage() {
   const [myPrediction, setMyPrediction] = useState({ home: '' as number | '', away: '' as number | '' });
   const [advancingTeamId, setAdvancingTeamId] = useState('');
   const [predictedWinMethod, setPredictedWinMethod] = useState<'90_mins'|'extra_time'|'penalties'|''>('');
+  
+  const [showResultPopup, setShowResultPopup] = useState(false);
+  const [popupType, setPopupType] = useState<'perfect' | 'correct' | 'wrong' | null>(null);
   
   const [isAdminMode, setIsAdminMode] = useState(false);
 
@@ -89,7 +93,7 @@ export default function MatchPage() {
         .from('predictions')
         .select(`
           id, prediction_result, home_score, away_score, updated_at, user_id,
-          advancing_team_id, predicted_win_method,
+          advancing_team_id, predicted_win_method, points_earned,
           profiles(display_name)
         `)
         .eq('match_id', id);
@@ -106,6 +110,31 @@ export default function MatchPage() {
             }
             if (mine.advancing_team_id) setAdvancingTeamId(mine.advancing_team_id);
             if (mine.predicted_win_method) setPredictedWinMethod(mine.predicted_win_method as any);
+            
+            if (matchData?.status === 'finished' && mine.points_earned !== null) {
+              let type: 'perfect' | 'correct' | 'wrong' | null = null;
+              if (mine.points_earned === 8 || mine.points_earned === 15) type = 'perfect';
+              else if (mine.points_earned === 5 || mine.points_earned === 6 || mine.points_earned === 10) type = 'correct';
+              else type = 'wrong';
+              
+              setPopupType(type);
+              setShowResultPopup(true);
+              
+              if (type === 'perfect' || type === 'correct') {
+                setTimeout(() => {
+                  confetti({
+                    particleCount: type === 'perfect' ? 150 : 80,
+                    spread: type === 'perfect' ? 100 : 70,
+                    origin: { y: 0.6 },
+                    zIndex: 9999
+                  });
+                }, 500);
+              }
+              
+              setTimeout(() => {
+                setShowResultPopup(false);
+              }, 5000);
+            }
           }
         }
       }
@@ -273,6 +302,27 @@ export default function MatchPage() {
 
   return (
     <div className="flex flex-col gap-8 mt-8 pb-16 animate-fade-in" style={{ maxWidth: '1000px', margin: '2rem auto' }}>
+      
+      {showResultPopup && popupType && (
+        <div className="fixed inset-0 flex items-center justify-center z-[9999] animate-fade-in" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
+          <div className="glass-panel text-center" style={{ padding: '3rem', maxWidth: '500px', width: '90%', border: popupType === 'perfect' ? '2px solid #00ff87' : popupType === 'correct' ? '2px solid #00d2ff' : '2px solid #ff004c', boxShadow: `0 0 30px ${popupType === 'perfect' ? '#00ff8755' : popupType === 'correct' ? '#00d2ff55' : '#ff004c55'}`, animation: 'bounce-in 0.5s ease-out' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>
+              {popupType === 'perfect' ? '🤯' : popupType === 'correct' ? '🎉' : '😢'}
+            </div>
+            <h2 className="text-3xl font-bold mb-4 uppercase" style={{ color: popupType === 'perfect' ? '#00ff87' : popupType === 'correct' ? '#00d2ff' : '#ff004c' }}>
+              {popupType === 'perfect' ? 'Chúc mừng Thánh đoán!' : popupType === 'correct' ? 'Chúc mừng đoán đúng kết quả!' : 'Rất tiếc, chia buồn nhé!'}
+            </h2>
+            <p className="text-xl" style={{ color: '#fff' }}>
+              {popupType === 'perfect' 
+                ? 'Bạn đã dự đoán chính xác CẢ KẾT QUẢ lẫn TỶ SỐ trận đấu! Quá đỉnh!' 
+                : popupType === 'correct' 
+                  ? 'Bạn đã đoán đúng đội chiến thắng trận đấu nhưng hơi tiếc vì sai mất tỷ số!' 
+                  : 'Chia buồn nhé, chúc bạn may mắn và phục thù ở các trận đấu tiếp theo!'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Match Header */}
       <div className="glass-panel relative" style={{ padding: '1.5rem 1rem' }}>
         <div className="mb-4 md:absolute md:top-6 md:left-6 z-10 flex justify-start">
