@@ -520,7 +520,7 @@ export default function HomePage() {
 
           return (
             <div className="w-full max-w-4xl flex flex-col gap-6 animate-fade-in">
-              <div className="flex flex-col md:flex-row justify-between items-center mb-2 gap-4">
+              <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <h2 className="text-2xl font-bold uppercase tracking-wider flex items-center gap-2 m-0">
                   <span style={{ color: 'var(--accent)' }}>●</span> Lịch Thi Đấu
                 </h2>
