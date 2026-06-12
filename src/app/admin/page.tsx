@@ -388,7 +388,7 @@ export default function AdminPage() {
                     const data = await res.json();
                     if(data.success) { 
                       toast.success('Đồng bộ thành công! Đã cập nhật: ' + data.processed.length + ' trận'); 
-                      fetchMatches(); 
+                      fetchData(); 
                     } else {
                       toast.error('Lỗi đồng bộ: ' + (data.error || data.message || 'Unknown'));
                     }
