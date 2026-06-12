@@ -41,6 +41,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'matches' | 'standings' | 'rules' | 'profile'>('matches');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filterRound, setFilterRound] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
 
   useEffect(() => {
@@ -502,7 +503,20 @@ export default function HomePage() {
             return a.localeCompare(b);
           });
 
-          const filteredMatches = filterRound === 'All' ? matches : matches.filter(m => m.round === filterRound);
+          const filteredMatches = matches.filter(m => {
+            const matchRound = filterRound === 'All' || m.round === filterRound;
+            
+            const isFinished = m.status === 'finished';
+            const isLive = m.status === 'live' || (!isFinished && new Date() >= new Date(m.kickoff_time));
+            const isPending = !isFinished && !isLive;
+            
+            let matchStatus = true;
+            if (filterStatus === 'finished') matchStatus = isFinished;
+            if (filterStatus === 'live') matchStatus = isLive;
+            if (filterStatus === 'pending') matchStatus = isPending;
+            
+            return matchRound && matchStatus;
+          });
 
           return (
             <div className="w-full max-w-4xl flex flex-col gap-6 animate-fade-in">
@@ -512,8 +526,37 @@ export default function HomePage() {
                 </h2>
                 
                 {matches.length > 0 && (
-                  <div className="flex items-center gap-3">
-                    <label style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Lọc theo vòng:</label>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <label style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Trạng thái:</label>
+                    <select 
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '1.1rem',
+                        fontWeight: 'bold',
+                        backgroundColor: '#0a0a0a',
+                        color: '#fff',
+                        border: '2px solid #00d2ff',
+                        borderRadius: '12px',
+                        outline: 'none',
+                        cursor: 'pointer',
+                        appearance: 'none',
+                        backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 1rem top 50%',
+                        backgroundSize: '0.65rem auto',
+                        paddingRight: '2.5rem',
+                        minWidth: '160px'
+                      }}
+                    >
+                      <option value="All">Tất cả</option>
+                      <option value="finished">Đã xong</option>
+                      <option value="live">Đang diễn ra</option>
+                      <option value="pending">Sắp diễn ra</option>
+                    </select>
+
+                    <label style={{ fontSize: '1.1rem', fontWeight: 'bold', marginLeft: '0.5rem' }}>Vòng:</label>
                     <select 
                       value={filterRound}
                       onChange={(e) => setFilterRound(e.target.value)}
