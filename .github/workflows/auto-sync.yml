@@ -1,6 +1,9 @@
 name: Auto Sync Scores
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Run every 30 minutes
     - cron: '*/30 * * * *'
