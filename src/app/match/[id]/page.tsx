@@ -308,9 +308,9 @@ export default function MatchPage() {
 
   return (
     <>
-      {isMounted && showResultPopup && popupType && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center z-[99999]" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', animation: 'fade-in 0.3s ease-out' }}>
-          <div className="glass-panel text-center" style={{ padding: '3rem', maxWidth: '500px', width: '90%', border: popupType === 'perfect' ? '2px solid #00ff87' : popupType === 'correct' ? '2px solid #00d2ff' : '2px solid #ff004c', boxShadow: `0 0 40px ${popupType === 'perfect' ? '#00ff8788' : popupType === 'correct' ? '#00d2ff88' : '#ff004c88'}`, animation: 'bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+      {isMounted && showResultPopup && popupType && document.getElementById('portal-root') && createPortal(
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)', animation: 'fadeIn 0.3s ease-out forwards' }}>
+          <div className="glass-panel text-center" style={{ padding: '3rem', maxWidth: '450px', width: '90%', border: popupType === 'perfect' ? '2px solid #00ff87' : popupType === 'correct' ? '2px solid #00d2ff' : '2px solid #ff004c', boxShadow: `0 0 40px ${popupType === 'perfect' ? '#00ff8788' : popupType === 'correct' ? '#00d2ff88' : '#ff004c88'}`, transform: 'scale(1)', animation: 'bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
             <div style={{ fontSize: '5rem', marginBottom: '1rem', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))' }}>
               {popupType === 'perfect' ? '🤯' : popupType === 'correct' ? '🎉' : '😢'}
             </div>
@@ -326,7 +326,7 @@ export default function MatchPage() {
             </p>
           </div>
         </div>,
-        document.body
+        document.getElementById('portal-root')!
       )}
 
       <div className="flex flex-col gap-8 mt-8 pb-16 animate-fade-in" style={{ maxWidth: '1000px', margin: '2rem auto' }}>

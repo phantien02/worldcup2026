@@ -20,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body>
+        <div id="portal-root"></div>
         <BackgroundChanger />
         <AuthProvider>
           <BackgroundMusic />
