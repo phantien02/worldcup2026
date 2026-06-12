@@ -242,6 +242,24 @@ export default function AdminPage() {
     setLoadingPredictions(false);
   };
 
+  const handleTestAPI = async () => {
+    try {
+      toast.loading('Đang kiểm tra kết nối...', { id: 'test-api' });
+      const res = await fetch('/api/admin/test-api');
+      const data = await res.json();
+      if (data.success) {
+        const remaining = data.data?.response?.subscription?.plan || 'Free';
+        const requests = data.data?.response?.requests?.current || 0;
+        const limit = data.data?.response?.requests?.limit_day || 100;
+        toast.success(`Kết nối API-Sports thành công! Gói: ${remaining} (${requests}/${limit} lượt)`, { id: 'test-api', duration: 5000 });
+      } else {
+        toast.error(`Lỗi: ${data.message}`, { id: 'test-api', duration: 8000 });
+      }
+    } catch (err: any) {
+      toast.error(err.message, { id: 'test-api' });
+    }
+  };
+
   const getPredictionAnalysis = (points: number, isKnockout: boolean) => {
     if (points === 0) return "Sai";
     if (isKnockout) {
@@ -399,6 +417,14 @@ export default function AdminPage() {
                 title="Lấy dữ liệu tỷ số tự động từ API-Football"
               >
                 🔄 ĐỒNG BỘ API
+              </button>
+              <button
+                onClick={handleTestAPI}
+                className="btn btn-secondary font-bold px-4 py-2 rounded-md flex items-center justify-center gap-2"
+                style={{ fontSize: '0.9rem', whiteSpace: 'nowrap' }}
+                title="Kiểm tra trạng thái kết nối và giới hạn gọi API"
+              >
+                📡 TEST KẾT NỐI API
               </button>
             </div>
             <div className="flex items-center gap-3">
