@@ -13,8 +13,9 @@ const cookieStorage = {
   },
   setItem: (key: string, value: string): void => {
     if (!isBrowser) return;
-    // No expires/max-age means it's a Session Cookie (deleted when browser closes)
-    document.cookie = `${key}=${encodeURIComponent(value)}; path=/; SameSite=Lax`;
+    // Set max-age to 30 days (30 * 24 * 60 * 60 seconds) so the session persists across browser restarts
+    const maxAge = 30 * 24 * 60 * 60;
+    document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
   },
   removeItem: (key: string): void => {
     if (!isBrowser) return;

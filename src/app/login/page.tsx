@@ -154,11 +154,14 @@ export default function LoginPage() {
             <div className="flex flex-col gap-2">
               <label>Tên đăng nhập</label>
               <input 
+                id="username"
+                name="username"
                 type="text" 
                 required 
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)} 
                 placeholder="Nhập tên của bạn"
+                autoComplete="username"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -169,11 +172,14 @@ export default function LoginPage() {
                 </button>
               </div>
               <input 
+                id="password"
+                name="password"
                 type="password" 
                 required 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 placeholder="••••••••"
+                autoComplete="current-password"
               />
             </div>
             
