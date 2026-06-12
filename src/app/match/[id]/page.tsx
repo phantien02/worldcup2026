@@ -131,8 +131,8 @@ export default function MatchPage() {
                   confetti({
                     particleCount: type === 'perfect' ? 150 : 80,
                     spread: type === 'perfect' ? 100 : 70,
-                    origin: { y: 0.6 },
-                    zIndex: 9999
+                    origin: { y: 0.5, x: 0.5 },
+                    zIndex: 9999999
                   });
                 }, 500);
               }
@@ -323,16 +323,16 @@ export default function MatchPage() {
 
   return (
     <>
-      {isMounted && showResultPopup && popupType && document.getElementById('portal-root') && createPortal(
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 999999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)', animation: 'fadeIn 0.3s ease-out forwards' }}>
-          <div className="glass-panel text-center" style={{ padding: '3rem', maxWidth: '450px', width: '90%', border: popupType === 'perfect' ? '2px solid #00ff87' : popupType === 'correct' ? '2px solid #00d2ff' : '2px solid #ff004c', boxShadow: `0 0 40px ${popupType === 'perfect' ? '#00ff8788' : popupType === 'correct' ? '#00d2ff88' : '#ff004c88'}`, transform: 'scale(1)', animation: 'bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+      {showResultPopup && popupType && (
+        <div className="fixed inset-0 flex items-center justify-center z-[999999] bg-black/60 backdrop-blur-md" style={{ animation: 'fadeIn 0.3s ease-out forwards' }}>
+          <div className="glass-panel text-center flex flex-col items-center justify-center p-8 w-[90%] max-w-[400px] mx-auto" style={{ border: popupType === 'perfect' ? '2px solid #00ff87' : popupType === 'correct' ? '2px solid #00d2ff' : '2px solid #ff004c', boxShadow: `0 0 40px ${popupType === 'perfect' ? '#00ff8788' : popupType === 'correct' ? '#00d2ff88' : '#ff004c88'}`, transform: 'scale(1)', animation: 'bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
             <div style={{ fontSize: '5rem', marginBottom: '1rem', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))' }}>
               {popupType === 'perfect' ? '🤯' : popupType === 'correct' ? '🎉' : '😢'}
             </div>
-            <h2 className="text-3xl font-bold mb-4 uppercase" style={{ color: popupType === 'perfect' ? '#00ff87' : popupType === 'correct' ? '#00d2ff' : '#ff004c', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+            <h2 className="text-2xl font-bold mb-4 uppercase" style={{ color: popupType === 'perfect' ? '#00ff87' : popupType === 'correct' ? '#00d2ff' : '#ff004c', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
               {popupType === 'perfect' ? 'Chúc mừng Thánh đoán!' : popupType === 'correct' ? 'Chúc mừng đoán đúng kết quả!' : 'Rất tiếc, chia buồn nhé!'}
             </h2>
-            <p className="text-xl leading-relaxed" style={{ color: '#fff' }}>
+            <p className="text-lg leading-relaxed text-white">
               {popupType === 'perfect' 
                 ? 'Bạn đã dự đoán chính xác CẢ KẾT QUẢ lẫn TỶ SỐ trận đấu! Quá đỉnh!' 
                 : popupType === 'correct' 
@@ -340,8 +340,7 @@ export default function MatchPage() {
                   : 'Chia buồn nhé, chúc bạn may mắn và phục thù ở các trận đấu tiếp theo!'}
             </p>
           </div>
-        </div>,
-        document.getElementById('portal-root')!
+        </div>
       )}
 
       <div className="flex flex-col gap-8 mt-8 pb-16 animate-fade-in" style={{ maxWidth: '1000px', margin: '2rem auto' }}>
