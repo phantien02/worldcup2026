@@ -534,7 +534,12 @@ export default function MatchPage() {
             <span style={{ color: 'var(--accent)' }}>●</span> Thống kê ({predictions.length} người đoán)
           </h3>
           
-          {!isKnockout ? (
+          {!isLocked ? (
+            <div style={{ textAlign: 'center', padding: '3rem 1rem', opacity: 0.8, color: '#ccc', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔒</div>
+              <div style={{ fontSize: '1.1rem', lineHeight: '1.5' }}>Thống kê sẽ được hiển thị sau khi <strong>Khóa dự đoán</strong><br/>nhằm đảm bảo tính công bằng và tránh ảnh hưởng tâm lý người chơi.</div>
+            </div>
+          ) : !isKnockout ? (
             <>
               <div className="flex flex-col gap-6">
                 <div className="flex items-center gap-4">
@@ -577,7 +582,7 @@ export default function MatchPage() {
                     ))}
                   </div>
                 ) : (
-                  <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: '0.95rem' }}>Chưa có dự đoán tỷ số nào (hoặc các dự đoán tỷ số đã bị ẩn cho đến khi trận đấu bắt đầu).</div>
+                  <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: '0.95rem' }}>Chưa có dự đoán tỷ số nào.</div>
                 )}
               </div>
             </>
