@@ -241,7 +241,7 @@ export default function AdminPage() {
   };
 
   const getPredictionAnalysis = (points: number, isKnockout: boolean) => {
-    if (points === 0) return "Sai / Chưa dự đoán";
+    if (points === 0) return "Sai";
     if (isKnockout) {
       if (points === 15) return "Đúng đội đi tiếp & Hình thức";
       if (points === 10) return "Chỉ đúng đội đi tiếp";
@@ -845,9 +845,9 @@ export default function AdminPage() {
                             {!p || selectedMatchForPredictions.status !== 'finished' ? (
                               <span style={{ color: '#4b5563' }}>-</span>
                             ) : (
-                              <span style={{ color: '#d1d5db', fontSize: '0.75rem', backgroundColor: 'rgba(255,255,255,0.05)', padding: '0.375rem 0.75rem', borderRadius: '0.25rem', fontWeight: 500, border: '1px solid rgba(255,255,255,0.1)' }}>
+                              <div style={{ display: 'inline-block', lineHeight: '1.4', color: '#d1d5db', fontSize: '0.75rem', backgroundColor: 'rgba(255,255,255,0.05)', padding: '0.375rem 0.75rem', borderRadius: '0.25rem', fontWeight: 500, border: '1px solid rgba(255,255,255,0.1)' }}>
                                 {getPredictionAnalysis(p.points_earned, isKnockout)}
-                              </span>
+                              </div>
                             )}
                           </td>
                         </tr>
