@@ -88,8 +88,13 @@ export async function GET(req: Request) {
       // Nếu đá hôm qua, hôm nay, ngày mai
       if (kickoff.getTime() < now.getTime() + 24 * 60 * 60 * 1000) {
         // Lấy ngày theo múi giờ Việt Nam (YYYY-MM-DD)
-        const vnDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(kickoff);
-        datesToFetch.add(vnDate);
+        // Để tránh lệch múi giờ giữa DB và API, lấy cả ngày trước và ngày sau
+        const kPrev = new Date(kickoff.getTime() - 24 * 60 * 60 * 1000);
+        const kNext = new Date(kickoff.getTime() + 24 * 60 * 60 * 1000);
+        
+        datesToFetch.add(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(kPrev));
+        datesToFetch.add(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(kickoff));
+        datesToFetch.add(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(kNext));
       }
     });
 
@@ -106,11 +111,8 @@ export async function GET(req: Request) {
       const fixtures = data.response || [];
 
       for (const m of matches) {
-        // So sánh theo ngày Việt Nam
-        const mDate = new Date(m.kickoff_time);
-        const matchVnDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(mDate);
-        if (matchVnDate !== date) continue;
-
+        // Bỏ qua kiểm tra matchVnDate !== date để bắt được trận đấu dù API trả về khác ngày
+        
         // Cố gắng tìm trận đấu tương ứng (so sánh tên đội)
         const homeName = normalizeTeamName((m.home_team as any).name || (m.home_team as any)[0]?.name).toLowerCase();
         const awayName = normalizeTeamName((m.away_team as any).name || (m.away_team as any)[0]?.name).toLowerCase();

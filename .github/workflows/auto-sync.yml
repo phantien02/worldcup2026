@@ -5,8 +5,8 @@ on:
     branches:
       - main
   schedule:
-    # Run every 30 minutes
-    - cron: '*/30 * * * *'
+    # Run every 1 hour to save API limit (100 reqs/day)
+    - cron: '0 * * * *'
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
 
