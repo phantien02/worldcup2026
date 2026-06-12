@@ -358,8 +358,14 @@ export default function MatchPage() {
               {(matchMapping as any)[`${home.name} vs ${away.name}`] || 'TRẬN ĐẤU'}
             </span>
           </div>
-          <span className={`badge ${match.status === 'finished' ? 'badge-success' : (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'badge-danger' : 'badge-warning'}`}>
-            {match.status === 'finished' ? 'Đã xong' : (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'Đang diễn ra' : 'Sắp diễn ra'}
+          <span className={`badge ${
+            match.status === 'finished' ? 'badge-success' : 
+            (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'badge-danger' : 
+            (match.status === 'pending' && (new Date(match.kickoff_time).getTime() - new Date().getTime()) / (1000 * 60 * 60) <= 12) ? 'badge-warning' : 'badge-secondary'
+          }`}>
+            {match.status === 'finished' ? 'Đã xong' : 
+             (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'Đang diễn ra' : 
+             (match.status === 'pending' && (new Date(match.kickoff_time).getTime() - new Date().getTime()) / (1000 * 60 * 60) <= 12) ? 'Sắp diễn ra' : 'Chưa diễn ra'}
           </span>
           <div className="mt-4 font-semibold" style={{ opacity: 0.8 }}>{new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
           

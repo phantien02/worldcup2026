@@ -510,9 +510,18 @@ export default function HomePage() {
             const isLive = m.status === 'live' || (!isFinished && new Date() >= new Date(m.kickoff_time));
             const isPending = !isFinished && !isLive;
             
+            const kickoffTime = new Date(m.kickoff_time).getTime();
+            const now = new Date().getTime();
+            const diffHours = (kickoffTime - now) / (1000 * 60 * 60);
+
+            const isUpcoming = isPending && diffHours <= 12;
+            const isNotStarted = isPending && diffHours > 12;
+            
             let matchStatus = true;
             if (filterStatus === 'finished') matchStatus = isFinished;
             if (filterStatus === 'live') matchStatus = isLive;
+            if (filterStatus === 'upcoming') matchStatus = isUpcoming;
+            if (filterStatus === 'not_started') matchStatus = isNotStarted;
             if (filterStatus === 'pending') matchStatus = isPending;
             
             return matchRound && matchStatus;
@@ -553,7 +562,8 @@ export default function HomePage() {
                       <option value="All">Tất cả</option>
                       <option value="finished">Đã xong</option>
                       <option value="live">Đang diễn ra</option>
-                      <option value="pending">Sắp diễn ra</option>
+                      <option value="upcoming">Sắp diễn ra</option>
+                      <option value="not_started">Chưa diễn ra</option>
                     </select>
 
                     <label style={{ fontSize: '1.1rem', fontWeight: 'bold', marginLeft: '0.5rem' }}>Vòng:</label>
@@ -616,8 +626,16 @@ export default function HomePage() {
 
                     const isFinished = match.status === 'finished';
                     const isLive = match.status === 'live' || (!isFinished && new Date() >= new Date(match.kickoff_time));
-                    const displayStatus = isFinished ? 'Đã xong' : isLive ? 'Đang diễn ra' : 'Sắp diễn ra';
-                    const badgeClass = isFinished ? 'badge-success' : isLive ? 'badge-danger' : 'badge-warning';
+                    const isPending = !isFinished && !isLive;
+                    
+                    const kickoffTime = new Date(match.kickoff_time).getTime();
+                    const now = new Date().getTime();
+                    const diffHours = (kickoffTime - now) / (1000 * 60 * 60);
+                    
+                    const isUpcoming = isPending && diffHours <= 12;
+
+                    const displayStatus = isFinished ? 'Đã xong' : isLive ? 'Đang diễn ra' : isUpcoming ? 'Sắp diễn ra' : 'Chưa diễn ra';
+                    const badgeClass = isFinished ? 'badge-success' : isLive ? 'badge-danger' : isUpcoming ? 'badge-warning' : 'badge-secondary';
                     const hasPredicted = myPredictions.some(p => p.match_id === match.id);
 
                     return (
