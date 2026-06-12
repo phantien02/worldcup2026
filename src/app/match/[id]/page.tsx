@@ -286,8 +286,8 @@ export default function MatchPage() {
               {(matchMapping as any)[`${home.name} vs ${away.name}`] || 'TRẬN ĐẤU'}
             </span>
           </div>
-          <span className={`badge ${match.status === 'live' ? 'badge-danger' : match.status === 'finished' ? 'badge-success' : 'badge-warning'}`}>
-            {match.status === 'live' ? 'Đang đá' : match.status === 'finished' ? 'Đã xong' : 'Sắp diễn ra'}
+          <span className={`badge ${match.status === 'finished' ? 'badge-success' : (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'badge-danger' : 'badge-warning'}`}>
+            {match.status === 'finished' ? 'Đã xong' : (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'Đang diễn ra' : 'Sắp diễn ra'}
           </span>
           <div className="mt-4 font-semibold" style={{ opacity: 0.8 }}>{new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>
           
@@ -304,8 +304,8 @@ export default function MatchPage() {
           </div>
           
           <div className="flex flex-col items-center justify-center" style={{ flexShrink: 0, padding: '0 0.5rem' }}>
-            <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '2.5rem' : '1.8rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
-              {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : 'VS'}
+            <div className="text-center" style={{ fontSize: (match.status !== 'pending' || new Date() >= new Date(match.kickoff_time)) ? '2.5rem' : '1.8rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
+              {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (new Date() >= new Date(match.kickoff_time) ? '0 - 0' : 'VS')}
             </div>
           </div>
 

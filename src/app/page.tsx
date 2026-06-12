@@ -599,13 +599,13 @@ export default function HomePage() {
                       {/* Score / VS */}
                       <div className="flex flex-col items-center justify-center" style={{ flexShrink: 0, padding: '0 0.5rem' }}>
                         <div className="text-center" style={{ 
-                          fontSize: match.status !== 'pending' ? '2.2rem' : '1.8rem', 
+                          fontSize: (match.status !== 'pending' || isLive) ? '2.2rem' : '1.8rem', 
                           fontWeight: '900', 
                           color: '#fff',
                           whiteSpace: 'nowrap',
                           letterSpacing: '-0.05em'
                         }}>
-                          {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : 'VS'}
+                          {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (isLive ? '0 - 0' : 'VS')}
                         </div>
                         {match.status !== 'pending' && match.win_method && match.win_method !== '90_mins' && (
                           <div className="text-center mt-1" style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 'bold' }}>
