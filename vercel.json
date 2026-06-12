@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/sync-scores",
-      "schedule": "*/30 * * * *"
-    }
-  ]
-}
