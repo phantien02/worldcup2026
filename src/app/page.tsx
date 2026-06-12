@@ -89,6 +89,19 @@ export default function HomePage() {
     }
 
     fetchData();
+
+    const channel = supabase.channel('public-db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'matches' }, () => {
+        fetchData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   if (loading) return <div className="text-center mt-8">Đang tải dữ liệu...</div>;

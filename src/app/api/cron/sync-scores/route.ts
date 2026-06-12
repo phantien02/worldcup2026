@@ -21,6 +21,23 @@ const normalizeTeamName = (name: string) => {
     'CH Séc': 'Czech Republic',
     'Cộng hòa Séc': 'Czech Republic',
     'Nam Phi': 'South Africa',
+    'Bỉ': 'Belgium',
+    'Đan Mạch': 'Denmark',
+    'Thụy Sĩ': 'Switzerland',
+    'Thụy Điển': 'Sweden',
+    'Ba Lan': 'Poland',
+    'Bờ Biển Ngà': 'Ivory Coast',
+    'Marocco': 'Morocco',
+    'Úc': 'Australia',
+    'Thổ Nhĩ Kỳ': 'Turkey',
+    'Cabo Verde': 'Cape Verde',
+    'Ai Cập': 'Egypt',
+    'Na Uy': 'Norway',
+    'Áo': 'Austria',
+    'CHDC Congo': 'DR Congo',
+    'Nga': 'Russia',
+    'Bắc Ireland': 'Northern Ireland',
+    'Xứ Wales': 'Wales'
   };
   return map[name] || name;
 };

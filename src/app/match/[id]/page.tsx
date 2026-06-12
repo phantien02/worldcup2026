@@ -148,7 +148,22 @@ export default function MatchPage() {
       setLoading(false);
     }
 
-    if (id) fetchData();
+    if (id) {
+      fetchData();
+
+      const channel = supabase.channel(`match-${id}-changes`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'matches', filter: `id=eq.${id}` }, () => {
+          fetchData();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'predictions', filter: `match_id=eq.${id}` }, () => {
+          fetchData();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [id, user]);
 
   useEffect(() => {

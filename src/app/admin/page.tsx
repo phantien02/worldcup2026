@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { updateMatchResult, createMatch, createTeam, getPasswordRequests, resetUserPassword, rejectPasswordRequest, getAllUsers, deleteUserAccount, deleteMatchAdmin } from './actions';
 import matchMapping from '@/data/matchMapping.json';
 
@@ -93,10 +95,10 @@ export default function AdminPage() {
     if (!confirm('Bạn có chắc chắn cập nhật kết quả trận này? Điểm số người chơi sẽ được tính toán ngay lập tức.')) return;
     try {
       await updateMatchResult(matchId, homeScore, awayScore, isKnockout, winnerId, winMethod, score90Home, score90Away, penaltyHome, penaltyAway);
-      alert('Cập nhật kết quả thành công!');
+      toast.success('Cập nhật kết quả thành công!');
       setUpdatingMatch(null);
       fetchData();
-    } catch(err: any) { alert(err.message); }
+    } catch(err: any) { toast.error(err.message); }
   };
 
   const handleKnockoutSubmit = () => {
@@ -164,42 +166,42 @@ export default function AdminPage() {
     if (!confirm('CẢNH BÁO: Bạn có chắc chắn muốn XÓA trận đấu này? Toàn bộ dự đoán liên quan sẽ bị mất.')) return;
     try {
       await deleteMatchAdmin(matchId);
-      alert('Đã xóa trận đấu thành công!');
+      toast.success('Đã xóa trận đấu thành công!');
       fetchData();
-    } catch (err: any) { alert(err.message); }
+    } catch (err: any) { toast.error(err.message); }
   };
 
   const handleResetPassword = async (requestId: string, username: string) => {
     const newPassword = prompt(`Nhập mật khẩu mới sẽ cấp cho user [${username}]:`);
     if (!newPassword) return;
     if (newPassword.length < 6) {
-      alert("Mật khẩu phải từ 6 ký tự trở lên!");
+      toast.error("Mật khẩu phải từ 6 ký tự trở lên!");
       return;
     }
     
     try {
       await resetUserPassword(requestId, username, newPassword);
-      alert(`Thành công! Hãy nhắn cho user [${username}] mật khẩu mới là: ${newPassword}`);
+      toast.success(`Thành công! Hãy nhắn cho user [${username}] mật khẩu mới là: ${newPassword}`);
       fetchData();
-    } catch(err: any) { alert(err.message); }
+    } catch(err: any) { toast.error(err.message); }
   };
 
   const handleRejectPasswordRequest = async (requestId: string, username: string) => {
     if (!confirm(`Bạn có chắc chắn muốn TỪ CHỐI yêu cầu cấp lại mật khẩu của [${username}]?`)) return;
     try {
       await rejectPasswordRequest(requestId);
-      alert(`Đã từ chối yêu cầu của ${username}`);
+      toast.success(`Đã từ chối yêu cầu của ${username}`);
       fetchData();
-    } catch(err: any) { alert(err.message); }
+    } catch(err: any) { toast.error(err.message); }
   };
 
   const handleDeleteUser = async (userId: string, username: string) => {
     if (!confirm(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản [${username}]? Toàn bộ điểm số và dự đoán của người này sẽ bị mất.`)) return;
     try {
       await deleteUserAccount(userId);
-      alert(`Đã xóa tài khoản ${username} thành công!`);
+      toast.success(`Đã xóa tài khoản ${username} thành công!`);
       fetchData();
-    } catch (err: any) { alert(err.message); }
+    } catch (err: any) { toast.error(err.message); }
   };
 
   const handleViewUserHistory = async (user: any) => {
@@ -385,12 +387,12 @@ export default function AdminPage() {
                     const res = await fetch('/api/cron/sync-scores');
                     const data = await res.json();
                     if(data.success) { 
-                      alert('Đồng bộ thành công! Đã cập nhật: ' + data.processed.length + ' trận'); 
-                      window.location.reload(); 
+                      toast.success('Đồng bộ thành công! Đã cập nhật: ' + data.processed.length + ' trận'); 
+                      fetchMatches(); 
                     } else {
-                      alert('Lỗi đồng bộ: ' + (data.error || data.message || 'Unknown'));
+                      toast.error('Lỗi đồng bộ: ' + (data.error || data.message || 'Unknown'));
                     }
-                  } catch(e:any) { alert(e.message); }
+                  } catch(e:any) { toast.error(e.message); }
                 }}
                 className="btn btn-primary font-bold px-4 py-2 rounded-md flex items-center justify-center gap-2"
                 style={{ fontSize: '0.9rem', whiteSpace: 'nowrap' }}

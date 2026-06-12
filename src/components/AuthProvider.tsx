@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, useRef, useCallback } f
 import { supabase } from '@/lib/supabase';
 import { User, Session } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 type AuthContextType = {
   user: User | null;
@@ -35,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleTimeout = useCallback(() => {
     signOut().then(() => {
-      alert("Phiên làm việc đã tự động kết thúc do 30 phút không có hoạt động. Vui lòng tải lại trang hoặc đăng nhập lại.");
+      toast.error("Phiên làm việc đã tự động kết thúc do 30 phút không có hoạt động. Vui lòng tải lại trang hoặc đăng nhập lại.", { duration: 6000 });
       router.push('/');
     });
   }, [router]);
