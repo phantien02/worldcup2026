@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-server';
-import { updateMatchResult } from '@/app/admin/actions';
+import { internalUpdateMatchResult } from '@/lib/match-logic';
 import { cookies } from 'next/headers';
 import { verifyAdminToken } from '@/lib/jwt';
 
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
       isAuthorized = true;
     } else {
       // Kiểm tra Admin Token
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       const adminToken = cookieStore.get('admin_token')?.value;
       if (adminToken) {
         isAuthorized = await verifyAdminToken(adminToken);
@@ -91,8 +91,8 @@ export async function GET(req: Request) {
         if (matchDate !== date) continue;
 
         // Cố gắng tìm trận đấu tương ứng (so sánh tên đội)
-        const homeName = normalizeTeamName(m.home_team.name).toLowerCase();
-        const awayName = normalizeTeamName(m.away_team.name).toLowerCase();
+        const homeName = normalizeTeamName((m.home_team as any).name || (m.home_team as any)[0]?.name).toLowerCase();
+        const awayName = normalizeTeamName((m.away_team as any).name || (m.away_team as any)[0]?.name).toLowerCase();
 
         const fixture = fixtures.find((f: any) => 
           f.teams.home.name.toLowerCase().includes(homeName) || 
@@ -132,7 +132,7 @@ export async function GET(req: Request) {
                 else if (fixture.teams.away.winner) winnerId = m.away_team_id;
               }
 
-              await updateMatchResult(
+              await internalUpdateMatchResult(
                 m.id, 
                 goalsHome !== null ? goalsHome : 0, 
                 goalsAway !== null ? goalsAway : 0,
