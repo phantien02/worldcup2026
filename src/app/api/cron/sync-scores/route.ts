@@ -81,10 +81,18 @@ export async function GET(req: Request) {
 
     // 2. Gom nhóm theo ngày để gọi API
     const datesToFetch = new Set<string>();
+    let hasLiveOrRecentMatches = false;
+
     matches.forEach(m => {
-      // Chỉ fetch các trận mà thời gian kickoff đã trôi qua, hoặc sắp diễn ra trong 24h tới
       const kickoff = new Date(m.kickoff_time);
       const now = new Date();
+      const diffMinutes = (now.getTime() - kickoff.getTime()) / (1000 * 60);
+
+      // Cần gọi API nếu: Trận đấu đang live, hoặc đã bắt đầu nhưng chưa quá 4 tiếng, hoặc sắp bắt đầu trong 15 phút tới
+      if (m.status === 'live' || (diffMinutes >= -15 && diffMinutes <= 240)) {
+        hasLiveOrRecentMatches = true;
+      }
+
       // Nếu đá hôm qua, hôm nay, ngày mai
       if (kickoff.getTime() < now.getTime() + 24 * 60 * 60 * 1000) {
         // Lấy ngày theo múi giờ Việt Nam (YYYY-MM-DD)
@@ -97,6 +105,10 @@ export async function GET(req: Request) {
         datesToFetch.add(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(kNext));
       }
     });
+
+    if (!hasLiveOrRecentMatches) {
+      return NextResponse.json({ message: 'No matches are currently playing or about to start. Skipping API-Sports to save quota.' });
+    }
 
     const results = [];
 
