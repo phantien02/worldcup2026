@@ -102,6 +102,15 @@ export async function resetUserPassword(requestId: string, username: string, new
   return { success: true };
 }
 
+export async function rejectPasswordRequest(requestId: string) {
+  await verifyAdmin();
+  const { error: reqError } = await supabaseAdmin.from('password_requests').update({ status: 'rejected' }).eq('id', requestId);
+  if (reqError) throw reqError;
+  
+  revalidatePath('/admin');
+  return { success: true };
+}
+
 export async function getAllUsers() {
   await verifyAdmin();
   const { data } = await supabaseAdmin.from('profiles').select('id, display_name, total_points, created_at').order('display_name');

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
-import { updateMatchResult, createMatch, createTeam, getPasswordRequests, resetUserPassword, getAllUsers, deleteUserAccount, deleteMatchAdmin } from './actions';
+import { updateMatchResult, createMatch, createTeam, getPasswordRequests, resetUserPassword, rejectPasswordRequest, getAllUsers, deleteUserAccount, deleteMatchAdmin } from './actions';
 import matchMapping from '@/data/matchMapping.json';
 
 type Team = { id: string; name: string; flag_url?: string; code?: string };
@@ -184,6 +184,15 @@ export default function AdminPage() {
     } catch(err: any) { alert(err.message); }
   };
 
+  const handleRejectPasswordRequest = async (requestId: string, username: string) => {
+    if (!confirm(`Bạn có chắc chắn muốn TỪ CHỐI yêu cầu cấp lại mật khẩu của [${username}]?`)) return;
+    try {
+      await rejectPasswordRequest(requestId);
+      alert(`Đã từ chối yêu cầu của ${username}`);
+      fetchData();
+    } catch(err: any) { alert(err.message); }
+  };
+
   const handleDeleteUser = async (userId: string, username: string) => {
     if (!confirm(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản [${username}]? Toàn bộ điểm số và dự đoán của người này sẽ bị mất.`)) return;
     try {
@@ -349,9 +358,14 @@ export default function AdminPage() {
                     <div className="font-bold text-lg">{r.username}</div>
                     <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>Gửi lúc: {new Date(r.created_at).toLocaleString('vi-VN')}</div>
                   </div>
-                  <button onClick={() => handleResetPassword(r.id, r.username)} className="btn btn-primary" style={{ background: 'var(--warning)', color: '#000' }}>
-                    CẤP LẠI MẬT KHẨU
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleRejectPasswordRequest(r.id, r.username)} className="btn btn-secondary text-sm px-3 py-1 bg-red-600 hover:bg-red-700 text-white border-0">
+                      TỪ CHỐI
+                    </button>
+                    <button onClick={() => handleResetPassword(r.id, r.username)} className="btn btn-primary" style={{ background: 'var(--warning)', color: '#000' }}>
+                      CẤP LẠI MẬT KHẨU
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
