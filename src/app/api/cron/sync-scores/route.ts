@@ -113,8 +113,8 @@ export async function GET(req: Request) {
     const results = [];
 
     for (const date of datesToFetch) {
-      // Gọi API-Football kèm tham số timezone Việt Nam
-      const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${date}&timezone=Asia/Ho_Chi_Minh`, {
+      // Gọi API-Football kèm tham số timezone Việt Nam và bộ lọc World Cup
+      const response = await fetch(`https://v3.football.api-sports.io/fixtures?league=1&season=2026&date=${date}&timezone=Asia/Ho_Chi_Minh`, {
         headers: {
           'x-apisports-key': apiKey
         }
@@ -130,6 +130,9 @@ export async function GET(req: Request) {
         const awayName = normalizeTeamName((m.away_team as any).name || (m.away_team as any)[0]?.name).toLowerCase();
 
         const fixture = fixtures.find((f: any) => {
+          const isSafe = f?.fixture?.status?.short && f?.teams?.home?.name && f?.teams?.away?.name;
+          if (!isSafe) return false;
+
           const apiHome = f.teams.home.name.toLowerCase();
           const apiAway = f.teams.away.name.toLowerCase();
           
@@ -144,8 +147,8 @@ export async function GET(req: Request) {
 
         if (fixture) {
           const apiStatus = fixture.fixture.status.short; // FT, HT, 1H, 2H, NS...
-          const goalsHome = fixture.goals.home;
-          const goalsAway = fixture.goals.away;
+          const goalsHome = fixture.goals?.home ?? 0;
+          const goalsAway = fixture.goals?.away ?? 0;
 
           const isMatchFinished = ['FT', 'AET', 'PEN'].includes(apiStatus);
           const isMatchLive = ['1H', 'HT', '2H', 'ET', 'P', 'BT', 'LIVE'].includes(apiStatus);
@@ -175,13 +178,15 @@ export async function GET(req: Request) {
 
               await internalUpdateMatchResult(
                 m.id, 
-                goalsHome !== null ? goalsHome : 0, 
-                goalsAway !== null ? goalsAway : 0,
+                goalsHome, 
+                goalsAway,
                 isKnockout,
                 winnerId,
                 winMethod,
-                undefined, undefined, // score90
-                fixture.score.penalty.home, fixture.score.penalty.away
+                fixture.score?.fulltime?.home ?? undefined, 
+                fixture.score?.fulltime?.away ?? undefined,
+                fixture.score?.penalty?.home ?? undefined, 
+                fixture.score?.penalty?.away ?? undefined
               );
               results.push({ match_id: m.id, action: 'finished_and_calculated', fixture_id: fixture.fixture.id });
             } else {
