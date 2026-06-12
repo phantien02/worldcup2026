@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/AuthProvider';
 import { useParams } from 'next/navigation';
@@ -52,6 +53,11 @@ export default function MatchPage() {
   const [popupType, setPopupType] = useState<'perfect' | 'correct' | 'wrong' | null>(null);
   
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     fetch('/api/admin/check')
@@ -301,18 +307,17 @@ export default function MatchPage() {
   const away = renderTeamInfo(match.away_team);
 
   return (
-    <div className="flex flex-col gap-8 mt-8 pb-16 animate-fade-in" style={{ maxWidth: '1000px', margin: '2rem auto' }}>
-      
-      {showResultPopup && popupType && (
-        <div className="fixed inset-0 flex items-center justify-center z-[9999] animate-fade-in" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}>
-          <div className="glass-panel text-center" style={{ padding: '3rem', maxWidth: '500px', width: '90%', border: popupType === 'perfect' ? '2px solid #00ff87' : popupType === 'correct' ? '2px solid #00d2ff' : '2px solid #ff004c', boxShadow: `0 0 30px ${popupType === 'perfect' ? '#00ff8755' : popupType === 'correct' ? '#00d2ff55' : '#ff004c55'}`, animation: 'bounce-in 0.5s ease-out' }}>
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>
+    <>
+      {isMounted && showResultPopup && popupType && createPortal(
+        <div className="fixed inset-0 flex items-center justify-center z-[99999]" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', animation: 'fade-in 0.3s ease-out' }}>
+          <div className="glass-panel text-center" style={{ padding: '3rem', maxWidth: '500px', width: '90%', border: popupType === 'perfect' ? '2px solid #00ff87' : popupType === 'correct' ? '2px solid #00d2ff' : '2px solid #ff004c', boxShadow: `0 0 40px ${popupType === 'perfect' ? '#00ff8788' : popupType === 'correct' ? '#00d2ff88' : '#ff004c88'}`, animation: 'bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+            <div style={{ fontSize: '5rem', marginBottom: '1rem', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))' }}>
               {popupType === 'perfect' ? '🤯' : popupType === 'correct' ? '🎉' : '😢'}
             </div>
-            <h2 className="text-3xl font-bold mb-4 uppercase" style={{ color: popupType === 'perfect' ? '#00ff87' : popupType === 'correct' ? '#00d2ff' : '#ff004c' }}>
+            <h2 className="text-3xl font-bold mb-4 uppercase" style={{ color: popupType === 'perfect' ? '#00ff87' : popupType === 'correct' ? '#00d2ff' : '#ff004c', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
               {popupType === 'perfect' ? 'Chúc mừng Thánh đoán!' : popupType === 'correct' ? 'Chúc mừng đoán đúng kết quả!' : 'Rất tiếc, chia buồn nhé!'}
             </h2>
-            <p className="text-xl" style={{ color: '#fff' }}>
+            <p className="text-xl leading-relaxed" style={{ color: '#fff' }}>
               {popupType === 'perfect' 
                 ? 'Bạn đã dự đoán chính xác CẢ KẾT QUẢ lẫn TỶ SỐ trận đấu! Quá đỉnh!' 
                 : popupType === 'correct' 
@@ -320,8 +325,11 @@ export default function MatchPage() {
                   : 'Chia buồn nhé, chúc bạn may mắn và phục thù ở các trận đấu tiếp theo!'}
             </p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
+
+      <div className="flex flex-col gap-8 mt-8 pb-16 animate-fade-in" style={{ maxWidth: '1000px', margin: '2rem auto' }}>
 
       {/* Match Header */}
       <div className="glass-panel relative" style={{ padding: '1.5rem 1rem' }}>
