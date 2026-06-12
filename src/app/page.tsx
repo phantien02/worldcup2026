@@ -558,10 +558,16 @@ export default function HomePage() {
                     const home = renderTeamInfo(match.home_team);
                     const away = renderTeamInfo(match.away_team);
 
+                    const isFinished = match.status === 'finished';
+                    const isLive = match.status === 'live' || (!isFinished && new Date() >= new Date(match.kickoff_time));
+                    const displayStatus = isFinished ? 'Đã xong' : isLive ? 'Đang diễn ra' : 'Sắp diễn ra';
+                    const badgeClass = isFinished ? 'badge-success' : isLive ? 'badge-danger' : 'badge-warning';
+                    const hasPredicted = myPredictions.some(p => p.match_id === match.id);
+
                     return (
                     <Link href={`/match/${match.id}`} key={match.id}>
                       <div className="glass-panel hover-card" style={{ padding: '2rem', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
-                        {match.status === 'live' && (
+                        {isLive && (
                           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'var(--danger)', boxShadow: '0 0 10px var(--danger)' }}></div>
                         )}
                         
@@ -574,8 +580,8 @@ export default function HomePage() {
                               {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                             </div>
                           </div>
-                          <span className={`badge ${match.status === 'live' ? 'badge-danger' : match.status === 'finished' ? 'badge-success' : 'badge-warning'}`}>
-                            {match.status === 'live' ? 'Đang đá' : match.status === 'finished' ? 'Đã xong' : 'Sắp diễn ra'}
+                          <span className={`badge ${badgeClass}`}>
+                            {displayStatus}
                           </span>
                         </div>
 
@@ -606,7 +612,11 @@ export default function HomePage() {
                             {match.win_method === 'extra_time' ? "(Hiệp phụ)" : `(Pen: ${match.penalty_home} - ${match.penalty_away})`}
                           </div>
                         )}
-                        {match.status === 'pending' && <div className="mt-1 font-bold text-center" style={{ fontSize: '0.75rem', color: 'var(--success)' }}>DỰ ĐOÁN NGAY</div>}
+                        {match.status === 'pending' && !isLive && (
+                          <div className="mt-1 font-bold text-center" style={{ fontSize: '0.75rem', color: hasPredicted ? 'var(--primary)' : 'var(--success)' }}>
+                            {hasPredicted ? 'BẠN ĐÃ DỰ ĐOÁN' : 'DỰ ĐOÁN NGAY'}
+                          </div>
+                        )}
                       </div>
 
                       {/* Away Team */}
