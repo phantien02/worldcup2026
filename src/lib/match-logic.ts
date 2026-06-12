@@ -39,7 +39,7 @@ export async function internalUpdateMatchResult(
   // Fetch all predictions for this match
   const { data: predictions } = await supabaseAdmin
     .from('predictions')
-    .select('id, user_id, prediction_result, home_score, away_score, advancing_team_id, predicted_win_method')
+    .select('id, user_id, prediction_result, home_score, away_score, advancing_team_id, predicted_win_method, points_earned')
     .eq('match_id', matchId);
 
   if (!predictions) return { success: true };
@@ -70,18 +70,26 @@ export async function internalUpdateMatchResult(
       }
     }
 
-    if (points > 0) {
+    const oldPoints = p.points_earned || 0;
+    const delta = points - oldPoints;
+
+    if (delta !== 0 || points !== oldPoints) {
       // Update prediction record
       await supabaseAdmin.from('predictions').update({ points_earned: points }).eq('id', p.id);
-      userPointsUpdates[p.user_id] = (userPointsUpdates[p.user_id] || 0) + points;
+    }
+    
+    if (delta !== 0) {
+      userPointsUpdates[p.user_id] = (userPointsUpdates[p.user_id] || 0) + delta;
     }
   }
 
-  // Update total points for each user
-  for (const [userId, points] of Object.entries(userPointsUpdates)) {
-    const { data: profile } = await supabaseAdmin.from('profiles').select('total_points').eq('id', userId).single();
-    if (profile) {
-      await supabaseAdmin.from('profiles').update({ total_points: (profile.total_points || 0) + points }).eq('id', userId);
+  // Update total points for each user using delta
+  for (const [userId, delta] of Object.entries(userPointsUpdates)) {
+    if (delta !== 0) {
+      const { data: profile } = await supabaseAdmin.from('profiles').select('total_points').eq('id', userId).single();
+      if (profile) {
+        await supabaseAdmin.from('profiles').update({ total_points: (profile.total_points || 0) + delta }).eq('id', userId);
+      }
     }
   }
 

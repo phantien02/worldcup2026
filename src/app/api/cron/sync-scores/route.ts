@@ -129,12 +129,18 @@ export async function GET(req: Request) {
         const homeName = normalizeTeamName((m.home_team as any).name || (m.home_team as any)[0]?.name).toLowerCase();
         const awayName = normalizeTeamName((m.away_team as any).name || (m.away_team as any)[0]?.name).toLowerCase();
 
-        const fixture = fixtures.find((f: any) => 
-          f.teams.home.name.toLowerCase().includes(homeName) || 
-          f.teams.away.name.toLowerCase().includes(awayName) ||
-          homeName.includes(f.teams.home.name.toLowerCase()) ||
-          awayName.includes(f.teams.away.name.toLowerCase())
-        );
+        const fixture = fixtures.find((f: any) => {
+          const apiHome = f.teams.home.name.toLowerCase();
+          const apiAway = f.teams.away.name.toLowerCase();
+          
+          const matchHome = (apiHome.includes(homeName) || homeName.includes(apiHome));
+          const matchAway = (apiAway.includes(awayName) || awayName.includes(apiAway));
+          
+          const matchHomeReverse = (apiHome.includes(awayName) || awayName.includes(apiHome));
+          const matchAwayReverse = (apiAway.includes(homeName) || homeName.includes(apiAway));
+
+          return (matchHome && matchAway) || (matchHomeReverse && matchAwayReverse);
+        });
 
         if (fixture) {
           const apiStatus = fixture.fixture.status.short; // FT, HT, 1H, 2H, NS...
