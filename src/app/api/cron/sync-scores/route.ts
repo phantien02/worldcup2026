@@ -87,15 +87,17 @@ export async function GET(req: Request) {
       const now = new Date();
       // Nếu đá hôm qua, hôm nay, ngày mai
       if (kickoff.getTime() < now.getTime() + 24 * 60 * 60 * 1000) {
-        datesToFetch.add(kickoff.toISOString().split('T')[0]);
+        // Lấy ngày theo múi giờ Việt Nam (YYYY-MM-DD)
+        const vnDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(kickoff);
+        datesToFetch.add(vnDate);
       }
     });
 
     const results = [];
 
     for (const date of datesToFetch) {
-      // Gọi API-Football
-      const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${date}`, {
+      // Gọi API-Football kèm tham số timezone Việt Nam
+      const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${date}&timezone=Asia/Ho_Chi_Minh`, {
         headers: {
           'x-apisports-key': apiKey
         }
@@ -104,8 +106,10 @@ export async function GET(req: Request) {
       const fixtures = data.response || [];
 
       for (const m of matches) {
-        const matchDate = new Date(m.kickoff_time).toISOString().split('T')[0];
-        if (matchDate !== date) continue;
+        // So sánh theo ngày Việt Nam
+        const mDate = new Date(m.kickoff_time);
+        const matchVnDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(mDate);
+        if (matchVnDate !== date) continue;
 
         // Cố gắng tìm trận đấu tương ứng (so sánh tên đội)
         const homeName = normalizeTeamName((m.home_team as any).name || (m.home_team as any)[0]?.name).toLowerCase();
