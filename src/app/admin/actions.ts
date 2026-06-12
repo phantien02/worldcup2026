@@ -104,7 +104,7 @@ export async function resetUserPassword(requestId: string, username: string, new
 
 export async function rejectPasswordRequest(requestId: string) {
   await verifyAdmin();
-  const { error: reqError } = await supabaseAdmin.from('password_requests').update({ status: 'rejected' }).eq('id', requestId);
+  const { error: reqError } = await supabaseAdmin.from('password_requests').delete().eq('id', requestId);
   if (reqError) throw reqError;
   
   revalidatePath('/admin');
