@@ -363,8 +363,8 @@ export default function AdminPage() {
       {activeTab === 'results' && (
         <div className="glass-panel animate-fade-in" style={{ padding: '2rem' }}>
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h2 className="text-xl font-bold">Cập Nhật Kết Quả ({filteredMatches.length} trận)</h2>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <h2 className="text-xl font-bold">Cập Nhật Kết Quả ({filteredMatches.length} trận)</h2>
               <button 
                 onClick={async () => {
                   try {
@@ -378,13 +378,15 @@ export default function AdminPage() {
                     }
                   } catch(e:any) { alert(e.message); }
                 }}
-                className="btn btn-primary font-bold px-3 py-2 rounded-md"
-                style={{ fontSize: '0.85rem' }}
+                className="btn btn-primary font-bold px-4 py-2 rounded-md flex items-center justify-center gap-2"
+                style={{ fontSize: '0.9rem', whiteSpace: 'nowrap' }}
                 title="Lấy dữ liệu tỷ số tự động từ API-Football"
               >
                 🔄 ĐỒNG BỘ API
               </button>
-              <span className="font-bold text-gray-400">Lọc theo vòng:</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-gray-400 whitespace-nowrap">Lọc theo vòng:</span>
               <select 
                 value={filterRound} 
                 onChange={e => setFilterRound(e.target.value)}
