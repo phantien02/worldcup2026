@@ -27,7 +27,7 @@ export async function GET() {
     const activeMatches = matches.filter(m => {
       const kickoff = new Date(m.kickoff_time).getTime();
       const diffMinutes = (now - kickoff) / (1000 * 60);
-      return m.status === 'live' || (diffMinutes >= -15 && diffMinutes <= 48 * 60);
+      return m.status === 'live' || (diffMinutes >= -15 && diffMinutes <= 4 * 60);
     });
 
     if (activeMatches.length === 0) {
