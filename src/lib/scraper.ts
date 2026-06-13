@@ -148,6 +148,10 @@ ${text}
   }
 }
 
+function normalize(str: string): string {
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/đ/g, 'd');
+}
+
 export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const sources = [
     'https://vnexpress.net/the-thao/world-cup-2026/lich-thi-dau',
@@ -155,6 +159,26 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
     'https://thethao247.vn/',
     'https://www.24h.com.vn/bong-da-c48.html'
   ];
+
+  // Hardcode các link cụ thể cho 4 trận đã đá để lấy chính xác người ghi bàn
+  const exactUrls: Record<string, string> = {
+    'han-quoc-vs-ch-sec': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1538999/han-quoc-ch-czech/dien-bien',
+    'ch-sec-vs-han-quoc': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1538999/han-quoc-ch-czech/dien-bien',
+    
+    'mexico-vs-nam-phi': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489369/mexico-nam-phi/dien-bien',
+    'nam-phi-vs-mexico': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489369/mexico-nam-phi/dien-bien',
+    
+    'canada-vs-bosnia': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1539000/canada-bosnia--herz/sdien-bien',
+    'bosnia-vs-canada': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1539000/canada-bosnia--herz/sdien-bien',
+    
+    'my-vs-paraguay': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489370/my-paraguay/dien-bien',
+    'paraguay-vs-my': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489370/my-paraguay/dien-bien'
+  };
+
+  const matchKey = `${normalize(homeTeam)}-vs-${normalize(awayTeam)}`;
+  if (exactUrls[matchKey]) {
+    sources.unshift(exactUrls[matchKey]); // Đưa lên đầu danh sách ưu tiên
+  }
 
   console.log(`[Scraper] Đang cào dữ liệu cho ${homeTeam} vs ${awayTeam}...`);
   
