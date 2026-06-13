@@ -74,38 +74,23 @@ export async function analyzeWithGemini(text: string, homeTeam: string, awayTeam
     return null;
   }
 
-  const prompt = `Bạn là một chuyên gia phân tích bóng đá. Hãy đọc đoạn văn bản sau trích xuất từ trang báo thể thao trực tiếp, và tìm tỷ số hiện tại của trận đấu giữa "${homeTeam}" (Đội nhà) và "${awayTeam}" (Đội khách).
-Bạn cũng cần phải tìm danh sách các cầu thủ ghi bàn, kiến tạo và kết quả loạt sút luân lưu (nếu có).
+  const prompt = `Bạn là chuyên gia phân tích bóng đá. Hãy đọc văn bản sau trích xuất từ trang báo thể thao, và tìm tỷ số hiện tại của trận đấu giữa "${homeTeam}" (Đội nhà) và "${awayTeam}" (Đội khách).
 
 Trả về một JSON object duy nhất, định dạng chính xác như sau:
 {
   "home_score": <số bàn thắng của đội nhà, hoặc null>,
   "away_score": <số bàn thắng của đội khách, hoặc null>,
   "status": "finished" (nếu trận đấu đã kết thúc/hết giờ), "live" (nếu đang diễn ra), hoặc "pending" (nếu chưa bắt đầu),
-  "match_time": "Thời gian hiện tại, ví dụ: 'Phút 89', 'HT', 'FT', 'Hết giờ'",
-  "events": {
-    "home_events": [
-      { "player": "Tên cầu thủ (nếu phản lưới nhà thì thêm chữ (O.G) vào sau tên, ví dụ: 'Nguyễn Văn A (O.G)')", "time": "Phút ghi bàn (ví dụ 23')", "is_penalty": true/false (nếu là bàn từ đá phạt đền penalty/ph.đ), "assist": "Tên người kiến tạo hoặc null" }
-    ],
-    "away_events": [ ...tương tự... ],
-    "shootout": null (nếu không có luân lưu) HOẶC nếu có loạt sút luân lưu thì trả về object: {
-      "home_score": <tổng số quả luân lưu thành công của đội nhà>,
-      "away_score": <tổng số quả luân lưu thành công của đội khách>,
-      "home_kicks": [{ "player": "Tên cầu thủ", "success": true/false (sút vào hay trượt) }],
-      "away_kicks": [{ "player": "Tên cầu thủ", "success": true/false }]
-    }
-  }
+  "match_time": "Thời gian hiện tại, ví dụ: 'Phút 89', 'HT', 'FT', 'Hết giờ'"
 }
 
 Lưu ý quan trọng:
 - CHỈ trả về JSON object, không kèm markdown, không giải thích.
-- Nếu không tìm thấy tỷ số, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": "", "events": null }.
-- Sự kiện (events) chỉ chứa CẦU THỦ GHI BÀN. Tuyệt đối KHÔNG đưa cầu thủ bị thẻ đỏ, thẻ vàng hay thay người vào danh sách này.
-- MẸO QUAN TRỌNG: Các cầu thủ ghi bàn thường có chữ [BÀN THẮNG] bên cạnh tên họ (do hệ thống đã đánh dấu icon quả bóng). Các cầu thủ bị thẻ sẽ có chữ [THẺ ĐỎ]. Hãy dựa vào dấu hiệu này để phân biệt cầu thủ ghi bàn và cầu thủ nhận thẻ!
+- Nếu không tìm thấy tỷ số, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": "" }.
 
 Văn bản:
 """
-${text}
+\${text}
 """`;
 
   try {
@@ -159,26 +144,6 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
     'https://thethao247.vn/',
     'https://www.24h.com.vn/bong-da-c48.html'
   ];
-
-  // Hardcode các link cụ thể cho 4 trận đã đá để lấy chính xác người ghi bàn
-  const exactUrls: Record<string, string> = {
-    'han-quoc-vs-ch-sec': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1538999/han-quoc-ch-czech/dien-bien',
-    'ch-sec-vs-han-quoc': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1538999/han-quoc-ch-czech/dien-bien',
-    
-    'mexico-vs-nam-phi': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489369/mexico-nam-phi/dien-bien',
-    'nam-phi-vs-mexico': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489369/mexico-nam-phi/dien-bien',
-    
-    'canada-vs-bosnia': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1539000/canada-bosnia--herz/sdien-bien',
-    'bosnia-vs-canada': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1539000/canada-bosnia--herz/sdien-bien',
-    
-    'my-vs-paraguay': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489370/my-paraguay/dien-bien',
-    'paraguay-vs-my': 'https://vnexpress.net/the-thao/world-cup-2026/tran-dau/1489370/my-paraguay/dien-bien'
-  };
-
-  const matchKey = `${normalize(homeTeam)}-vs-${normalize(awayTeam)}`;
-  if (exactUrls[matchKey]) {
-    sources.unshift(exactUrls[matchKey]); // Đưa lên đầu danh sách ưu tiên
-  }
 
   console.log(`[Scraper] Đang cào dữ liệu cho ${homeTeam} vs ${awayTeam}...`);
   

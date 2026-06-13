@@ -414,61 +414,6 @@ export default function MatchPage() {
           </div>
         </div>
 
-        {/* Bàn thắng & Sự kiện */}
-        {(match as any).events && (
-          <div className="mt-6 border-t border-gray-700/50 pt-4 px-2 md:px-8 text-sm md:text-base">
-            <div className="flex justify-between items-start">
-              <div className="flex-1 text-right pr-4 md:pr-8 border-r border-gray-700/50">
-                {((match as any).events.home_events || []).map((ev: any, idx: number) => (
-                  <div key={idx} className="mb-2">
-                    <span className="font-semibold text-gray-200">{ev.player}</span>
-                    <span className="text-gray-400 ml-2">{ev.time}</span>
-                    {ev.is_penalty && <span className="text-gray-500 ml-1">(pen.)</span>}
-                    <span className="ml-2 inline-block">⚽</span>
-                    {ev.assist && <div className="text-gray-500 text-xs md:text-sm">{ev.assist} (Assist)</div>}
-                  </div>
-                ))}
-              </div>
-              <div className="flex-1 pl-4 md:pl-8 text-left">
-                {((match as any).events.away_events || []).map((ev: any, idx: number) => (
-                  <div key={idx} className="mb-2">
-                    <span className="mr-2 inline-block">⚽</span>
-                    <span className="font-semibold text-gray-200">{ev.player}</span>
-                    <span className="text-gray-400 ml-2">{ev.time}</span>
-                    {ev.is_penalty && <span className="text-gray-500 ml-1">(pen.)</span>}
-                    {ev.assist && <div className="text-gray-500 text-xs md:text-sm">{ev.assist} (Assist)</div>}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Loạt sút luân lưu */}
-            {(match as any).events.shootout && (
-              <div className="mt-6 border-t border-gray-700/50 pt-4">
-                <div className="text-center font-bold text-lg text-blue-400 mb-4">Loạt sút luân lưu</div>
-                <div className="text-center text-2xl font-bold mb-4">{(match as any).events.shootout.home_score} - {(match as any).events.shootout.away_score}</div>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1 text-right pr-4 md:pr-8">
-                    {((match as any).events.shootout.home_kicks || []).map((k: any, idx: number) => (
-                      <div key={idx} className="mb-1">
-                        <span className="text-gray-300">{k.player}</span>
-                        <span className="ml-2">{k.success ? '✅' : '❌'}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex-1 pl-4 md:pl-8 text-left">
-                    {((match as any).events.shootout.away_kicks || []).map((k: any, idx: number) => (
-                      <div key={idx} className="mb-1">
-                        <span className="mr-2">{k.success ? '✅' : '❌'}</span>
-                        <span className="text-gray-300">{k.player}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
       </div>
 
