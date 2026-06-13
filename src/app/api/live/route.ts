@@ -23,19 +23,21 @@ export async function GET() {
       return NextResponse.json({ message: 'Không có trận đấu nào đang diễn ra.' });
     }
 
-    // Lọc ra những trận ĐANG DIỄN RA hoặc VỪA MỚI KẾT THÚC, hoặc SẮP DIỄN RA TRONG 15 PHÚT
+    // CHỈ lọc ra những trận ĐÃ CÓ KHẢ NĂNG KẾT THÚC (kickoff + 110 phút trở lên)
+    // Không cào trong lúc đang đá vì không thể lấy được livescore bằng Serverless
+    // Giới hạn: tối đa 5 tiếng sau kickoff (phòng trường hợp hiệp phụ + penalty)
     const activeMatches = matches.filter(m => {
       const kickoff = new Date(m.kickoff_time).getTime();
       const diffMinutes = (now - kickoff) / (1000 * 60);
-      return m.status === 'live' || (diffMinutes >= -15 && diffMinutes <= 4 * 60);
+      return m.status === 'live' || (diffMinutes >= 110 && diffMinutes <= 5 * 60);
     });
 
     if (activeMatches.length === 0) {
       return NextResponse.json({ message: 'Các trận đấu chưa tới giờ lăn bóng.' });
     }
 
-    // 2. Throttling: Kiểm tra xem đã qua 60 giây kể từ lần cào trước chưa?
-    if (now - lastScrapedAt < 60000) {
+    // 2. Throttling: Chờ ít nhất 5 PHÚT giữa các lần cào để tiết kiệm Gemini quota
+    if (now - lastScrapedAt < 5 * 60 * 1000) {
       // Chưa đủ 60 giây, chỉ trả về dữ liệu trong DB hiện tại (Cache)
       return NextResponse.json({
         message: 'Đang dùng Cache DB (thời gian chờ 60s)',

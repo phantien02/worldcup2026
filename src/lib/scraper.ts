@@ -204,6 +204,18 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
       
       if (combinedText.length < 50) continue;
 
+      // PRE-FILTER: Kiểm tra xem text có chứa tên đội không TRƯỚC KHI gọi Gemini (tiết kiệm quota)
+      const textLower = combinedText.toLowerCase();
+      const hasTeamName = textLower.includes(homeTeam.toLowerCase()) || 
+                          textLower.includes(awayTeam.toLowerCase()) ||
+                          textLower.includes(homeEn.toLowerCase()) || 
+                          textLower.includes(awayEn.toLowerCase());
+      
+      if (!hasTeamName) {
+        console.log(`[Scraper] ⏭️ Bỏ qua RSS (không chứa tên đội), tiết kiệm 1 lượt Gemini.`);
+        continue;
+      }
+
       const result = await analyzeWithGemini(combinedText, homeTeam, awayTeam);
       if (result && result.home_score !== null && result.away_score !== null) {
         console.log(`[Scraper] ✅ Chốt tỷ số từ Google News RSS: ${result.home_score} - ${result.away_score} (${result.status})`);
