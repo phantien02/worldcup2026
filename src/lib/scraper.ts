@@ -21,8 +21,17 @@ function stripHtmlTags(html: string): string {
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   const bodyHtml = bodyMatch ? bodyMatch[1] : html;
   
-  // Xóa các thẻ script, style, svg, iframe
-  const cleanHtml = bodyHtml
+  // Xóa các thẻ script, style, svg (ngoại trừ các svg/img là icon bàn thắng/thẻ phạt), iframe
+  // Gắn nhãn BÀN THẮNG và THẺ ĐỎ cho các icon để AI hiểu được
+  const htmlWithIcons = bodyHtml
+    .replace(/<svg[^>]*class="[^"]*(ic-ball|goal|bong-da|icon-ball)[^"]*"[^>]*>[\s\S]*?<\/svg>/gi, ' [BÀN THẮNG] ')
+    .replace(/<img[^>]*src="[^"]*(ball|goal|bong-da)[^"]*"[^>]*>/gi, ' [BÀN THẮNG] ')
+    .replace(/<svg[^>]*class="[^"]*(ic-red|red-card|the-do)[^"]*"[^>]*>[\s\S]*?<\/svg>/gi, ' [THẺ ĐỎ] ')
+    .replace(/<img[^>]*src="[^"]*(red-card|the-do)[^"]*"[^>]*>/gi, ' [THẺ ĐỎ] ')
+    .replace(/\(pen\)/gi, ' (penalty) ')
+    .replace(/\(og\)/gi, ' (phản lưới nhà) ');
+
+  const cleanHtml = htmlWithIcons
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
     .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, ' ')
@@ -89,8 +98,8 @@ Trả về một JSON object duy nhất, định dạng chính xác như sau:
 Lưu ý quan trọng:
 - CHỈ trả về JSON object, không kèm markdown, không giải thích.
 - Nếu không tìm thấy tỷ số, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": "", "events": null }.
-- Nếu trận đấu kéo dài qua hiệp phụ, ghi chú match_time hợp lý.
-- Sự kiện (events) chỉ chứa BÀN THẮNG (không thẻ đỏ/vàng).
+- Sự kiện (events) chỉ chứa CẦU THỦ GHI BÀN. Tuyệt đối KHÔNG đưa cầu thủ bị thẻ đỏ, thẻ vàng hay thay người vào danh sách này.
+- MẸO QUAN TRỌNG: Các cầu thủ ghi bàn thường có chữ [BÀN THẮNG] bên cạnh tên họ (do hệ thống đã đánh dấu icon quả bóng). Các cầu thủ bị thẻ sẽ có chữ [THẺ ĐỎ]. Hãy dựa vào dấu hiệu này để phân biệt cầu thủ ghi bàn và cầu thủ nhận thẻ!
 
 Văn bản:
 """
@@ -139,6 +148,7 @@ ${text}
 
 export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const sources = [
+    'https://vnexpress.net/the-thao/world-cup-2026/lich-thi-dau',
     'https://vnexpress.net/the-thao',
     'https://thethao247.vn/',
     'https://www.24h.com.vn/bong-da-c48.html'
