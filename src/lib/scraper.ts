@@ -123,7 +123,7 @@ ${text}
 """`;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemma-4-26b-a4b-it:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -144,7 +144,8 @@ ${text}
     }
 
     const data = await response.json();
-    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    const resultText = parts.map((p: any) => p.text).join('\n');
     
     // Parse JSON
     const jsonStr = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
