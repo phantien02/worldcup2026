@@ -240,6 +240,19 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
       if (!html || html.length < 500) continue;
       
       const cleanText = stripHtmlTags(html);
+
+      // PRE-FILTER: Kiểm tra xem text bài báo có chứa tên đội không TRƯỚC KHI gọi Gemini
+      const textLower = cleanText.toLowerCase();
+      const hasTeamName = textLower.includes(homeTeam.toLowerCase()) || 
+                          textLower.includes(awayTeam.toLowerCase()) ||
+                          textLower.includes(homeEn.toLowerCase()) || 
+                          textLower.includes(awayEn.toLowerCase());
+
+      if (!hasTeamName) {
+        console.log(`[Scraper] ⏭️ Bỏ qua trang ${url} (không chứa tên đội), tiết kiệm 1 lượt Gemini.`);
+        continue;
+      }
+
       const result = await analyzeWithGemini(cleanText, homeTeam, awayTeam);
       
       if (result && result.home_score !== null && result.away_score !== null) {
