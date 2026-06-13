@@ -4,6 +4,7 @@ import { scrapeLiveScore } from '@/lib/scraper';
 import { internalUpdateMatchResult } from '@/lib/match-logic';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Tăng timeout cho Vercel Hobby lên tối đa 60s để AI cào data không bị ngắt
 
 // Biến toàn cục để lưu thời gian cào lần cuối (hoạt động tốt trong môi trường serverless nóng)
 // Tránh việc bị spam quá nhiều nếu có 1000 user cùng request
