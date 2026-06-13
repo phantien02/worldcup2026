@@ -105,6 +105,31 @@ export default function HomePage() {
     };
   }, []);
 
+  // Polling /api/live 10s/lần nếu có trận đấu đang diễn ra
+  useEffect(() => {
+    if (matches.length === 0) return;
+    
+    const now = Date.now();
+    const hasActiveMatches = matches.some(m => {
+      const kickoff = new Date(m.kickoff_time).getTime();
+      const diffMinutes = (now - kickoff) / (1000 * 60);
+      return m.status === 'live' || (m.status === 'pending' && diffMinutes >= -15 && diffMinutes <= 48 * 60);
+    });
+
+    if (!hasActiveMatches) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        // Gọi API ngầm để kích hoạt máy cào dữ liệu (nếu đã đủ 10s)
+        await fetch('/api/live');
+      } catch (err) {
+        // Bỏ qua lỗi mạng
+      }
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [matches]);
+
   if (loading) return <div className="text-center mt-8">Đang tải dữ liệu...</div>;
 
   if (!user) {

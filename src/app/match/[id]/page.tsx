@@ -66,6 +66,26 @@ export default function MatchPage() {
       .catch(() => {});
   }, []);
 
+  // Polling /api/live 10s/lần nếu trận đấu này đang diễn ra
+  useEffect(() => {
+    if (!match) return;
+    
+    const now = Date.now();
+    const kickoff = new Date(match.kickoff_time).getTime();
+    const diffMinutes = (now - kickoff) / (1000 * 60);
+    const isActive = match.status === 'live' || (match.status === 'pending' && diffMinutes >= -15 && diffMinutes <= 48 * 60);
+
+    if (!isActive) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        await fetch('/api/live');
+      } catch (err) {}
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [match]);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
