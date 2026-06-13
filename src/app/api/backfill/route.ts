@@ -7,8 +7,7 @@ export async function GET() {
     const { data: matches, error } = await supabaseAdmin
       .from('matches')
       .select('id, home_team:home_team_id(name), away_team:away_team_id(name)')
-      .eq('status', 'finished')
-      .is('events', null);
+      .eq('status', 'finished');
 
     if (error) {
       return NextResponse.json({ success: false, error: error.message });
@@ -29,7 +28,12 @@ export async function GET() {
         if (result && result.events) {
           const { error: updateError } = await supabaseAdmin
             .from('matches')
-            .update({ events: result.events })
+            .update({ 
+              events: result.events,
+              home_score: result.home_score,
+              away_score: result.away_score,
+              match_time: result.match_time
+            })
             .eq('id', match.id);
           
           if (!updateError) {
