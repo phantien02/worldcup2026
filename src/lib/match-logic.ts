@@ -98,5 +98,60 @@ export async function internalUpdateMatchResult(
     }
   }
 
+  // --- AUTO PROPAGATE KNOCKOUT WINNER/LOSER ---
+  if (isKnockout && winnerId) {
+    try {
+      const { data: currentMatch } = await supabaseAdmin
+        .from('matches')
+        .select('home_team:home_team_id(name), away_team:away_team_id(name)')
+        .eq('id', matchId)
+        .single();
+      
+      if (currentMatch) {
+        const homeName = (currentMatch.home_team as any)?.name;
+        const awayName = (currentMatch.away_team as any)?.name;
+        
+        // Find match name like "Trận 49"
+        const matchMappingJson = require('@/data/matchMapping.json');
+        const matchName1 = matchMappingJson[`${homeName} vs ${awayName}`];
+        const matchName2 = matchMappingJson[`${awayName} vs ${homeName}`];
+        const currentMatchName = matchName1 || matchName2;
+        
+        if (currentMatchName) {
+          // Identify loserId
+          const { data: matchRaw } = await supabaseAdmin.from('matches').select('home_team_id, away_team_id').eq('id', matchId).single();
+          const loserId = matchRaw?.home_team_id === winnerId ? matchRaw?.away_team_id : matchRaw?.home_team_id;
+
+          // Placeholder names
+          const winnerPlaceholderNames = [`Thắng ${currentMatchName.toLowerCase()}`, `thắng ${currentMatchName.toLowerCase()}`, `Thắng trận ${currentMatchName.replace('Trận ', '')}`];
+          const loserPlaceholderNames = [`Thua ${currentMatchName.toLowerCase()}`, `thua ${currentMatchName.toLowerCase()}`, `Thua trận ${currentMatchName.replace('Trận ', '')}`];
+
+          // Fetch placeholder teams from DB
+          const { data: placeholderTeams } = await supabaseAdmin
+            .from('teams')
+            .select('id, name')
+            .or(`name.ilike.Thắng ${currentMatchName},name.ilike.Thua ${currentMatchName}`);
+
+          if (placeholderTeams && placeholderTeams.length > 0) {
+            const winnerPlaceholderTeam = placeholderTeams.find(t => t.name.toLowerCase().includes('thắng'));
+            const loserPlaceholderTeam = placeholderTeams.find(t => t.name.toLowerCase().includes('thua'));
+
+            // Update future matches
+            if (winnerPlaceholderTeam) {
+              await supabaseAdmin.from('matches').update({ home_team_id: winnerId }).eq('home_team_id', winnerPlaceholderTeam.id);
+              await supabaseAdmin.from('matches').update({ away_team_id: winnerId }).eq('away_team_id', winnerPlaceholderTeam.id);
+            }
+            if (loserPlaceholderTeam && loserId) {
+              await supabaseAdmin.from('matches').update({ home_team_id: loserId }).eq('home_team_id', loserPlaceholderTeam.id);
+              await supabaseAdmin.from('matches').update({ away_team_id: loserId }).eq('away_team_id', loserPlaceholderTeam.id);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi khi tự động tiến nhánh:", err);
+    }
+  }
+
   return { success: true };
 }

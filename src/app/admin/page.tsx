@@ -307,9 +307,32 @@ export default function AdminPage() {
     return flags[teamName] || '🏳️';
   };
 
+  const isPlaceholderName = (name: string) => /^(nhất|nhì|ba|thứ\s*3|thắng|thua)\s/i.test(name);
+
   const renderFlag = (team: any) => {
-    if (team?.flag_url) {
-      return <img src={team.flag_url} alt="flag" style={{ width: '32px', height: '22px', objectFit: 'cover', borderRadius: '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.5)' }} className="flex-shrink-0 border border-white/20" />;
+    if (!team) return <div className="text-gray-400 font-bold flex items-center justify-center" style={{ width: '32px', height: '22px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', fontSize: '14px' }}>?</div>;
+    if (team.name && isPlaceholderName(team.name)) {
+      return <div className="text-gray-400 font-bold flex items-center justify-center" style={{ width: '32px', height: '22px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', fontSize: '14px' }}>?</div>;
+    }
+    if (team.flag_url) {
+      return (
+        <>
+          <img 
+            src={team.flag_url} 
+            alt="flag" 
+            style={{ width: '32px', height: '22px', objectFit: 'cover', borderRadius: '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.5)' }} 
+            className="flex-shrink-0 border border-white/20"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              if (e.currentTarget.nextElementSibling) {
+                e.currentTarget.nextElementSibling.removeAttribute('hidden');
+                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+              }
+            }}
+          />
+          <div hidden className="text-gray-400 font-bold items-center justify-center" style={{ width: '32px', height: '22px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', fontSize: '14px', display: 'none' }}>?</div>
+        </>
+      );
     }
     return <div className="text-2xl leading-none filter drop-shadow-sm flex-shrink-0 flex items-center justify-center" style={{ width: '32px', height: '22px' }}>{getFlagEmoji(team?.name)}</div>;
   };
