@@ -513,9 +513,9 @@ export default function AdminPage() {
                                 {renderFlag(m.home_team)}
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                <input name="home" type="number" min="0" required placeholder="0" style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#9ca3af', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', outline: 'none' }} />
+                                <input name="home" type="number" min="0" required placeholder="" defaultValue={m.home_score ?? ''} style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#9ca3af', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', outline: 'none' }} />
                                 <span style={{ color: '#666', fontWeight: 'bold' }}>-</span>
-                                <input name="away" type="number" min="0" required placeholder="0" style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#9ca3af', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', outline: 'none' }} />
+                                <input name="away" type="number" min="0" required placeholder="" defaultValue={m.away_score ?? ''} style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#9ca3af', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', outline: 'none' }} />
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '35%', gap: '0.5rem' }}>
                                 {renderFlag(m.away_team)}
