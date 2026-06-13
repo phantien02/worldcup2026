@@ -31,8 +31,7 @@ export async function GET() {
             .update({ 
               events: result.events,
               home_score: result.home_score,
-              away_score: result.away_score,
-              match_time: result.match_time
+              away_score: result.away_score
             })
             .eq('id', match.id);
           
