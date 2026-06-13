@@ -486,52 +486,43 @@ export default function HomePage() {
                 Chưa có ai ghi điểm. Hãy là người đầu tiên!
               </div>
             ) : (
-              <div className="flex flex-col gap-3 min-w-[600px]">
-                {/* Header Row */}
-                <div className="flex justify-between items-center px-4" style={{ fontSize: '0.85rem', color: '#a3a3a3', fontWeight: 'bold' }}>
-                  <div className="flex items-center gap-4 w-[40%]">
-                    <span style={{ width: '40px', textAlign: 'center' }}>Hạng</span>
-                    <span>Người Chơi</span>
-                  </div>
-                  <div className="flex items-center justify-between w-[60%]">
-                    <span className="text-center flex-1" title="Dự đoán đúng kết quả trận đấu">Đoán KQ</span>
-                    <span className="text-center flex-1" title="Dự đoán chính xác tỷ số">Đoán TS</span>
-                    <span className="text-center flex-1" title="Dự đoán chính xác hiệu số">Đoán HS</span>
-                    <span className="text-right w-16 text-white text-base">Điểm</span>
-                  </div>
-                </div>
-
-                {leaderboard.map((user, idx) => (
-                  <div key={user.id} className="flex justify-between items-center hover-card" style={{ padding: '0.8rem 1rem', background: 'rgba(0,0,0,0.3)', borderRadius: '12px' }}>
-                    <div className="flex items-center gap-4 w-[40%]">
-                      <span style={{ 
-                        fontWeight: '900', 
-                        fontSize: '1.25rem',
-                        width: '40px', 
-                        textAlign: 'center',
-                        color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#6b7280' 
-                      }}>
-                        #{idx + 1}
-                      </span>
-                      <span style={{ fontSize: '1.1rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.display_name}</span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between w-[60%]">
-                      <span className="text-center flex-1 text-sm font-medium" style={{ color: '#00d2ff' }}>
-                        {user.stats?.correctResults || 0}/{user.stats?.totalPreds || 0}
-                      </span>
-                      <span className="text-center flex-1 text-sm font-medium" style={{ color: '#00ff88' }}>
-                        {user.stats?.exactScores || 0}/{user.stats?.totalPreds || 0}
-                      </span>
-                      <span className="text-center flex-1 text-sm font-medium" style={{ color: '#fbbf24' }}>
-                        {user.stats?.exactDiffs || 0}/{user.stats?.totalPreds || 0}
-                      </span>
-                      <span className="text-right w-16 font-bold" style={{ color: '#00ff88', fontSize: '1.2rem' }}>
-                        {user.total_points}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <div style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 10px', fontSize: '0.95rem', textAlign: 'left', minWidth: '700px' }}>
+                  <thead style={{ color: '#a3a3a3', fontSize: '0.85rem', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                    <tr>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '60px' }}>Hạng</th>
+                      <th style={{ padding: '0 1rem' }}>Người Chơi</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán đúng kết quả trận đấu">Đoán KQ</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác tỷ số">Đoán TS</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác hiệu số">Đoán HS</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'right', color: '#fff', width: '80px' }}>Điểm</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaderboard.map((user, idx) => (
+                      <tr key={user.id} className="hover-card" style={{ background: 'rgba(0,0,0,0.3)', transition: 'background-color 0.2s' }}>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', fontWeight: '900', fontSize: '1.25rem', color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#6b7280', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
+                          #{idx + 1}
+                        </td>
+                        <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {user.display_name}
+                        </td>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00d2ff', fontWeight: '600', fontSize: '1.1rem' }}>
+                          {user.stats?.correctResults || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                        </td>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: '600', fontSize: '1.1rem' }}>
+                          {user.stats?.exactScores || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                        </td>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#fbbf24', fontWeight: '600', fontSize: '1.1rem' }}>
+                          {user.stats?.exactDiffs || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                        </td>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'right', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem', borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
+                          {user.total_points}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
