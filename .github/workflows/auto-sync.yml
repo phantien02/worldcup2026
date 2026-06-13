@@ -5,8 +5,8 @@ on:
     branches:
       - main
   schedule:
-    # Run every 30 minutes to save API-Sports quota (100 reqs/day)
-    - cron: '*/30 * * * *'
+    # Run every 5 minutes to fetch live scores
+    - cron: '*/5 * * * *'
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
 
@@ -16,8 +16,7 @@ jobs:
     steps:
       - name: Call Sync API
         run: |
-          echo "Installing Playwright..."
-          npm install playwright
-          npx playwright install chromium
-          echo "Triggering Vercel Sync API via headless browser..."
-          node -e "const { chromium } = require('playwright'); (async () => { const browser = await chromium.launch(); const page = await browser.newPage(); console.log('Opening page...'); await page.goto('https://worldcup2026-kappa-lake.vercel.app/api/live'); console.log('Waiting 15s for API...'); await page.waitForTimeout(15000); console.log('Executed API successfully!'); await browser.close(); })();"
+          echo "Triggering Vercel Sync API..."
+          curl -X GET "https://worldcup2026-kappa-lake.vercel.app/api/live" -H "Accept: application/json"
+          echo "API triggered successfully!"
+
