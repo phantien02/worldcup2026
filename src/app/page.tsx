@@ -708,7 +708,7 @@ export default function HomePage() {
                           whiteSpace: 'nowrap',
                           letterSpacing: match.status !== 'pending' ? '-0.05em' : 'normal'
                         }}>
-                          {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (isLive ? <div style={{ color: 'var(--danger)', fontSize: '0.85rem', textTransform: 'uppercase', lineHeight: '1.2' }} className="animate-pulse">Kết quả đang<br/>được cập nhật</div> : 'VS')}
+                          {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (isLive ? <div style={{ color: 'var(--danger)', fontSize: '0.85rem', textTransform: 'uppercase', lineHeight: '1.2' }}>Kết quả đang<br/>được cập nhật</div> : 'VS')}
                         </div>
                         {match.status !== 'pending' && match.win_method && match.win_method !== '90_mins' && (
                           <div className="text-center mt-1" style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 'bold' }}>
