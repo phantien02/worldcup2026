@@ -139,10 +139,8 @@ function normalize(str: string): string {
 
 export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const sources = [
-    'https://bong-da.com/the-gioi/world-cup/livescore',
     'https://vnexpress.net/the-thao/world-cup-2026/lich-thi-dau',
-    'https://vnexpress.net/the-thao',
-    'https://thethao247.vn/',
+    'https://thethao247.vn/world-cup-c51/',
     'https://www.24h.com.vn/bong-da-c48.html'
   ];
 
