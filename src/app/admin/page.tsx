@@ -525,12 +525,22 @@ export default function AdminPage() {
                           
                             {/* Right: Submit & Time */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '15%' }}>
-                              <button type="submit" style={{ backgroundColor: '#006aff', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                LƯU KẾT QUẢ
+                              <button type="submit" style={{ backgroundColor: '#374151', color: '#d1d5db', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', border: '1px solid #4b5563', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                SỬA (GHI ĐÈ)
                               </button>
-                              <span style={{ color: 'white', fontSize: '14px', fontWeight: 'bold' }}>
+                              <span style={{ color: 'white', fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>
                                 {new Date(m.kickoff_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                               </span>
+                              {m.status === 'live' && (
+                                <span className="animate-pulse" style={{ color: '#fbbf24', fontSize: '10px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                                  🤖 AI đang cập nhật...
+                                </span>
+                              )}
+                              {m.status === 'finished' && (
+                                <span style={{ color: '#34d399', fontSize: '10px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>
+                                  ✅ AI đã chốt sổ
+                                </span>
+                              )}
                             </div>
                           </form>
                         )}
