@@ -3,6 +3,16 @@ export interface ScrapeResult {
   away_score: number | null;
   status: 'pending' | 'live' | 'finished';
   match_time: string | null;
+  events: {
+    home_events: Array<{ player: string, time: string, is_penalty: boolean, assist: string | null }>;
+    away_events: Array<{ player: string, time: string, is_penalty: boolean, assist: string | null }>;
+    shootout?: {
+      home_score: number;
+      away_score: number;
+      home_kicks: Array<{ player: string, success: boolean }>;
+      away_kicks: Array<{ player: string, success: boolean }>;
+    } | null;
+  } | null;
 }
 
 // Hàm hỗ trợ loại bỏ thẻ HTML để giảm dung lượng text gửi cho AI
@@ -46,23 +56,41 @@ async function fetchHtml(url: string): Promise<string> {
   }
 }
 
-async function analyzeWithGemini(text: string, homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
+export async function analyzeWithGemini(text: string, homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.error('Thiếu GEMINI_API_KEY trong biến môi trường');
     return null;
   }
 
-  const prompt = `Bạn là một trợ lý phân tích dữ liệu thể thao.
-Dưới đây là văn bản thô trích xuất từ một trang báo thể thao.
-Trận đấu ĐANG DIỄN RA HOẶC VỪA KẾT THÚC là giữa đội "${homeTeam}" và đội "${awayTeam}".
-Nhiệm vụ của bạn là tìm tỷ số hiện tại và phút thi đấu (hoặc trạng thái: HT, FT, PEN) của trận đấu này từ văn bản bên dưới.
+  const prompt = `Bạn là một chuyên gia phân tích bóng đá. Hãy đọc đoạn văn bản sau trích xuất từ trang báo thể thao trực tiếp, và tìm tỷ số hiện tại của trận đấu giữa "${homeTeam}" (Đội nhà) và "${awayTeam}" (Đội khách).
+Bạn cũng cần phải tìm danh sách các cầu thủ ghi bàn, kiến tạo và kết quả loạt sút luân lưu (nếu có).
 
-Chú ý:
-- Nếu trận đấu chưa diễn ra (không có tỷ số), hãy để null và status là 'pending'.
-- Nếu trận đấu đã kết thúc (có chữ Hết giờ, FT, Full time, Penalty), status là 'finished'.
-- Trả về duy nhất MỘT đoạn JSON hợp lệ với cấu trúc sau, không kèm giải thích hay markdown code block:
-{"home_score": <số bàn đội nhà, null nếu chưa có>, "away_score": <số bàn đội khách, null nếu chưa có>, "status": "<'live' | 'finished' | 'pending'>", "match_time": "<vd: '45', '90', 'HT', 'FT', 'PEN'>"}
+Trả về một JSON object duy nhất, định dạng chính xác như sau:
+{
+  "home_score": <số bàn thắng của đội nhà, hoặc null>,
+  "away_score": <số bàn thắng của đội khách, hoặc null>,
+  "status": "finished" (nếu trận đấu đã kết thúc/hết giờ), "live" (nếu đang diễn ra), hoặc "pending" (nếu chưa bắt đầu),
+  "match_time": "Thời gian hiện tại, ví dụ: 'Phút 89', 'HT', 'FT', 'Hết giờ'",
+  "events": {
+    "home_events": [
+      { "player": "Tên cầu thủ", "time": "Phút ghi bàn (ví dụ 23')", "is_penalty": true/false (nếu là bàn từ đá phạt đền penalty/ph.đ), "assist": "Tên người kiến tạo hoặc null" }
+    ],
+    "away_events": [ ...tương tự... ],
+    "shootout": null (nếu không có luân lưu) HOẶC nếu có loạt sút luân lưu thì trả về object: {
+      "home_score": <tổng số quả luân lưu thành công của đội nhà>,
+      "away_score": <tổng số quả luân lưu thành công của đội khách>,
+      "home_kicks": [{ "player": "Tên cầu thủ", "success": true/false (sút vào hay trượt) }],
+      "away_kicks": [{ "player": "Tên cầu thủ", "success": true/false }]
+    }
+  }
+}
+
+Lưu ý quan trọng:
+- CHỈ trả về JSON object, không kèm markdown, không giải thích.
+- Nếu không tìm thấy tỷ số, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": "", "events": null }.
+- Nếu trận đấu kéo dài qua hiệp phụ, ghi chú match_time hợp lý.
+- Sự kiện (events) chỉ chứa BÀN THẮNG (không thẻ đỏ/vàng).
 
 Văn bản:
 """

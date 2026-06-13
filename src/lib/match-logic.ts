@@ -10,7 +10,8 @@ export async function internalUpdateMatchResult(
   score90Home?: number,
   score90Away?: number,
   penaltyHome?: number,
-  penaltyAway?: number
+  penaltyAway?: number,
+  events?: any
 ) {
   // Update match status
   const updateData: any = {
@@ -18,6 +19,10 @@ export async function internalUpdateMatchResult(
     away_score: awayScore,
     status: 'finished'
   };
+  
+  if (events) {
+    updateData.events = events;
+  }
 
   if (isKnockout) {
     updateData.winner_id = winnerId;

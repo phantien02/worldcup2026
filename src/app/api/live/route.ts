@@ -16,7 +16,7 @@ export async function GET() {
     // 1. Lấy danh sách trận đấu đang pending hoặc live
     const { data: matches } = await supabaseAdmin
       .from('matches')
-      .select('id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id, home_team:home_team_id(name), away_team:away_team_id(name)')
+      .select('id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id, events, home_team:home_team_id(name), away_team:away_team_id(name)')
       .in('status', ['pending', 'live']);
 
     if (!matches || matches.length === 0) {
@@ -43,7 +43,8 @@ export async function GET() {
           id: m.id,
           home_score: m.home_score,
           away_score: m.away_score,
-          status: m.status
+          status: m.status,
+          events: m.events
         }))
       });
     }
@@ -92,17 +93,24 @@ export async function GET() {
               winnerId,
               winMethod,
               scrapeData.home_score!, // Tỷ số 90 phút tạm bằng tỷ số chung cuộc
-              scrapeData.away_score!
+              scrapeData.away_score!,
+              undefined,
+              undefined,
+              scrapeData.events
             );
             results.push({ match_id: m.id, action: 'finished_and_calculated' });
 
           } else {
-            // Đang live -> Chỉ cập nhật tỷ số
-            await supabaseAdmin.from('matches').update({
+            // Đang live -> Chỉ cập nhật tỷ số và events
+            const updatePayload: any = {
               home_score: scrapeData.home_score,
               away_score: scrapeData.away_score,
               status: newStatus
-            }).eq('id', m.id);
+            };
+            if (scrapeData.events) {
+              updatePayload.events = scrapeData.events;
+            }
+            await supabaseAdmin.from('matches').update(updatePayload).eq('id', m.id);
             results.push({ match_id: m.id, action: 'updated_live_score' });
           }
         }
