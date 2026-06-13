@@ -380,11 +380,11 @@ export default function MatchPage() {
           </div>
           <span className={`badge ${
             match.status === 'finished' ? 'badge-success' : 
-            (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'badge-danger animate-pulse' : 
+            (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'badge-danger' : 
             (match.status === 'pending' && (new Date(match.kickoff_time).getTime() - new Date().getTime()) / (1000 * 60 * 60) <= 12) ? 'badge-warning' : 'badge-secondary'
           }`}>
             {match.status === 'finished' ? 'Đã xong' : 
-             (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'Đang diễn ra' : 
+             (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? <span className="animate-pulse">Đang diễn ra</span> : 
              (match.status === 'pending' && (new Date(match.kickoff_time).getTime() - new Date().getTime()) / (1000 * 60 * 60) <= 12) ? 'Sắp diễn ra' : 'Chưa diễn ra'}
           </span>
           <div className="mt-4 font-semibold" style={{ opacity: 0.8 }}>{new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</div>

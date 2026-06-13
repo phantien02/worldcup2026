@@ -664,7 +664,7 @@ export default function HomePage() {
                     const isUpcoming = isPending && diffHours <= 12;
 
                     const displayStatus = isFinished ? 'Đã xong' : isLive ? 'Đang diễn ra' : isUpcoming ? 'Sắp diễn ra' : 'Chưa diễn ra';
-                    const badgeClass = isFinished ? 'badge-success' : isLive ? 'badge-danger animate-pulse' : isUpcoming ? 'badge-warning' : 'badge-secondary';
+                    const badgeClass = isFinished ? 'badge-success' : isLive ? 'badge-danger' : isUpcoming ? 'badge-warning' : 'badge-secondary';
                     const hasPredicted = myPredictions.some(p => p.match_id === match.id);
 
                     return (
@@ -684,7 +684,7 @@ export default function HomePage() {
                             </div>
                           </div>
                           <span className={`badge ${badgeClass}`}>
-                            {displayStatus}
+                            {isLive ? <span className="animate-pulse">{displayStatus}</span> : displayStatus}
                           </span>
                         </div>
 
