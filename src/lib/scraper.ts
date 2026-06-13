@@ -113,7 +113,7 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
   const sources = [
     'https://vnexpress.net/the-thao',
     'https://thethao247.vn/',
-    'https://www.24h.com.vn/bong-da/lich-thi-dau-world-cup-c48a1473268.html'
+    'https://www.24h.com.vn/bong-da-c48.html'
   ];
 
   console.log(`[Scraper] Đang cào dữ liệu cho ${homeTeam} vs ${awayTeam}...`);
