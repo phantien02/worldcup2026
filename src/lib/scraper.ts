@@ -29,7 +29,9 @@ function stripHtmlTags(html: string): string {
     .replace(/<svg[^>]*class="[^"]*(ic-red|red-card|the-do)[^"]*"[^>]*>[\s\S]*?<\/svg>/gi, ' [THẺ ĐỎ] ')
     .replace(/<img[^>]*src="[^"]*(red-card|the-do)[^"]*"[^>]*>/gi, ' [THẺ ĐỎ] ')
     .replace(/\(pen\)/gi, ' (penalty) ')
-    .replace(/\(og\)/gi, ' (phản lưới nhà) ');
+    .replace(/\(og\)/gi, ' (O.G) ')
+    .replace(/\(phản lưới nhà\)/gi, ' (O.G) ')
+    .replace(/phản lưới/gi, ' (O.G) ');
 
   const cleanHtml = htmlWithIcons
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
@@ -83,7 +85,7 @@ Trả về một JSON object duy nhất, định dạng chính xác như sau:
   "match_time": "Thời gian hiện tại, ví dụ: 'Phút 89', 'HT', 'FT', 'Hết giờ'",
   "events": {
     "home_events": [
-      { "player": "Tên cầu thủ", "time": "Phút ghi bàn (ví dụ 23')", "is_penalty": true/false (nếu là bàn từ đá phạt đền penalty/ph.đ), "assist": "Tên người kiến tạo hoặc null" }
+      { "player": "Tên cầu thủ (nếu phản lưới nhà thì thêm chữ (O.G) vào sau tên, ví dụ: 'Nguyễn Văn A (O.G)')", "time": "Phút ghi bàn (ví dụ 23')", "is_penalty": true/false (nếu là bàn từ đá phạt đền penalty/ph.đ), "assist": "Tên người kiến tạo hoặc null" }
     ],
     "away_events": [ ...tương tự... ],
     "shootout": null (nếu không có luân lưu) HOẶC nếu có loạt sút luân lưu thì trả về object: {
