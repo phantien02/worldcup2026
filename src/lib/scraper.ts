@@ -118,53 +118,25 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
 
   console.log(`[Scraper] Đang cào dữ liệu cho ${homeTeam} vs ${awayTeam}...`);
   
-  // Gọi đồng thời 3 nguồn để tối ưu tốc độ (khoảng 1-2 giây)
-  const fetchPromises = sources.map(url => fetchHtml(url));
-  const htmlResults = await Promise.all(fetchPromises);
-  
-  const analyzePromises = htmlResults.map((html, idx) => {
-    if (!html) return Promise.resolve(null);
-    const cleanText = stripHtmlTags(html);
-    return analyzeWithGemini(cleanText, homeTeam, awayTeam);
-  });
-  
-  const aiResults = await Promise.all(analyzePromises);
-  
-  // Lọc ra các kết quả thành công
-  const validResults = aiResults.filter(r => r !== null) as ScrapeResult[];
-  
-  if (validResults.length === 0) {
-    console.log('[Scraper] Cả 3 nguồn đều không tìm thấy thông tin');
-    return null;
-  }
-
-  // Thuật toán kiểm tra chéo (Luật số đông 2/3)
-  // Nếu có 2 kết quả giống hệt nhau về tỷ số, ta chọn nó.
-  const scoreMap = new Map<string, number>();
-  
-  for (const res of validResults) {
-    if (res.home_score !== null && res.away_score !== null) {
-      const key = `${res.home_score}-${res.away_score}-${res.status}`;
-      scoreMap.set(key, (scoreMap.get(key) || 0) + 1);
+  // Thuật toán Tuần tự (Sequential Fallback) để tiết kiệm API Quota
+  // Lần lượt đọc từng tờ báo. Nếu báo 1 có kết quả -> Chốt luôn và thoát. Không gọi AI cho báo 2, 3.
+  for (const url of sources) {
+    try {
+      const html = await fetchHtml(url);
+      if (!html) continue;
+      
+      const cleanText = stripHtmlTags(html);
+      const result = await analyzeWithGemini(cleanText, homeTeam, awayTeam);
+      
+      if (result && result.home_score !== null && result.away_score !== null) {
+        console.log(`[Scraper] Đã chốt tỷ số từ nguồn ${url}: ${result.home_score} - ${result.away_score} (${result.status})`);
+        return result; // Tìm thấy là trả về ngay lập tức, tiết kiệm 2 request còn lại
+      }
+    } catch (err) {
+      console.error(`[Scraper] Lỗi khi xử lý nguồn ${url}:`, err);
     }
   }
 
-  let finalKey = null;
-  let maxCount = 0;
-  for (const [key, count] of scoreMap.entries()) {
-    if (count > maxCount) {
-      maxCount = count;
-      finalKey = key;
-    }
-  }
-
-  // Yêu cầu ít nhất 2 nguồn đồng ý (hoặc nếu chỉ lấy được 1 nguồn thành công thì tin luôn nguồn đó)
-  if (finalKey && (maxCount >= 2 || validResults.length === 1)) {
-    const winnerResult = validResults.find(r => `${r.home_score}-${r.away_score}-${r.status}` === finalKey);
-    console.log(`[Scraper] Đã chốt tỷ số: ${winnerResult?.home_score} - ${winnerResult?.away_score} (${winnerResult?.status})`);
-    return winnerResult || null;
-  }
-
-  console.log('[Scraper] Dữ liệu nhiễu, các nguồn không thống nhất.');
+  console.log('[Scraper] Cả 3 nguồn đều không tìm thấy thông tin hoặc bị lỗi API.');
   return null;
 }
