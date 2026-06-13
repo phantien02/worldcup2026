@@ -35,7 +35,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const isGuest = user?.email === 'guest@wc2026.local';
   
-  const [leaderboard, setLeaderboard] = useState<Profile[]>([]);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'matches' | 'standings' | 'rules' | 'profile'>('matches');
@@ -60,12 +60,15 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       // Fetch leaderboard
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('total_points', { ascending: false });
-
-      if (profiles) setLeaderboard((profiles as Profile[]).filter(p => p.display_name !== 'guest'));
+      try {
+        const lbRes = await fetch('/api/leaderboard');
+        const lbData = await lbRes.json();
+        if (lbData.success) {
+          setLeaderboard(lbData.leaderboard);
+        }
+      } catch (err) {
+        console.error("Error fetching leaderboard", err);
+      }
 
       // Fetch matches
       const { data: matchesData } = await supabase
@@ -472,33 +475,61 @@ export default function HomePage() {
 
         {/* Leaderboard Tab */}
         {activeTab === 'leaderboard' && (
-        <div className="w-full max-w-2xl flex flex-col gap-6 animate-fade-in">
+        <div className="w-full max-w-4xl flex flex-col gap-6 animate-fade-in mx-auto">
           <h2 className="text-2xl font-bold uppercase tracking-wider flex items-center gap-2 justify-center mb-2">
             <span style={{ color: '#ff9900' }}>●</span> BXH Người Chơi
           </h2>
-          <div className="glass-panel" style={{ padding: '1.5rem' }}>
+          <div className="glass-panel" style={{ padding: '1.5rem', overflowX: 'auto' }}>
             {leaderboard.length === 0 ? (
               <div className="text-center" style={{ padding: '2rem 0', opacity: 0.5 }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
                 Chưa có ai ghi điểm. Hãy là người đầu tiên!
               </div>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 min-w-[600px]">
+                {/* Header Row */}
+                <div className="flex justify-between items-center px-4" style={{ fontSize: '0.85rem', color: '#a3a3a3', fontWeight: 'bold' }}>
+                  <div className="flex items-center gap-4 w-[40%]">
+                    <span style={{ width: '40px', textAlign: 'center' }}>Hạng</span>
+                    <span>Người Chơi</span>
+                  </div>
+                  <div className="flex items-center justify-between w-[60%]">
+                    <span className="text-center flex-1" title="Dự đoán đúng kết quả trận đấu">Đoán KQ</span>
+                    <span className="text-center flex-1" title="Dự đoán chính xác tỷ số">Đoán TS</span>
+                    <span className="text-center flex-1" title="Dự đoán chính xác hiệu số">Đoán HS</span>
+                    <span className="text-right w-16 text-white text-base">Điểm</span>
+                  </div>
+                </div>
+
                 {leaderboard.map((user, idx) => (
-                  <div key={user.id} className="flex justify-between items-center hover-card" style={{ padding: '1rem', background: 'rgba(0,0,0,0.3)', borderRadius: '12px' }}>
-                    <div className="flex items-center gap-4">
+                  <div key={user.id} className="flex justify-between items-center hover-card" style={{ padding: '0.8rem 1rem', background: 'rgba(0,0,0,0.3)', borderRadius: '12px' }}>
+                    <div className="flex items-center gap-4 w-[40%]">
                       <span style={{ 
                         fontWeight: '900', 
                         fontSize: '1.25rem',
-                        width: '32px', 
+                        width: '40px', 
                         textAlign: 'center',
-                        color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : 'inherit' 
+                        color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#6b7280' 
                       }}>
                         #{idx + 1}
                       </span>
-                      <span style={{ fontSize: '1.1rem', fontWeight: 600 }}>{user.display_name}</span>
+                      <span style={{ fontSize: '1.1rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.display_name}</span>
                     </div>
-                    <span className="badge badge-success" style={{ fontSize: '1rem' }}>{user.total_points} đ</span>
+                    
+                    <div className="flex items-center justify-between w-[60%]">
+                      <span className="text-center flex-1 text-sm font-medium" style={{ color: '#00d2ff' }}>
+                        {user.stats?.correctResults || 0}/{user.stats?.totalPreds || 0}
+                      </span>
+                      <span className="text-center flex-1 text-sm font-medium" style={{ color: '#00ff88' }}>
+                        {user.stats?.exactScores || 0}/{user.stats?.totalPreds || 0}
+                      </span>
+                      <span className="text-center flex-1 text-sm font-medium" style={{ color: '#fbbf24' }}>
+                        {user.stats?.exactDiffs || 0}/{user.stats?.totalPreds || 0}
+                      </span>
+                      <span className="text-right w-16 font-bold" style={{ color: '#00ff88', fontSize: '1.2rem' }}>
+                        {user.total_points}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
