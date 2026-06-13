@@ -380,7 +380,7 @@ export default function MatchPage() {
           </div>
           <span className={`badge ${
             match.status === 'finished' ? 'badge-success' : 
-            (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'badge-danger' : 
+            (match.status === 'live' || (match.status === 'pending' && new Date() >= new Date(match.kickoff_time))) ? 'badge-danger animate-pulse' : 
             (match.status === 'pending' && (new Date(match.kickoff_time).getTime() - new Date().getTime()) / (1000 * 60 * 60) <= 12) ? 'badge-warning' : 'badge-secondary'
           }`}>
             {match.status === 'finished' ? 'Đã xong' : 
@@ -403,7 +403,7 @@ export default function MatchPage() {
           
           <div className="flex flex-col items-center justify-center" style={{ flexShrink: 0, padding: '0 0.5rem' }}>
             <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '2.5rem' : '1.8rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
-              {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (new Date() >= new Date(match.kickoff_time) ? <div style={{ color: '#fbbf24', fontSize: '1rem', textTransform: 'uppercase', lineHeight: '1.4', background: 'none', WebkitTextFillColor: 'initial' }}>Kết quả đang<br/>được cập nhật</div> : 'VS')}
+              {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (new Date() >= new Date(match.kickoff_time) ? <div style={{ color: 'var(--danger)', fontSize: '1rem', textTransform: 'uppercase', lineHeight: '1.4', background: 'none', WebkitTextFillColor: 'initial' }} className="animate-pulse">Kết quả đang<br/>được cập nhật</div> : 'VS')}
             </div>
           </div>
 

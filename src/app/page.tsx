@@ -664,7 +664,7 @@ export default function HomePage() {
                     const isUpcoming = isPending && diffHours <= 12;
 
                     const displayStatus = isFinished ? 'Đã xong' : isLive ? 'Đang diễn ra' : isUpcoming ? 'Sắp diễn ra' : 'Chưa diễn ra';
-                    const badgeClass = isFinished ? 'badge-success' : isLive ? 'badge-danger' : isUpcoming ? 'badge-warning' : 'badge-secondary';
+                    const badgeClass = isFinished ? 'badge-success' : isLive ? 'badge-danger animate-pulse' : isUpcoming ? 'badge-warning' : 'badge-secondary';
                     const hasPredicted = myPredictions.some(p => p.match_id === match.id);
 
                     return (
@@ -708,7 +708,7 @@ export default function HomePage() {
                           whiteSpace: 'nowrap',
                           letterSpacing: match.status !== 'pending' ? '-0.05em' : 'normal'
                         }}>
-                          {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (isLive ? <div style={{ color: '#fbbf24', fontSize: '0.85rem', textTransform: 'uppercase', lineHeight: '1.2' }}>Kết quả đang<br/>được cập nhật</div> : 'VS')}
+                          {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (isLive ? <div style={{ color: 'var(--danger)', fontSize: '0.85rem', textTransform: 'uppercase', lineHeight: '1.2' }} className="animate-pulse">Kết quả đang<br/>được cập nhật</div> : 'VS')}
                         </div>
                         {match.status !== 'pending' && match.win_method && match.win_method !== '90_mins' && (
                           <div className="text-center mt-1" style={{ fontSize: '0.85rem', color: 'var(--warning)', fontWeight: 'bold' }}>
