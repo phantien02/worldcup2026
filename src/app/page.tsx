@@ -108,7 +108,7 @@ export default function HomePage() {
     };
   }, []);
 
-  // Polling /api/live 15s/lần nếu có trận đấu đang diễn ra
+  // Polling /api/live 60s/lần nếu có trận đấu đang diễn ra
   useEffect(() => {
     if (matches.length === 0) return;
     
@@ -123,12 +123,12 @@ export default function HomePage() {
 
     const intervalId = setInterval(async () => {
       try {
-        // Gọi API ngầm để kích hoạt máy cào dữ liệu (nếu đã đủ 15s)
+        // Gọi API ngầm để kích hoạt máy cào dữ liệu (nếu đã đủ 60s)
         await fetch('/api/live');
       } catch (err) {
         // Bỏ qua lỗi mạng
       }
-    }, 15000);
+    }, 60000);
 
     return () => clearInterval(intervalId);
   }, [matches]);

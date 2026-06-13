@@ -34,11 +34,11 @@ export async function GET() {
       return NextResponse.json({ message: 'Các trận đấu chưa tới giờ lăn bóng.' });
     }
 
-    // 2. Throttling: Kiểm tra xem đã qua 15 giây kể từ lần cào trước chưa?
-    if (now - lastScrapedAt < 15000) {
-      // Chưa đủ 15 giây, chỉ trả về dữ liệu trong DB hiện tại (Cache)
+    // 2. Throttling: Kiểm tra xem đã qua 60 giây kể từ lần cào trước chưa?
+    if (now - lastScrapedAt < 60000) {
+      // Chưa đủ 60 giây, chỉ trả về dữ liệu trong DB hiện tại (Cache)
       return NextResponse.json({
-        message: 'Đang dùng Cache DB (thời gian chờ 15s)',
+        message: 'Đang dùng Cache DB (thời gian chờ 60s)',
         matches: activeMatches.map(m => ({
           id: m.id,
           home_score: m.home_score,
