@@ -37,13 +37,20 @@ export async function GET() {
       return NextResponse.json({ message: 'Các trận đấu chưa tới giờ lăn bóng.' });
     }
 
-    // TEMPORARILY DISABLED THROTTLE TO FORCE UPDATE
-    // if (now - lastScrapedAt < 5 * 60 * 1000) {
-    //   return NextResponse.json({
-    //     message: 'Đang dùng Cache DB (thời gian chờ 5p)',
-    //     ...
-    //   });
-    // }
+    // 2. Throttling: Chờ ít nhất 5 PHÚT giữa các lần cào để tiết kiệm Gemini quota
+    if (now - lastScrapedAt < 5 * 60 * 1000) {
+      // Chưa đủ 60 giây, chỉ trả về dữ liệu trong DB hiện tại (Cache)
+      return NextResponse.json({
+        message: 'Đang dùng Cache DB (thời gian chờ 5p)',
+        matches: activeMatches.map(m => ({
+          id: m.id,
+          home_score: m.home_score,
+          away_score: m.away_score,
+          status: m.status,
+          events: m.events
+        }))
+      });
+    }
 
     // Cập nhật timestamp để các request song song khác rơi vào Cache
     lastScrapedAt = now;
