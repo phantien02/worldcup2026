@@ -32,7 +32,7 @@ function stripHtmlTags(html: string): string {
 async function fetchHtml(url: string): Promise<string> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s timeout cứng để né Vercel Limit 10s
     
     const response = await fetch(url, {
       headers: {
@@ -178,7 +178,35 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
 
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam} (${homeEn} vs ${awayEn})...`);
 
-  // ===== BƯỚC 1: Google News RSS (Ưu tiên vì nhanh, ít bị chặn IP) =====
+  // ===== BƯỚC 1: Ưu tiên Znews theo đúng yêu cầu =====
+  const znewsUrl = 'https://znews.vn/worldcup-2026';
+  try {
+    console.log(`[Scraper] Đang quét ${znewsUrl}...`);
+    const html = await fetchHtml(znewsUrl);
+    if (html && html.length >= 500) {
+      const cleanText = stripHtmlTags(html);
+      const textLower = cleanText.toLowerCase();
+      const hasTeamName = textLower.includes(homeTeam.toLowerCase()) || 
+                          textLower.includes(awayTeam.toLowerCase()) ||
+                          textLower.includes(homeEn.toLowerCase()) || 
+                          textLower.includes(awayEn.toLowerCase());
+
+      if (hasTeamName) {
+        const result = await analyzeWithGemini(cleanText, homeTeam, awayTeam);
+        if (result && result.home_score !== null && result.away_score !== null) {
+          console.log(`[Scraper] ✅ Chốt tỷ số từ Znews: ${result.home_score} - ${result.away_score} (${result.status})`);
+          return result;
+        }
+      } else {
+        console.log(`[Scraper] ⏭️ Bỏ qua Znews (không chứa tên đội).`);
+      }
+    }
+  } catch (err) {
+    console.error(`[Scraper] Lỗi khi xử lý Znews:`, err);
+  }
+
+  // ===== BƯỚC 2: Google News RSS (Tìm kiếm nếu Znews không có) =====
+
   const googleNewsUrls = [
     `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' kết quả')}&hl=vi&gl=VN&ceid=VN:vi`,
     `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' score')}&hl=en`,
@@ -223,14 +251,13 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
     }
   }
 
-  // ===== BƯỚC 2: Znews World Cup 2026 (Tìm kiếm nếu Google News không có) =====
-  const newsSources = [
-    'https://znews.vn/worldcup-2026',
+  // ===== BƯỚC 3: Các báo VN khác (Dự phòng cuối cùng) =====
+  const otherNewsSources = [
     'https://vnexpress.net/the-thao/world-cup-2026',
     'https://www.24h.com.vn/bong-da-c48.html',
   ];
 
-  for (const url of newsSources) {
+  for (const url of otherNewsSources) {
     try {
       console.log(`[Scraper] Đang quét ${url}...`);
       const html = await fetchHtml(url);
@@ -245,12 +272,10 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
                           textLower.includes(awayEn.toLowerCase());
 
       if (!hasTeamName) {
-        console.log(`[Scraper] ⏭️ Bỏ qua trang ${url} (không chứa tên đội).`);
         continue;
       }
 
       const result = await analyzeWithGemini(cleanText, homeTeam, awayTeam);
-      
       if (result && result.home_score !== null && result.away_score !== null) {
         console.log(`[Scraper] ✅ Chốt tỷ số từ ${url}: ${result.home_score} - ${result.away_score} (${result.status})`);
         return result;
