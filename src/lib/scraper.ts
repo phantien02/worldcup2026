@@ -167,23 +167,55 @@ function normalize(str: string): string {
   return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/đ/g, 'd');
 }
 
-// ===== CHIẾN LƯỢC MỚI: CÀO TIN TỨC BÀI BÁO (Server-Side Rendered) =====
-// Thay vì cào bảng điểm livescore (bị khóa bằng JS/Cloudflare),
-// ta cào các TRANG TIN TỨC BÀI BÁO - luôn render HTML tĩnh để Google index.
-
 export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
 
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam} (${homeEn} vs ${awayEn})...`);
 
-  // ===== BƯỚC 1: Google News RSS (Ưu tiên cao nhất - nhanh, chính xác, miễn phí) =====
-  // Google News RSS trả về tiêu đề bài báo từ hàng trăm nguồn tin, không bị chặn Bot
+  // ===== BƯỚC 1: Znews World Cup 2026 (Ưu tiên đọc báo Znews trước) =====
+  const newsSources = [
+    'https://znews.vn/worldcup-2026',
+    'https://vnexpress.net/the-thao/world-cup-2026',
+    'https://www.24h.com.vn/bong-da-c48.html',
+  ];
+
+  for (const url of newsSources) {
+    try {
+      console.log(`[Scraper] Đang quét ${url}...`);
+      const html = await fetchHtml(url);
+      if (!html || html.length < 500) continue;
+      
+      const cleanText = stripHtmlTags(html);
+
+      // PRE-FILTER: Kiểm tra xem text bài báo có chứa tên đội không TRƯỚC KHI gọi Gemini
+      const textLower = cleanText.toLowerCase();
+      const hasTeamName = textLower.includes(homeTeam.toLowerCase()) || 
+                          textLower.includes(awayTeam.toLowerCase()) ||
+                          textLower.includes(homeEn.toLowerCase()) || 
+                          textLower.includes(awayEn.toLowerCase());
+
+      if (!hasTeamName) {
+        console.log(`[Scraper] ⏭️ Bỏ qua trang ${url} (không chứa tên đội), tiết kiệm 1 lượt Gemini.`);
+        continue;
+      }
+
+      const result = await analyzeWithGemini(cleanText, homeTeam, awayTeam);
+      
+      if (result && result.home_score !== null && result.away_score !== null) {
+        console.log(`[Scraper] ✅ Chốt tỷ số từ ${url}: ${result.home_score} - ${result.away_score} (${result.status})`);
+        return result;
+      }
+    } catch (err) {
+      console.error(`[Scraper] Lỗi khi xử lý ${url}:`, err);
+    }
+  }
+
+  // ===== BƯỚC 2: Google News RSS (Tìm kiếm nếu Znews không có) =====
   const googleNewsUrls = [
-    // Tìm bằng tiếng Việt
-    `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' ' + awayTeam + ' kết quả World Cup 2026')}&hl=vi&gl=VN&ceid=VN:vi`,
-    // Tìm bằng tiếng Anh
-    `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' score World Cup 2026')}&hl=en`,
+    // Tìm theo đúng cú pháp "brazil vs morocco kết quả"
+    `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' kết quả')}&hl=vi&gl=VN&ceid=VN:vi`,
+    `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' score')}&hl=en`,
   ];
 
   for (const rssUrl of googleNewsUrls) {
@@ -227,43 +259,7 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promi
     }
   }
 
-  // ===== BƯỚC 2: Znews World Cup 2026 (Trang tin tức bài báo - HTML tĩnh) =====
-  const newsSources = [
-    'https://znews.vn/worldcup-2026',
-    'https://vnexpress.net/the-thao/world-cup-2026',
-    'https://www.24h.com.vn/bong-da-c48.html',
-  ];
 
-  for (const url of newsSources) {
-    try {
-      console.log(`[Scraper] Đang quét ${url}...`);
-      const html = await fetchHtml(url);
-      if (!html || html.length < 500) continue;
-      
-      const cleanText = stripHtmlTags(html);
-
-      // PRE-FILTER: Kiểm tra xem text bài báo có chứa tên đội không TRƯỚC KHI gọi Gemini
-      const textLower = cleanText.toLowerCase();
-      const hasTeamName = textLower.includes(homeTeam.toLowerCase()) || 
-                          textLower.includes(awayTeam.toLowerCase()) ||
-                          textLower.includes(homeEn.toLowerCase()) || 
-                          textLower.includes(awayEn.toLowerCase());
-
-      if (!hasTeamName) {
-        console.log(`[Scraper] ⏭️ Bỏ qua trang ${url} (không chứa tên đội), tiết kiệm 1 lượt Gemini.`);
-        continue;
-      }
-
-      const result = await analyzeWithGemini(cleanText, homeTeam, awayTeam);
-      
-      if (result && result.home_score !== null && result.away_score !== null) {
-        console.log(`[Scraper] ✅ Chốt tỷ số từ ${url}: ${result.home_score} - ${result.away_score} (${result.status})`);
-        return result;
-      }
-    } catch (err) {
-      console.error(`[Scraper] Lỗi khi xử lý ${url}:`, err);
-    }
-  }
 
   console.log('[Scraper] ❌ Không tìm thấy kết quả từ tất cả các nguồn.');
   return null;
