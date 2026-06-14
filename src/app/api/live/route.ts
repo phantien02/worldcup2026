@@ -57,8 +57,11 @@ export async function GET() {
     
     const results = [];
 
+    // Lấy tối đa 2 trận để tránh hit rate limit (15 RPM của Gemini 3.1)
+    const matchesToScrape = activeMatches.slice(0, 2);
+
     // 3. Tiến hành cào dữ liệu cho từng trận đang active
-    for (const m of activeMatches) {
+    for (const m of matchesToScrape) {
       const homeName = (m.home_team as any).name || (m.home_team as any)[0]?.name;
       const awayName = (m.away_team as any).name || (m.away_team as any)[0]?.name;
 
