@@ -25,8 +25,8 @@ function stripHtmlTags(html: string): string {
     .replace(/<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi, ' ')
     .replace(/<[^>]+>/g, ' '); // Xóa tất cả các thẻ còn lại
 
-  // Xóa khoảng trắng thừa
-  return cleanHtml.replace(/\s+/g, ' ').trim().substring(0, 20000);
+  // Xóa khoảng trắng thừa và giới hạn độ dài để tránh quá tải API
+  return cleanHtml.replace(/\s+/g, ' ').trim().substring(0, 10000);
 }
 
 async function fetchHtml(url: string): Promise<string> {
