@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     // We fetch all valid matches to join with predictions
     const { data: matches, error: matchErr } = await supabaseAdmin
       .from('matches')
-      .select('id, home_team, away_team, home_score, away_score, status, round, kickoff_time');
+      .select('id, home_team:home_team_id(name), away_team:away_team_id(name), home_score, away_score, status, round, kickoff_time');
       
     if (matchErr) throw matchErr;
 
@@ -50,8 +50,8 @@ export async function GET(request: Request) {
           if (!m) return null;
           return {
             match_id: m.id,
-            home_team: m.home_team,
-            away_team: m.away_team,
+            home_team: m.home_team?.name || 'Đội nhà',
+            away_team: m.away_team?.name || 'Đội khách',
             match_status: m.status,
             match_home_score: m.home_score,
             match_away_score: m.away_score,
