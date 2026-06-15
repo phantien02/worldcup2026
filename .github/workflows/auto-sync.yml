@@ -1,9 +1,6 @@
 name: Auto Sync Scores
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     # Tránh các phút 0, 15, 30, 45 để né giờ cao điểm của GitHub Actions toàn cầu
     - cron: '7,22,37,52 * * * *'
