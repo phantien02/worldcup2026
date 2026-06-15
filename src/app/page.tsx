@@ -905,7 +905,7 @@ export default function HomePage() {
                           
                           <div style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', textAlign: 'center', pointerEvents: 'none', zIndex: 1 }}>
                             <div style={{ fontSize: '0.85rem', opacity: 0.9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff', display: 'inline-block', backgroundColor: 'rgba(255,255,255,0.1)', padding: '4px 16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                              {new Date(match.kickoff_time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                              {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                             </div>
                           </div>
 
