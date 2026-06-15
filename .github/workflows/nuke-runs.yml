@@ -1,0 +1,18 @@
+name: Nuke Workflow Runs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  nuke:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Delete all workflow runs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Bắt đầu xóa toàn bộ lịch sử Workflow..."
+          gh api -X GET /repos/${{ github.repository }}/actions/runs --paginate -q '.workflow_runs[].id' | xargs -I {} gh api -X DELETE /repos/${{ github.repository }}/actions/runs/{}
+          echo "Đã dọn dẹp sạch sẽ!"
