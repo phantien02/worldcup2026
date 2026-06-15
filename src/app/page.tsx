@@ -598,17 +598,16 @@ export default function HomePage() {
                       <div className="text-sm font-bold text-gray-400 uppercase">
                         Người chơi
                       </div>
-                      <div className="flex gap-2 text-[11px] text-gray-400 font-semibold">
+                      <div className="flex gap-2 text-[10px] md:text-[11px] font-bold">
                         <button 
                           onClick={() => setHiddenPlayers([])} 
-                          className="hover:text-white transition-colors"
+                          className="bg-[#00d2ff]/20 text-[#00d2ff] hover:bg-[#00d2ff]/30 px-2.5 py-1 rounded-md transition-colors"
                         >
                           Chọn tất cả
                         </button>
-                        <span className="opacity-50">|</span>
                         <button 
                           onClick={() => setHiddenPlayers(leaderboard.map(u => u.display_name))} 
-                          className="hover:text-white transition-colors"
+                          className="bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white px-2.5 py-1 rounded-md transition-colors"
                         >
                           Bỏ chọn tất cả
                         </button>
