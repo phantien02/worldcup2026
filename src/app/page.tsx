@@ -46,6 +46,15 @@ export default function HomePage() {
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
   const [leaderboardView, setLeaderboardView] = useState<'list' | 'chart'>('list');
   const [hiddenPlayers, setHiddenPlayers] = useState<string[]>([]);
+  const [initializedChart, setInitializedChart] = useState(false);
+
+  useEffect(() => {
+    if (leaderboard.length > 0 && user && !initializedChart) {
+      const others = leaderboard.filter(u => u.id !== user.id).map(u => u.display_name);
+      setHiddenPlayers(others);
+      setInitializedChart(true);
+    }
+  }, [leaderboard, user, initializedChart]);
 
   useEffect(() => {
     if (user) {
@@ -505,9 +514,9 @@ export default function HomePage() {
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', fontWeight: '900', fontSize: '1.25rem', color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#6b7280', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
                           <div className="flex flex-col items-center gap-1">
                             <span>#{idx + 1}</span>
-                            {user.rankTrend > 0 && <span style={{ color: '#00ff88', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▲ +{user.rankTrend}</span>}
-                            {user.rankTrend < 0 && <span style={{ color: '#ff4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▼ {user.rankTrend}</span>}
-                            {user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ -</span>}
+                            {user.rankTrend > 0 && <span style={{ color: '#00ff88', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▲ {user.rankTrend}</span>}
+                            {user.rankTrend < 0 && <span style={{ color: '#ff4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▼ {Math.abs(user.rankTrend)}</span>}
+                            {user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ 0</span>}
                           </div>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
