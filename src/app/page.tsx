@@ -898,15 +898,21 @@ export default function HomePage() {
                           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'var(--danger)', boxShadow: '0 0 10px var(--danger)' }}></div>
                         )}
                         
-                        <div className="flex justify-between items-center mb-6">
-                          <div className="flex items-center gap-3">
+                        <div className="flex justify-between items-center mb-6 relative">
+                          <div className="flex items-center">
                             <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '6px', fontWeight: 'bold', color: '#00d2ff', fontSize: '0.9rem', textTransform: 'uppercase' }}>
                               {(matchMapping as any)[`${home.name} vs ${away.name}`] || `TRẬN ${globalIndex}`}
                             </span>
-                            <div style={{ fontSize: '0.9rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                              {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
-                            </div>
                           </div>
+                          
+                          <div className="absolute left-1/2 -translate-x-1/2 text-center hidden md:block" style={{ fontSize: '0.9rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', width: 'max-content' }}>
+                            {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                          
+                          <div className="absolute left-1/2 -translate-x-1/2 text-center md:hidden" style={{ fontSize: '0.75rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', width: 'max-content' }}>
+                            {new Date(match.kickoff_time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          </div>
+
                           <span className={`badge ${badgeClass}`}>
                             {isLive ? <span className="animate-pulse">{displayStatus}</span> : displayStatus}
                           </span>
