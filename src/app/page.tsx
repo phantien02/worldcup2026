@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/AuthProvider';
 import Link from 'next/link';
@@ -50,6 +51,11 @@ export default function HomePage() {
   const [selectedUserStats, setSelectedUserStats] = useState<any>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [loadingUserStats, setLoadingUserStats] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleUserClick = async (userId: string) => {
     setIsUserModalOpen(true);
@@ -568,12 +574,18 @@ export default function HomePage() {
                             {user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ 0</span>}
                           </div>
                         </td>
-                        <td 
-                          style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
-                          onClick={() => handleUserClick(user.id)}
-                          title="Xem chi tiết điểm số"
-                        >
-                          <span className="hover:text-[#00d2ff] underline decoration-white/30 hover:decoration-[#00d2ff] transition-colors">{user.display_name}</span>
+                        <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <span 
+                            className="hover:text-[#00d2ff] underline decoration-white/30 hover:decoration-[#00d2ff] transition-colors cursor-pointer"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleUserClick(user.id);
+                            }}
+                            title="Xem chi tiết điểm số"
+                          >
+                            {user.display_name}
+                          </span>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem' }}>
                           {user.total_points}
@@ -957,7 +969,7 @@ export default function HomePage() {
     </div>
 
       {/* User Stats Modal */}
-      {isUserModalOpen && (
+      {isUserModalOpen && mounted && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
           <div className="absolute inset-0 bg-black/60" onClick={() => setIsUserModalOpen(false)}></div>
           <div className="relative bg-[#111] border border-white/20 rounded-2xl p-6 md:p-8 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in">
@@ -1033,7 +1045,7 @@ export default function HomePage() {
             )}
           </div>
         </div>
-      )}
+      , document.getElementById('portal-root') || document.body)}
     </>
   );
 }
