@@ -490,14 +490,14 @@ export default function HomePage() {
               <select 
                 value={leaderboardView}
                 onChange={(e) => setLeaderboardView(e.target.value as 'list' | 'chart')}
-                className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#ff9900] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-8 md:pr-12 w-[140px] md:min-w-[200px]"
+                className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#ff9900] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-[150px] md:min-w-[220px]"
                 style={{
                   WebkitAppearance: 'none',
                   MozAppearance: 'none',
                   appearance: 'none',
                   backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
                   backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 0.5rem top 50%',
+                  backgroundPosition: 'right 0.75rem top 50%',
                   backgroundSize: '0.65rem auto',
                 }}
               >
@@ -732,15 +732,15 @@ export default function HomePage() {
                       <select 
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#00d2ff] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-8 md:pr-12 w-[110px] md:min-w-[170px] md:w-auto"
+                        className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#00d2ff] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-[120px] md:min-w-[190px] md:w-auto"
                         style={{
                           WebkitAppearance: 'none',
                           MozAppearance: 'none',
                           appearance: 'none',
                           backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
                           backgroundRepeat: 'no-repeat',
-                          backgroundPosition: 'right 0.35rem top 50%',
-                          backgroundSize: '0.5rem auto',
+                          backgroundPosition: 'right 0.75rem top 50%',
+                          backgroundSize: '0.65rem auto',
                         }}
                       >
                         <option value="All">Tất cả</option>
