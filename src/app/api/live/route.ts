@@ -30,7 +30,12 @@ export async function GET() {
     const activeMatches = matches.filter(m => {
       const kickoff = new Date(m.kickoff_time).getTime();
       const diffMinutes = (now - kickoff) / (1000 * 60);
-      return m.status === 'live' || (diffMinutes >= 110 && diffMinutes <= 5 * 60);
+      
+      const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Chung kết'];
+      const isKnockout = knockoutRounds.includes(m.round || '');
+      const minMinutes = isKnockout ? 150 : 120;
+
+      return m.status === 'live' || (diffMinutes >= minMinutes && diffMinutes <= 5 * 60);
     });
 
     if (activeMatches.length === 0) {

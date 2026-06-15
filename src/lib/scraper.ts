@@ -115,6 +115,8 @@ Trả về một JSON object duy nhất, định dạng chính xác như sau:
 Lưu ý quan trọng:
 - CHỈ trả về JSON object, không kèm markdown, không giải thích.
 - Ưu tiên tìm kết quả CHUNG CUỘC (Full Time / FT). Nếu thấy cả tỷ số hiệp 1 và tỷ số chung cuộc, chỉ lấy tỷ số chung cuộc.
+- NẾU văn bản chỉ đề cập đến tỷ số Hiệp 1 (HT - Half Time), hoặc trận đấu đang diễn ra (Live), TUYỆT ĐỐI KHÔNG trả về status là "finished". Bắt buộc phải trả về status là "live".
+- CHỈ trả về status "finished" khi có chữ FT (Full-Time) hoặc có thông tin rõ ràng là trận đấu đã kết thúc.
 - Nếu không tìm thấy tỷ số, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": null }.
 
 Văn bản:
