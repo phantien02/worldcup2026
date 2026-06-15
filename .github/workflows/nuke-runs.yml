@@ -9,10 +9,10 @@ jobs:
     permissions:
       actions: write
     steps:
-      - name: Delete all workflow runs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Bắt đầu xóa toàn bộ lịch sử Workflow..."
-          gh api -X GET /repos/${{ github.repository }}/actions/runs --paginate -q '.workflow_runs[].id' | xargs -I {} gh api -X DELETE /repos/${{ github.repository }}/actions/runs/{}
-          echo "Đã dọn dẹp sạch sẽ!"
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
