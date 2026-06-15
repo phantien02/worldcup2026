@@ -95,13 +95,22 @@ export default function HomePage() {
       if (matchesData) {
         const validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
         
-        // Sort by status (unfinished first, finished last), then chronological order
+        // Sort by status (unfinished first, finished last)
+        // For unfinished matches: chronological order (soonest first)
+        // For finished matches: reverse chronological order (most recently finished first)
         validMatches.sort((a: any, b: any) => {
           const aFinished = a.status === 'finished';
           const bFinished = b.status === 'finished';
           if (aFinished && !bFinished) return 1;
           if (!aFinished && bFinished) return -1;
-          return new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime();
+          
+          const timeA = new Date(a.kickoff_time).getTime();
+          const timeB = new Date(b.kickoff_time).getTime();
+          
+          if (aFinished && bFinished) {
+            return timeB - timeA; // Most recent first
+          }
+          return timeA - timeB; // Soonest first
         });
         
         setMatches(validMatches);
