@@ -43,6 +43,7 @@ export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filterRound, setFilterRound] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [filterVote, setFilterVote] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
   const [leaderboardView, setLeaderboardView] = useState<'list' | 'chart'>('list');
   const [hiddenPlayers, setHiddenPlayers] = useState<string[]>([]);
@@ -520,10 +521,10 @@ export default function HomePage() {
                     <tr>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '80px' }}>Hạng</th>
                       <th style={{ padding: '0 1rem' }}>Người Chơi</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', color: '#fff', width: '80px' }}>Điểm</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán đúng kết quả trận đấu">Đoán KQ</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác tỷ số">Đoán TS</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác hiệu số">Đoán HS</th>
-                      <th style={{ padding: '0 1rem', textAlign: 'right', color: '#fff', width: '80px' }}>Điểm</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -540,17 +541,17 @@ export default function HomePage() {
                         <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {user.display_name}
                         </td>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem' }}>
+                          {user.total_points}
+                        </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00d2ff', fontWeight: '600', fontSize: '1.1rem' }}>
                           {user.stats?.correctResults || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: '600', fontSize: '1.1rem' }}>
                           {user.stats?.exactScores || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
                         </td>
-                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#fbbf24', fontWeight: '600', fontSize: '1.1rem' }}>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#fbbf24', fontWeight: '600', fontSize: '1.1rem', borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
                           {user.stats?.exactDiffs || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
-                        </td>
-                        <td style={{ padding: '1.2rem 1rem', textAlign: 'right', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem', borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
-                          {user.total_points}
                         </td>
                       </tr>
                     ))}
@@ -715,7 +716,14 @@ export default function HomePage() {
             if (filterStatus === 'not_started') matchStatus = isNotStarted;
             if (filterStatus === 'pending') matchStatus = isPending;
             
-            return matchRound && matchStatus;
+            let voteStatusMatch = true;
+            if (!isGuest) {
+              const isVoted = myPredictions.some(p => p.match_id === m.id);
+              if (filterVote === 'voted') voteStatusMatch = isVoted;
+              if (filterVote === 'unvoted') voteStatusMatch = !isVoted;
+            }
+            
+            return matchRound && matchStatus && voteStatusMatch;
           });
 
           return (
@@ -726,7 +734,30 @@ export default function HomePage() {
                 </h2>
                 
                 {matches.length > 0 && (
-                  <div className="flex flex-row items-center gap-2 md:gap-3 w-full md:w-auto justify-center md:justify-end">
+                  <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto justify-center md:justify-end">
+                    {!isGuest && (
+                      <div className="flex items-center gap-1 md:gap-2">
+                        <label className="text-[11px] md:text-[1.1rem] font-bold whitespace-nowrap text-gray-300 md:text-white">Bình chọn:</label>
+                        <select 
+                          value={filterVote}
+                          onChange={(e) => setFilterVote(e.target.value)}
+                          className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#a855f7] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-[120px] md:min-w-[190px] md:w-auto"
+                          style={{
+                            WebkitAppearance: 'none',
+                            MozAppearance: 'none',
+                            appearance: 'none',
+                            backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 0.75rem top 50%',
+                            backgroundSize: '0.65rem auto',
+                          }}
+                        >
+                          <option value="All">Tất cả</option>
+                          <option value="voted">Đã chọn</option>
+                          <option value="unvoted">Chưa chọn</option>
+                        </select>
+                      </div>
+                    )}
                     <div className="flex items-center gap-1 md:gap-2">
                       <label className="text-[11px] md:text-[1.1rem] font-bold whitespace-nowrap text-gray-300 md:text-white">Trạng thái:</label>
                       <select 
