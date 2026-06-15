@@ -95,8 +95,14 @@ export default function HomePage() {
       if (matchesData) {
         const validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
         
-        // Sort by chronological order
-        validMatches.sort((a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
+        // Sort by status (unfinished first, finished last), then chronological order
+        validMatches.sort((a: any, b: any) => {
+          const aFinished = a.status === 'finished';
+          const bFinished = b.status === 'finished';
+          if (aFinished && !bFinished) return 1;
+          if (!aFinished && bFinished) return -1;
+          return new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime();
+        });
         
         setMatches(validMatches);
       }
