@@ -536,6 +536,7 @@ export default function HomePage() {
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'right 0.75rem top 50%',
                   backgroundSize: '0.65rem auto',
+                  paddingRight: '2.5rem',
                 }}
               >
                 <option value="list">📋 Dạng Danh Sách</option>
