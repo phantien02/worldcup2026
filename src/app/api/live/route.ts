@@ -35,7 +35,8 @@ export async function GET() {
       const isKnockout = knockoutRounds.includes(m.round || '');
       const minMinutes = isKnockout ? 150 : 120;
 
-      return m.status === 'live' || (diffMinutes >= minMinutes && diffMinutes <= 5 * 60);
+      // Cầu dao tự ngắt: Ngưng cào vĩnh viễn nếu đã trôi qua 5 tiếng (300 phút) để chống spam Quota khi trận đấu bị hoãn/hủy
+      return (m.status === 'live' || diffMinutes >= minMinutes) && diffMinutes <= 5 * 60;
     });
 
     if (activeMatches.length === 0) {
