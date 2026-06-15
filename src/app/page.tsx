@@ -455,11 +455,11 @@ export default function HomePage() {
         {/* Leaderboard Tab */}
         {activeTab === 'leaderboard' && (
         <div className="w-full max-w-4xl flex flex-col gap-6 animate-fade-in mx-auto">
-          <h2 className="text-2xl font-bold uppercase tracking-wider flex items-center gap-2 justify-center mb-2">
+          <h2 className="text-2xl font-bold uppercase tracking-wider flex items-center gap-2 justify-center mb-6">
             <span style={{ color: '#ff9900' }}>●</span> BXH Người Chơi
           </h2>
           
-          <div className="flex justify-center mb-2">
+          <div className="flex justify-center mb-6">
             <div className="flex items-center gap-2">
               <label className="text-[11px] md:text-[1.1rem] font-bold whitespace-nowrap text-gray-300 md:text-white">Giao diện:</label>
               <select 
