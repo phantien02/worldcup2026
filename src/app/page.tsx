@@ -905,11 +905,11 @@ export default function HomePage() {
                             </span>
                           </div>
                           
-                          <div className="absolute left-1/2 -translate-x-1/2 text-center hidden md:block" style={{ fontSize: '0.9rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', width: 'max-content' }}>
+                          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center hidden md:block" style={{ fontSize: '0.9rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', width: 'max-content' }}>
                             {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                           </div>
                           
-                          <div className="absolute left-1/2 -translate-x-1/2 text-center md:hidden" style={{ fontSize: '0.75rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', width: 'max-content' }}>
+                          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center md:hidden" style={{ fontSize: '0.75rem', opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', width: 'max-content' }}>
                             {new Date(match.kickoff_time).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                           </div>
 
