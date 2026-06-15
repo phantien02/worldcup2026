@@ -491,7 +491,7 @@ export default function HomePage() {
               <select 
                 value={leaderboardView}
                 onChange={(e) => setLeaderboardView(e.target.value as 'list' | 'chart')}
-                className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#ff9900] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-[150px] md:min-w-[220px]"
+                className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#ff9900] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-auto max-w-full"
                 style={{
                   WebkitAppearance: 'none',
                   MozAppearance: 'none',
@@ -741,7 +741,7 @@ export default function HomePage() {
                         <select 
                           value={filterVote}
                           onChange={(e) => setFilterVote(e.target.value)}
-                          className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#a855f7] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-[120px] md:min-w-[190px] md:w-auto"
+                          className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#a855f7] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-auto max-w-full"
                           style={{
                             WebkitAppearance: 'none',
                             MozAppearance: 'none',
@@ -763,7 +763,7 @@ export default function HomePage() {
                       <select 
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#00d2ff] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-[120px] md:min-w-[190px] md:w-auto"
+                        className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#00d2ff] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-10 md:pr-16 w-auto max-w-full"
                         style={{
                           WebkitAppearance: 'none',
                           MozAppearance: 'none',
