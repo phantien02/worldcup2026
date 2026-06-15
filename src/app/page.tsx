@@ -676,13 +676,13 @@ export default function HomePage() {
                       <div className="flex gap-2 text-[10px] md:text-[11px] font-bold">
                         <button 
                           onClick={() => setHiddenPlayers([])} 
-                          className="bg-blue-600 text-white hover:bg-blue-500 px-3 py-1.5 rounded-md transition-colors font-bold shadow-md"
+                          style={{ backgroundColor: '#2563eb', color: '#ffffff', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', border: '1px solid #3b82f6', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
                         >
                           Chọn tất cả
                         </button>
                         <button 
                           onClick={() => setHiddenPlayers(leaderboard.map(u => u.display_name))} 
-                          className="bg-gray-700 text-white hover:bg-gray-600 px-3 py-1.5 rounded-md transition-colors font-bold shadow-md"
+                          style={{ backgroundColor: '#374151', color: '#ffffff', padding: '6px 12px', borderRadius: '6px', fontWeight: 'bold', border: '1px solid #4b5563', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
                         >
                           Bỏ chọn tất cả
                         </button>
