@@ -734,7 +734,7 @@ export default function HomePage() {
                 </h2>
                 
                 {matches.length > 0 && (
-                  <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto justify-center md:justify-end">
+                  <div className="flex flex-row flex-wrap items-center gap-2 md:gap-3 w-full md:w-auto justify-center md:justify-end">
                     {!isGuest && (
                       <div className="flex items-center gap-1 md:gap-2">
                         <label className="text-[11px] md:text-[1.1rem] font-bold whitespace-nowrap text-gray-300 md:text-white">Bình chọn:</label>
