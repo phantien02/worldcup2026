@@ -594,8 +594,25 @@ export default function HomePage() {
                   
                   {/* Right Column: Legend */}
                   <div className="w-full md:w-[250px] flex flex-col gap-2 p-4 bg-black/40 rounded-xl border border-white/10" style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                    <div className="text-sm font-bold text-gray-400 uppercase mb-2 border-b border-white/10 pb-2">
-                      Người chơi (A-Z)
+                    <div className="flex justify-between items-end mb-2 border-b border-white/10 pb-2">
+                      <div className="text-sm font-bold text-gray-400 uppercase">
+                        Người chơi
+                      </div>
+                      <div className="flex gap-2 text-[11px] text-gray-400 font-semibold">
+                        <button 
+                          onClick={() => setHiddenPlayers([])} 
+                          className="hover:text-white transition-colors"
+                        >
+                          Chọn tất cả
+                        </button>
+                        <span className="opacity-50">|</span>
+                        <button 
+                          onClick={() => setHiddenPlayers(leaderboard.map(u => u.display_name))} 
+                          className="hover:text-white transition-colors"
+                        >
+                          Bỏ chọn tất cả
+                        </button>
+                      </div>
                     </div>
                     {sortedPlayers.map((user) => {
                       const isHidden = hiddenPlayers.includes(user.display_name);
