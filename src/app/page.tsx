@@ -668,7 +668,7 @@ export default function HomePage() {
                   </div>
                   
                   {/* Right Column: Legend */}
-                  <div className="w-full md:w-[250px] flex flex-col gap-2 p-4 bg-black/40 rounded-xl border border-white/10" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                  <div className="w-full md:w-[450px] flex flex-col gap-2 p-4 bg-black/40 rounded-xl border border-white/10" style={{ maxHeight: '500px', overflowY: 'auto' }}>
                     <div className="flex justify-between items-end mb-2 border-b border-white/10 pb-2">
                       <div className="text-sm font-bold text-gray-400 uppercase">
                         Người chơi
@@ -688,6 +688,7 @@ export default function HomePage() {
                         </button>
                       </div>
                     </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
                     {sortedPlayers.map((user) => {
                       const isHidden = hiddenPlayers.includes(user.display_name);
                       const userColor = colors[leaderboard.findIndex(u => u.id === user.id) % colors.length];
@@ -713,6 +714,7 @@ export default function HomePage() {
                         </div>
                       );
                     })}
+                    </div>
                   </div>
                 </div>
               );
