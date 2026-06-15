@@ -1038,15 +1038,22 @@ export default function HomePage() {
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                                   {pred.match_status === 'finished' ? (
-                                    <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>
+                                    <div style={{ color: '#00d2ff', fontWeight: 'bold', fontSize: '1.125rem', letterSpacing: '0.1em' }}>
                                       {pred.match_home_score} - {pred.match_away_score}
-                                    </span>
+                                    </div>
                                   ) : (
                                     <span style={{ color: '#4b5563', fontStyle: 'italic' }}>Chưa đá</span>
                                   )}
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
-                                  <div style={{ color: '#22d3ee', fontWeight: 'bold', fontSize: '1.125rem', letterSpacing: '0.1em' }}>
+                                  <div style={{ 
+                                    color: pred.match_status === 'finished' ? 
+                                      (pred.predicted_home_score === pred.match_home_score && pred.predicted_away_score === pred.match_away_score ? '#00d2ff' : '#ff004c') 
+                                      : '#00d2ff', 
+                                    fontWeight: 'bold', 
+                                    fontSize: '1.125rem', 
+                                    letterSpacing: '0.1em' 
+                                  }}>
                                     {pred.predicted_home_score} - {pred.predicted_away_score}
                                   </div>
                                 </td>
