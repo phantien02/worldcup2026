@@ -45,6 +45,28 @@ export default function HomePage() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterVote, setFilterVote] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
+  
+  // User Stats Modal State
+  const [selectedUserStats, setSelectedUserStats] = useState<any>(null);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [loadingUserStats, setLoadingUserStats] = useState(false);
+
+  const handleUserClick = async (userId: string) => {
+    setIsUserModalOpen(true);
+    setLoadingUserStats(true);
+    try {
+      const res = await fetch(`/api/user-stats?userId=${userId}`);
+      if (!res.ok) throw new Error('Failed to fetch user stats');
+      const data = await res.json();
+      setSelectedUserStats(data);
+    } catch (err) {
+      console.error(err);
+      alert('Không thể tải dữ liệu người chơi.');
+      setIsUserModalOpen(false);
+    } finally {
+      setLoadingUserStats(false);
+    }
+  };
   const [leaderboardView, setLeaderboardView] = useState<'list' | 'chart'>('list');
   const [hiddenPlayers, setHiddenPlayers] = useState<string[]>([]);
   const [initializedChart, setInitializedChart] = useState(false);
@@ -166,7 +188,15 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex flex-col gap-12 mt-8 pb-16">
+    <>
+    <div 
+      className="flex flex-col gap-12 mt-8 pb-16 transition-all duration-300"
+      style={{ 
+        filter: isUserModalOpen ? 'blur(8px)' : 'none',
+        opacity: isUserModalOpen ? 0.6 : 1,
+        pointerEvents: isUserModalOpen ? 'none' : 'auto'
+      }}
+    >
       {/* Hero Section */}
       <div className="text-center animate-fade-in" style={{ padding: '2rem 1rem' }}>
         <h1 className="logo mb-4 text-4xl md:text-6xl" style={{ lineHeight: 1.2 }}>
@@ -538,8 +568,12 @@ export default function HomePage() {
                             {user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ 0</span>}
                           </div>
                         </td>
-                        <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {user.display_name}
+                        <td 
+                          style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'pointer' }}
+                          onClick={() => handleUserClick(user.id)}
+                          title="Xem chi tiết điểm số"
+                        >
+                          <span className="hover:text-[#00d2ff] underline decoration-white/30 hover:decoration-[#00d2ff] transition-colors">{user.display_name}</span>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem' }}>
                           {user.total_points}
@@ -921,5 +955,85 @@ export default function HomePage() {
         })()}
       </div>
     </div>
+
+      {/* User Stats Modal */}
+      {isUserModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setIsUserModalOpen(false)}></div>
+          <div className="relative bg-[#111] border border-white/20 rounded-2xl p-6 md:p-8 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in">
+            <button 
+              onClick={() => setIsUserModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors font-bold z-10"
+            >
+              ✕
+            </button>
+            
+            {loadingUserStats ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-20">
+                <div className="w-12 h-12 border-4 border-[#00d2ff] border-t-transparent rounded-full animate-spin"></div>
+                <div className="mt-4 text-gray-400 font-semibold">Đang tải dữ liệu...</div>
+              </div>
+            ) : selectedUserStats ? (
+              <>
+                <h2 className="text-3xl font-black text-white mb-2 pb-4 border-b border-white/10 flex items-center gap-3">
+                  <span className="text-4xl">👤</span> {selectedUserStats.display_name}
+                </h2>
+                
+                <div className="flex-1 overflow-y-auto pr-2 mt-4 custom-scrollbar">
+                  {selectedUserStats.matchHistory.length === 0 ? (
+                    <div className="text-center py-10 text-gray-400">Người chơi này chưa có dự đoán nào.</div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {selectedUserStats.matchHistory.map((pred: any, idx: number) => {
+                        const date = new Date(pred.kickoff_time);
+                        const dateStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                        
+                        return (
+                          <div key={idx} className="flex flex-col md:flex-row items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors gap-4">
+                            <div className="flex flex-col flex-1 w-full">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-xs font-bold text-[#ff9900] uppercase bg-[#ff9900]/20 px-2 py-0.5 rounded">{pred.match_round}</span>
+                                <span className="text-xs text-gray-400">{dateStr}</span>
+                              </div>
+                              <div className="flex items-center justify-between font-bold text-lg">
+                                <div className="flex-1 text-right text-white">{pred.home_team}</div>
+                                <div className="px-4 text-gray-400 text-sm w-20 text-center">
+                                  {pred.match_status === 'finished' ? (
+                                    <span className="text-white bg-black/40 px-2 py-1 rounded">{pred.match_home_score} - {pred.match_away_score}</span>
+                                  ) : 'vs'}
+                                </div>
+                                <div className="flex-1 text-left text-white">{pred.away_team}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-row md:flex-col items-center justify-center gap-2 md:gap-1 w-full md:w-auto md:border-l border-white/10 md:pl-4 pt-3 md:pt-0 border-t md:border-t-0 mt-2 md:mt-0">
+                              <div className="text-sm text-gray-400 uppercase tracking-wider font-semibold whitespace-nowrap">Dự đoán:</div>
+                              <div className="font-bold text-[#00d2ff] text-xl bg-[#00d2ff]/10 px-3 py-1 rounded-lg">
+                                {pred.predicted_home_score} - {pred.predicted_away_score}
+                              </div>
+                            </div>
+                            
+                            {pred.match_status === 'finished' && (
+                              <div className="flex flex-col items-center justify-center w-auto min-w-[80px]">
+                                <div className={`text-2xl font-black ${pred.points_earned > 0 ? 'text-[#00ff88]' : 'text-gray-500'}`}>
+                                  +{pred.points_earned}
+                                </div>
+                                <div className="text-[10px] text-gray-400 uppercase font-bold">Điểm</div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-10 text-gray-400">Không có dữ liệu.</div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
