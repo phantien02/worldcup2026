@@ -45,6 +45,7 @@ export default function HomePage() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
   const [leaderboardView, setLeaderboardView] = useState<'list' | 'chart'>('list');
+  const [hiddenPlayers, setHiddenPlayers] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -544,39 +545,84 @@ export default function HomePage() {
               const maxRank = leaderboard.length;
               const colors = ['#ff9900', '#00d2ff', '#00ff88', '#fbbf24', '#ff4444', '#a855f7', '#ec4899', '#14b8a6', '#f43f5e', '#8b5cf6', '#10b981', '#3b82f6'];
 
+              // Sorted players alphabetically for the legend
+              const sortedPlayers = [...leaderboard].sort((a, b) => a.display_name.localeCompare(b.display_name));
+
+              const togglePlayer = (name: string) => {
+                setHiddenPlayers(prev => 
+                  prev.includes(name) ? prev.filter(p => p !== name) : [...prev, name]
+                );
+              };
+
               return (
-                <div style={{ width: '100%', height: '500px', padding: '1rem 0' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis dataKey="date" stroke="#a3a3a3" tick={{ fill: '#a3a3a3' }} tickMargin={10} />
-                      <YAxis 
-                        reversed 
-                        domain={[1, maxRank]} 
-                        ticks={Array.from({length: maxRank}, (_, i) => i + 1)}
-                        stroke="#a3a3a3" 
-                        tick={{ fill: '#a3a3a3' }}
-                        width={40}
-                      />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
-                        itemStyle={{ fontWeight: 'bold' }}
-                      />
-                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                      {leaderboard.map((user, idx) => (
-                        <Line 
-                          key={user.id}
-                          type="monotone" 
-                          dataKey={user.display_name} 
-                          stroke={colors[idx % colors.length]} 
-                          strokeWidth={3}
-                          dot={{ r: 4, strokeWidth: 2 }}
-                          activeDot={{ r: 6 }}
-                          isAnimationActive={true}
+                <div className="flex flex-col md:flex-row gap-6 w-full" style={{ minHeight: '500px', padding: '1rem 0' }}>
+                  {/* Left Column: Chart */}
+                  <div className="flex-1" style={{ height: '500px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                        <XAxis dataKey="date" stroke="#a3a3a3" tick={{ fill: '#a3a3a3' }} tickMargin={10} />
+                        <YAxis 
+                          reversed 
+                          domain={[1, maxRank]} 
+                          ticks={Array.from({length: maxRank}, (_, i) => i + 1)}
+                          stroke="#a3a3a3" 
+                          tick={{ fill: '#a3a3a3' }}
+                          width={40}
                         />
-                      ))}
-                    </LineChart>
-                  </ResponsiveContainer>
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
+                          itemStyle={{ fontWeight: 'bold' }}
+                        />
+                        {leaderboard.map((user, idx) => (
+                          !hiddenPlayers.includes(user.display_name) && (
+                            <Line 
+                              key={user.id}
+                              type="linear" 
+                              dataKey={user.display_name} 
+                              stroke={colors[leaderboard.findIndex(u => u.id === user.id) % colors.length]} 
+                              strokeWidth={3}
+                              dot={{ r: 4, strokeWidth: 2 }}
+                              activeDot={{ r: 6 }}
+                              isAnimationActive={true}
+                            />
+                          )
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {/* Right Column: Legend */}
+                  <div className="w-full md:w-[250px] flex flex-col gap-2 p-4 bg-black/40 rounded-xl border border-white/10" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                    <div className="text-sm font-bold text-gray-400 uppercase mb-2 border-b border-white/10 pb-2">
+                      Người chơi (A-Z)
+                    </div>
+                    {sortedPlayers.map((user) => {
+                      const isHidden = hiddenPlayers.includes(user.display_name);
+                      const userColor = colors[leaderboard.findIndex(u => u.id === user.id) % colors.length];
+                      return (
+                        <div 
+                          key={user.id} 
+                          onClick={() => togglePlayer(user.display_name)}
+                          className="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all hover:bg-white/5"
+                          style={{ opacity: isHidden ? 0.4 : 1 }}
+                        >
+                          <div 
+                            style={{ 
+                              width: '12px', 
+                              height: '12px', 
+                              borderRadius: '50%', 
+                              backgroundColor: isHidden ? 'transparent' : userColor,
+                              border: '2px solid ' + userColor
+                            }} 
+                          />
+                          <span className="font-semibold text-sm text-white truncate">
+                            {user.display_name}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })()}
