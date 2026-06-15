@@ -970,15 +970,8 @@ export default function HomePage() {
 
       {/* User Stats Modal */}
       {isUserModalOpen && mounted && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setIsUserModalOpen(false)}></div>
-          <div className="relative bg-[#111] border border-white/20 rounded-2xl p-6 md:p-8 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-fade-in">
-            <button 
-              onClick={() => setIsUserModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors font-bold z-10"
-            >
-              ✕
-            </button>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)', padding: '1rem' }} onClick={() => setIsUserModalOpen(false)}>
+          <div className="glass-panel animate-scale-in" style={{ backgroundColor: '#161b22', width: '100%', maxWidth: '900px', maxHeight: '85vh', display: 'flex', flexDirection: 'column', padding: 0, border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }} onClick={e => e.stopPropagation()}>
             
             {loadingUserStats ? (
               <div className="flex-1 flex flex-col items-center justify-center py-20">
@@ -987,10 +980,20 @@ export default function HomePage() {
               </div>
             ) : selectedUserStats ? (
               <>
-                <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10">
-                  <h2 className="text-2xl font-black text-white flex items-center gap-2">
-                    Thông tin dự đoán của người chơi <span className="text-gray-400 text-lg font-normal ml-2">({selectedUserStats.display_name})</span>
-                  </h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white', margin: 0, display: 'flex', alignItems: 'center' }}>
+                      Thông tin dự đoán của người chơi <span style={{ fontSize: '0.875rem', color: '#a3a3a3', fontWeight: 'normal', marginLeft: '0.5rem' }}>({selectedUserStats.display_name})</span>
+                    </h3>
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button 
+                      onClick={() => setIsUserModalOpen(false)}
+                      style={{ background: 'transparent', border: 'none', color: '#a3a3a3', fontSize: '1.25rem', fontWeight: 'bold', cursor: 'pointer', padding: '0.5rem' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="flex-1 overflow-y-auto mt-2 custom-scrollbar">
@@ -998,15 +1001,15 @@ export default function HomePage() {
                     <div className="text-center py-10 text-gray-400">Người chơi này chưa có dự đoán nào.</div>
                   ) : (
                     <div className="w-full min-w-[700px]">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="border-b border-white/10 text-[11px] text-gray-400 uppercase tracking-wider font-bold">
-                            <th className="py-4 px-2 text-center w-16">STT</th>
-                            <th className="py-4 px-4">CẶP ĐẤU</th>
-                            <th className="py-4 px-4 w-32">THỜI GIAN ĐÁ</th>
-                            <th className="py-4 px-4 w-36 text-center">KẾT QUẢ THỰC TẾ</th>
-                            <th className="py-4 px-4 w-28 text-center">DỰ ĐOÁN</th>
-                            <th className="py-4 px-2 w-28 text-center">ĐIỂM SỐ</th>
+                      <table style={{ width: '100%', fontSize: '0.875rem', textAlign: 'left', borderCollapse: 'collapse' }}>
+                        <thead style={{ fontSize: '0.75rem', textTransform: 'uppercase', backgroundColor: 'rgba(0,0,0,0.6)', color: '#a3a3a3', position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                          <tr>
+                            <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)', width: '60px', textAlign: 'center' }}>STT</th>
+                            <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>CẶP ĐẤU</th>
+                            <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>THỜI GIAN ĐÁ</th>
+                            <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>KẾT QUẢ THỰC TẾ</th>
+                            <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>DỰ ĐOÁN</th>
+                            <th style={{ padding: '1rem 1.5rem', fontWeight: 'bold', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>ĐIỂM SỐ</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1015,44 +1018,42 @@ export default function HomePage() {
                             const dateStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')} ${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
                             
                             return (
-                              <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                                <td className="py-5 px-2 text-center text-gray-500 font-bold text-sm">
+                              <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background-color 0.2s', backgroundColor: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                                <td style={{ padding: '1rem 1.5rem', textAlign: 'center', color: '#6b7280', fontWeight: 'bold' }}>
                                   {idx + 1}
                                 </td>
-                                <td className="py-5 px-4">
-                                  <div className="flex flex-col gap-1">
-                                    <span className="font-bold text-white text-[15px]">
-                                      {pred.home_team} <span className="text-gray-500 font-normal mx-1">vs</span> {pred.away_team}
-                                    </span>
-                                    <span className="text-[11px] font-semibold text-[#ff9900] uppercase bg-[#ff9900]/10 px-2 py-0.5 rounded w-max">
-                                      {pred.match_round}
-                                    </span>
+                                <td style={{ padding: '1rem 1.5rem' }}>
+                                  <div style={{ fontWeight: 'bold', color: 'white', fontSize: '1rem' }}>
+                                    {pred.home_team} <span style={{ color: '#6b7280', fontWeight: 'normal', margin: '0 0.5rem' }}>vs</span> {pred.away_team}
+                                  </div>
+                                  <div style={{ fontSize: '0.75rem', color: '#22d3ee', marginTop: '0.25rem' }}>
+                                    {pred.match_round}
                                   </div>
                                 </td>
-                                <td className="py-5 px-4 text-sm text-gray-400">
+                                <td style={{ padding: '1rem 1.5rem', color: '#9ca3af', fontSize: '0.875rem' }}>
                                   {dateStr}
                                 </td>
-                                <td className="py-5 px-4 text-center">
+                                <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                                   {pred.match_status === 'finished' ? (
-                                    <span className="text-[#00d2ff] font-bold">
+                                    <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>
                                       {pred.match_home_score} - {pred.match_away_score}
                                     </span>
                                   ) : (
-                                    <span className="text-gray-500 text-sm">Chưa đá</span>
+                                    <span style={{ color: '#4b5563', fontStyle: 'italic' }}>Chưa đá</span>
                                   )}
                                 </td>
-                                <td className="py-5 px-4 text-center">
-                                  <span className="font-bold text-[#00d2ff] text-lg">
+                                <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
+                                  <div style={{ color: '#22d3ee', fontWeight: 'bold', fontSize: '1.125rem', letterSpacing: '0.1em' }}>
                                     {pred.predicted_home_score} - {pred.predicted_away_score}
-                                  </span>
+                                  </div>
                                 </td>
-                                <td className="py-5 px-2 text-center">
+                                <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                                   {pred.match_status === 'finished' ? (
-                                    <span className={`font-black text-xl ${pred.points_earned > 0 ? 'text-[#00ff88]' : 'text-gray-600'}`}>
+                                    <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: pred.points_earned > 0 ? '#10b981' : '#6b7280' }}>
                                       +{pred.points_earned}
                                     </span>
                                   ) : (
-                                    <span className="text-gray-600 font-bold">-</span>
+                                    <span style={{ color: '#4b5563', fontWeight: 'bold' }}>-</span>
                                   )}
                                 </td>
                               </tr>
