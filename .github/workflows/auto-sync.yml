@@ -5,8 +5,8 @@ on:
     branches:
       - main
   schedule:
-    # Run every 15 minutes to check for finished match results (saves Gemini API quota)
-    - cron: '*/15 * * * *'
+    # Tránh các phút 0, 15, 30, 45 để né giờ cao điểm của GitHub Actions toàn cầu
+    - cron: '7,22,37,52 * * * *'
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
 
