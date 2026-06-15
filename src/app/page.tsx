@@ -987,55 +987,79 @@ export default function HomePage() {
               </div>
             ) : selectedUserStats ? (
               <>
-                <h2 className="text-3xl font-black text-white mb-2 pb-4 border-b border-white/10 flex items-center gap-3">
-                  <span className="text-4xl">👤</span> {selectedUserStats.display_name}
-                </h2>
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10">
+                  <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                    Thông tin dự đoán của người chơi <span className="text-gray-400 text-lg font-normal ml-2">({selectedUserStats.display_name})</span>
+                  </h2>
+                </div>
                 
-                <div className="flex-1 overflow-y-auto pr-2 mt-4 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto mt-2 custom-scrollbar">
                   {selectedUserStats.matchHistory.length === 0 ? (
                     <div className="text-center py-10 text-gray-400">Người chơi này chưa có dự đoán nào.</div>
                   ) : (
-                    <div className="flex flex-col gap-3">
-                      {selectedUserStats.matchHistory.map((pred: any, idx: number) => {
-                        const date = new Date(pred.kickoff_time);
-                        const dateStr = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-                        
-                        return (
-                          <div key={idx} className="flex flex-col md:flex-row items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors gap-4">
-                            <div className="flex flex-col flex-1 w-full">
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-[#ff9900] uppercase bg-[#ff9900]/20 px-2 py-0.5 rounded">{pred.match_round}</span>
-                                <span className="text-xs text-gray-400">{dateStr}</span>
-                              </div>
-                              <div className="flex items-center justify-between font-bold text-lg">
-                                <div className="flex-1 text-right text-white">{pred.home_team}</div>
-                                <div className="px-4 text-gray-400 text-sm w-20 text-center">
+                    <div className="w-full min-w-[700px]">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-white/10 text-[11px] text-gray-400 uppercase tracking-wider font-bold">
+                            <th className="py-4 px-2 text-center w-16">STT</th>
+                            <th className="py-4 px-4">CẶP ĐẤU</th>
+                            <th className="py-4 px-4 w-32">THỜI GIAN ĐÁ</th>
+                            <th className="py-4 px-4 w-36 text-center">KẾT QUẢ THỰC TẾ</th>
+                            <th className="py-4 px-4 w-28 text-center">DỰ ĐOÁN</th>
+                            <th className="py-4 px-2 w-28 text-center">ĐIỂM SỐ</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedUserStats.matchHistory.map((pred: any, idx: number) => {
+                            const date = new Date(pred.kickoff_time);
+                            const dateStr = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')} ${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                            
+                            return (
+                              <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                                <td className="py-5 px-2 text-center text-gray-500 font-bold text-sm">
+                                  {idx + 1}
+                                </td>
+                                <td className="py-5 px-4">
+                                  <div className="flex flex-col gap-1">
+                                    <span className="font-bold text-white text-[15px]">
+                                      {pred.home_team} <span className="text-gray-500 font-normal mx-1">vs</span> {pred.away_team}
+                                    </span>
+                                    <span className="text-[11px] font-semibold text-[#ff9900] uppercase bg-[#ff9900]/10 px-2 py-0.5 rounded w-max">
+                                      {pred.match_round}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="py-5 px-4 text-sm text-gray-400">
+                                  {dateStr}
+                                </td>
+                                <td className="py-5 px-4 text-center">
                                   {pred.match_status === 'finished' ? (
-                                    <span className="text-white bg-black/40 px-2 py-1 rounded">{pred.match_home_score} - {pred.match_away_score}</span>
-                                  ) : 'vs'}
-                                </div>
-                                <div className="flex-1 text-left text-white">{pred.away_team}</div>
-                              </div>
-                            </div>
-                            
-                            <div className="flex flex-row md:flex-col items-center justify-center gap-2 md:gap-1 w-full md:w-auto md:border-l border-white/10 md:pl-4 pt-3 md:pt-0 border-t md:border-t-0 mt-2 md:mt-0">
-                              <div className="text-sm text-gray-400 uppercase tracking-wider font-semibold whitespace-nowrap">Dự đoán:</div>
-                              <div className="font-bold text-[#00d2ff] text-xl bg-[#00d2ff]/10 px-3 py-1 rounded-lg">
-                                {pred.predicted_home_score} - {pred.predicted_away_score}
-                              </div>
-                            </div>
-                            
-                            {pred.match_status === 'finished' && (
-                              <div className="flex flex-col items-center justify-center w-auto min-w-[80px]">
-                                <div className={`text-2xl font-black ${pred.points_earned > 0 ? 'text-[#00ff88]' : 'text-gray-500'}`}>
-                                  +{pred.points_earned}
-                                </div>
-                                <div className="text-[10px] text-gray-400 uppercase font-bold">Điểm</div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                                    <span className="text-[#00d2ff] font-bold">
+                                      {pred.match_home_score} - {pred.match_away_score}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-500 text-sm">Chưa đá</span>
+                                  )}
+                                </td>
+                                <td className="py-5 px-4 text-center">
+                                  <span className="font-bold text-[#00d2ff] text-lg">
+                                    {pred.predicted_home_score} - {pred.predicted_away_score}
+                                  </span>
+                                </td>
+                                <td className="py-5 px-2 text-center">
+                                  {pred.match_status === 'finished' ? (
+                                    <span className={`font-black text-xl ${pred.points_earned > 0 ? 'text-[#00ff88]' : 'text-gray-600'}`}>
+                                      +{pred.points_earned}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-600 font-bold">-</span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
