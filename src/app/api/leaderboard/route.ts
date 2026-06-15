@@ -10,7 +10,7 @@ export async function GET() {
 
     const { data: matches, error: matchErr } = await supabaseAdmin
       .from('matches')
-      .select('id, home_score, away_score, status, round')
+      .select('id, home_score, away_score, status, round, kickoff_time')
       .eq('status', 'finished');
     if (matchErr) throw matchErr;
 
@@ -26,32 +26,45 @@ export async function GET() {
         // Fetch predictions for all finished matches
         const { data: preds, error: predErr } = await supabaseAdmin
         .from('predictions')
-        .select('user_id, match_id, home_score, away_score, prediction_result')
+        .select('user_id, match_id, home_score, away_score, prediction_result, points_earned')
         .in('match_id', validMatchIds);
         if (predErr) throw predErr;
         predictions = preds;
     }
 
-    const leaderboard = profiles
-      .filter(p => p.display_name !== 'guest')
-      .map(p => {
-        let totalPreds = 0;
-        let correctResults = 0;
+    // 1. Group matches by Date
+    const datesSet = new Set<string>();
+    validMatches.forEach(m => {
+      const dateIso = new Date(m.kickoff_time).toISOString().split('T')[0];
+      datesSet.add(dateIso);
+    });
+    const sortedDates = Array.from(datesSet).sort();
+
+    const users = profiles.filter(p => p.display_name !== 'guest');
+    const userHistoryMap: Record<string, any[]> = {};
+    users.forEach(u => userHistoryMap[u.id] = []);
+
+    // 2. Calculate Rank for each Date chronologically
+    sortedDates.forEach(date => {
+      // Find matches up to this date
+      const matchesUpToDate = validMatches.filter(m => {
+        const mDate = new Date(m.kickoff_time).toISOString().split('T')[0];
+        return mDate <= date;
+      });
+      const matchIdsUpToDate = new Set(matchesUpToDate.map(m => m.id));
+
+      // Calculate stats for all users up to this date
+      const dateStats = users.map(p => {
+        let totalPts = 0;
         let exactScores = 0;
         let exactDiffs = 0;
 
-        const userPreds = predictions.filter(pred => pred.user_id === p.id);
+        const userPreds = predictions.filter(pred => pred.user_id === p.id && matchIdsUpToDate.has(pred.match_id));
 
         userPreds.forEach(pred => {
-          totalPreds++;
+          totalPts += (pred.points_earned || 0);
           const m = matchMap[pred.match_id];
           
-          const actualResult = m.home_score > m.away_score ? 'home_win' : m.home_score === m.away_score ? 'draw' : 'away_win';
-          
-          if (pred.prediction_result === actualResult) {
-            correctResults++;
-          }
-
           if (pred.home_score !== null && pred.away_score !== null && m.home_score !== null && m.away_score !== null) {
             const isExactScore = pred.home_score === m.home_score && pred.away_score === m.away_score;
             const isExactDiff = (pred.home_score - pred.away_score) === (m.home_score - m.away_score);
@@ -59,38 +72,104 @@ export async function GET() {
             if (isExactScore) {
               exactScores++;
             } else if (isExactDiff) {
-              // "Chỉ dự đoán hiệu số chính xác" => Tức là hiệu số đúng nhưng tỷ số sai
               exactDiffs++;
             }
           }
         });
 
         return {
-          ...p,
-          stats: {
-            totalPreds,
-            correctResults,
-            exactScores,
-            exactDiffs
-          }
+          id: p.id,
+          display_name: p.display_name,
+          totalPts,
+          exactScores,
+          exactDiffs
         };
       });
 
-    // Sorting logic
+      // Sort users to get rank
+      dateStats.sort((a, b) => {
+        if (b.totalPts !== a.totalPts) return b.totalPts - a.totalPts;
+        if (b.exactScores !== a.exactScores) return b.exactScores - a.exactScores;
+        if (b.exactDiffs !== a.exactDiffs) return b.exactDiffs - a.exactDiffs;
+        return (a.display_name || '').localeCompare(b.display_name || '');
+      });
+
+      // Assign rank and save to history
+      // Format date to dd-mm
+      const [yyyy, mm, dd] = date.split('-');
+      const dateStr = `${dd}-${mm}`;
+      
+      dateStats.forEach((stat, index) => {
+        const rank = index + 1;
+        userHistoryMap[stat.id].push({
+          date: dateStr,
+          rank: rank,
+          points: stat.totalPts
+        });
+      });
+    });
+
+    // 3. Build final leaderboard
+    const leaderboard = users.map(p => {
+      let totalPreds = 0;
+      let correctResults = 0;
+      let exactScores = 0;
+      let exactDiffs = 0;
+
+      const userPreds = predictions.filter(pred => pred.user_id === p.id);
+
+      userPreds.forEach(pred => {
+        totalPreds++;
+        const m = matchMap[pred.match_id];
+        
+        const actualResult = m.home_score > m.away_score ? 'home_win' : m.home_score === m.away_score ? 'draw' : 'away_win';
+        
+        if (pred.prediction_result === actualResult) {
+          correctResults++;
+        }
+
+        if (pred.home_score !== null && pred.away_score !== null && m.home_score !== null && m.away_score !== null) {
+          const isExactScore = pred.home_score === m.home_score && pred.away_score === m.away_score;
+          const isExactDiff = (pred.home_score - pred.away_score) === (m.home_score - m.away_score);
+          
+          if (isExactScore) {
+            exactScores++;
+          } else if (isExactDiff) {
+            exactDiffs++;
+          }
+        }
+      });
+
+      const history = userHistoryMap[p.id] || [];
+      // Calculate rankTrend based on the last 2 records
+      let rankTrend = 0;
+      if (history.length >= 2) {
+        const currentRank = history[history.length - 1].rank;
+        const previousRank = history[history.length - 2].rank;
+        rankTrend = previousRank - currentRank; // positive means went UP in rank
+      }
+
+      return {
+        ...p,
+        stats: {
+          totalPreds,
+          correctResults,
+          exactScores,
+          exactDiffs
+        },
+        rankHistory: history,
+        rankTrend: rankTrend
+      };
+    });
+
+    // Final Sort
     leaderboard.sort((a, b) => {
-      // 1. Điểm
       const ptDiff = (b.total_points || 0) - (a.total_points || 0);
       if (ptDiff !== 0) return ptDiff;
-
-      // 2. Số trận dự đoán tỷ số chính xác
       const scoreDiff = b.stats.exactScores - a.stats.exactScores;
       if (scoreDiff !== 0) return scoreDiff;
-
-      // 3. Số trận dự đoán hiệu số chính xác
       const diffDiff = b.stats.exactDiffs - a.stats.exactDiffs;
       if (diffDiff !== 0) return diffDiff;
-
-      // 4. Bảng chữ cái
       return (a.display_name || '').localeCompare(b.display_name || '');
     });
 

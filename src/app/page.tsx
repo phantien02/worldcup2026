@@ -7,6 +7,7 @@ import WorldCupStandings from '@/components/WorldCupStandings';
 import ProfileUpdateForm from '@/components/ProfileUpdateForm';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '../data/matchMapping.json';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type Profile = {
   id: string;
@@ -43,6 +44,7 @@ export default function HomePage() {
   const [filterRound, setFilterRound] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
+  const [leaderboardView, setLeaderboardView] = useState<'list' | 'chart'>('list');
 
   useEffect(() => {
     if (user) {
@@ -456,18 +458,36 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold uppercase tracking-wider flex items-center gap-2 justify-center mb-2">
             <span style={{ color: '#ff9900' }}>●</span> BXH Người Chơi
           </h2>
+          
+          <div className="flex justify-center mb-2">
+            <div className="flex bg-black/40 rounded-full p-1 border border-white/10" style={{ width: 'fit-content' }}>
+              <button 
+                onClick={() => setLeaderboardView('list')} 
+                className={`px-4 py-2 rounded-full font-bold transition-all text-sm ${leaderboardView === 'list' ? 'bg-[#ff9900] text-black shadow-[0_0_10px_rgba(255,153,0,0.5)]' : 'text-gray-400 hover:text-white'}`}
+              >
+                📋 Dạng Danh Sách
+              </button>
+              <button 
+                onClick={() => setLeaderboardView('chart')} 
+                className={`px-4 py-2 rounded-full font-bold transition-all text-sm ${leaderboardView === 'chart' ? 'bg-[#00d2ff] text-black shadow-[0_0_10px_rgba(0,210,255,0.5)]' : 'text-gray-400 hover:text-white'}`}
+              >
+                📈 Dạng Biểu Đồ
+              </button>
+            </div>
+          </div>
+
           <div className="glass-panel" style={{ padding: '1.5rem', overflowX: 'auto' }}>
             {leaderboard.length === 0 ? (
               <div className="text-center" style={{ padding: '2rem 0', opacity: 0.5 }}>
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏆</div>
                 Chưa có ai ghi điểm. Hãy là người đầu tiên!
               </div>
-            ) : (
+            ) : leaderboardView === 'list' ? (
               <div style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}>
                 <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 10px', fontSize: '0.95rem', textAlign: 'left', minWidth: '700px' }}>
                   <thead style={{ color: '#a3a3a3', fontSize: '0.85rem', textTransform: 'uppercase', fontWeight: 'bold' }}>
                     <tr>
-                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '60px' }}>Hạng</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '80px' }}>Hạng</th>
                       <th style={{ padding: '0 1rem' }}>Người Chơi</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán đúng kết quả trận đấu">Đoán KQ</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác tỷ số">Đoán TS</th>
@@ -479,7 +499,12 @@ export default function HomePage() {
                     {leaderboard.map((user, idx) => (
                       <tr key={user.id} className="hover-card" style={{ background: 'rgba(0,0,0,0.3)', transition: 'background-color 0.2s' }}>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', fontWeight: '900', fontSize: '1.25rem', color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#6b7280', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
-                          #{idx + 1}
+                          <div className="flex flex-col items-center gap-1">
+                            <span>#{idx + 1}</span>
+                            {user.rankTrend > 0 && <span style={{ color: '#00ff88', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▲ +{user.rankTrend}</span>}
+                            {user.rankTrend < 0 && <span style={{ color: '#ff4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▼ {user.rankTrend}</span>}
+                            {user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ -</span>}
+                          </div>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {user.display_name}
@@ -501,7 +526,57 @@ export default function HomePage() {
                   </tbody>
                 </table>
               </div>
-            )}
+            ) : (() => {
+              // Build Chart Data
+              const datesMap = new Map();
+              leaderboard.forEach(user => {
+                user.rankHistory?.forEach((record: any) => {
+                  if (!datesMap.has(record.date)) {
+                    datesMap.set(record.date, { date: record.date });
+                  }
+                  datesMap.get(record.date)[user.display_name] = record.rank;
+                });
+              });
+              const chartData = Array.from(datesMap.values());
+              const maxRank = leaderboard.length;
+              const colors = ['#ff9900', '#00d2ff', '#00ff88', '#fbbf24', '#ff4444', '#a855f7', '#ec4899', '#14b8a6', '#f43f5e', '#8b5cf6', '#10b981', '#3b82f6'];
+
+              return (
+                <div style={{ width: '100%', height: '500px', padding: '1rem 0' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <XAxis dataKey="date" stroke="#a3a3a3" tick={{ fill: '#a3a3a3' }} tickMargin={10} />
+                      <YAxis 
+                        reversed 
+                        domain={[1, maxRank]} 
+                        ticks={Array.from({length: maxRank}, (_, i) => i + 1)}
+                        stroke="#a3a3a3" 
+                        tick={{ fill: '#a3a3a3' }}
+                        width={40}
+                      />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
+                        itemStyle={{ fontWeight: 'bold' }}
+                      />
+                      <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                      {leaderboard.map((user, idx) => (
+                        <Line 
+                          key={user.id}
+                          type="monotone" 
+                          dataKey={user.display_name} 
+                          stroke={colors[idx % colors.length]} 
+                          strokeWidth={3}
+                          dot={{ r: 4, strokeWidth: 2 }}
+                          activeDot={{ r: 6 }}
+                          isAnimationActive={true}
+                        />
+                      ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              );
+            })()}
           </div>
         </div>
         )}
