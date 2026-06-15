@@ -998,7 +998,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto mt-2 custom-scrollbar" style={{ minHeight: 0 }}>
+                <div className="custom-scrollbar" style={{ flex: '1 1 auto', overflowY: 'auto', minHeight: 0, marginTop: '0.5rem' }}>
                   {selectedUserStats.matchHistory.length === 0 ? (
                     <div className="text-center py-10 text-gray-400">Người chơi này chưa có dự đoán nào.</div>
                   ) : (
