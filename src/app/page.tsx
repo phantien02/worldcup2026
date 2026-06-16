@@ -696,18 +696,28 @@ export default function HomePage() {
                         <div 
                           key={user.id} 
                           onClick={() => togglePlayer(user.display_name)}
-                          className="flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all hover:bg-white/5"
+                          className="flex items-center p-1.5 md:p-2 rounded-lg cursor-pointer transition-all hover:bg-white/5"
                           style={{ opacity: isHidden ? 0.4 : 1 }}
                         >
                           <div 
+                            className="flex-shrink-0"
                             style={{ 
-                              width: '12px', 
-                              height: '12px', 
-                              borderRadius: '50%', 
+                              width: '14px', 
+                              height: '14px', 
+                              borderRadius: '3px', 
                               backgroundColor: isHidden ? 'transparent' : userColor,
-                              border: '2px solid ' + userColor
+                              border: '2px solid ' + userColor,
+                              marginRight: '10px'
                             }} 
-                          />
+                          >
+                            {!isHidden && (
+                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.8))' }}>
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                              </div>
+                            )}
+                          </div>
                           <span className="font-semibold text-sm text-white truncate">
                             {user.display_name}
                           </span>
