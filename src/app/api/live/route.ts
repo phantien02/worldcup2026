@@ -78,10 +78,10 @@ export async function GET() {
         if (scrapeData.status === 'finished') newStatus = 'finished';
         else if (scrapeData.status === 'live') newStatus = 'live';
 
-        // FAIL-SAFE: Ép trận đấu kết thúc nếu AI không đọc được chữ FT nhưng thời gian đã quá hạn (Vòng bảng > 135p, Knockout > 180p)
+        // FAIL-SAFE: Ép trận đấu kết thúc nếu AI không đọc được chữ FT nhưng thời gian đã quá hạn (Vòng bảng > 180p, Knockout > 240p)
         const knockoutRoundsCheck = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Chung kết'];
         const isKnockoutCheck = knockoutRoundsCheck.includes(m.round || '');
-        const maxLiveMinutes = isKnockoutCheck ? 180 : 135;
+        const maxLiveMinutes = isKnockoutCheck ? 240 : 180;
         const diffMinutesCheck = (Date.now() - new Date(m.kickoff_time).getTime()) / (1000 * 60);
 
         if (newStatus === 'live' && diffMinutesCheck > maxLiveMinutes && scrapeData.home_score !== null) {
