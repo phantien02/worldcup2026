@@ -531,6 +531,7 @@ export default function MatchPage() {
                         type="number" min="0" max="20" placeholder="-"
                         value={myPrediction.home} 
                         onChange={e => setMyPrediction({...myPrediction, home: e.target.value === '' ? '' : Number(e.target.value)})}
+                        className="appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none m-0"
                         style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 'bold', background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(255,255,255,0.1)', width: '90px', height: '90px', borderRadius: '16px', color: '#fff' }}
                       />
                       <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.5)' }}>-</span>
@@ -538,6 +539,7 @@ export default function MatchPage() {
                         type="number" min="0" max="20" placeholder="-"
                         value={myPrediction.away} 
                         onChange={e => setMyPrediction({...myPrediction, away: e.target.value === '' ? '' : Number(e.target.value)})}
+                        className="appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none m-0"
                         style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 'bold', background: 'rgba(255,255,255,0.05)', border: '2px solid rgba(255,255,255,0.1)', width: '90px', height: '90px', borderRadius: '16px', color: '#fff' }}
                       />
                     </div>
