@@ -452,50 +452,7 @@ export default function AdminPage() {
                   <div className="flex flex-col gap-2">
                     {roundMatches.map((m) => (
                       <div key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '12px 0' }}>
-                        {m.status === 'finished' ? (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                            {/* Left: Delete & Round */}
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '15%' }}>
-                              <button onClick={() => handleDeleteMatch(m.id)} style={{ backgroundColor: '#dc2626', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }} title="Xóa trận này">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                                  <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                </svg>
-                                Xóa
-                              </button>
-                              <span style={{ color: 'white', fontSize: '13px', fontWeight: 'bold', whiteSpace: 'nowrap' }}>{m.round || 'Bảng A'}</span>
-                            </div>
-                          
-                            {/* Center: Match Data */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70%', gap: '1rem' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '35%', gap: '0.5rem' }}>
-                                <span style={{ color: 'white', fontWeight: 'bold', textAlign: 'right', fontSize: '15px' }}>{m.home_team?.name}</span>
-                                {renderFlag(m.home_team)}
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                <div style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' }}>
-                                  {m.home_score}
-                                </div>
-                                <span style={{ color: '#666', fontWeight: 'bold' }}>-</span>
-                                <div style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' }}>
-                                  {m.away_score}
-                                </div>
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '35%', gap: '0.5rem' }}>
-                                {renderFlag(m.away_team)}
-                                <span style={{ color: 'white', fontWeight: 'bold', textAlign: 'left', fontSize: '15px' }}>{m.away_team?.name}</span>
-                              </div>
-                            </div>
-                          
-                            {/* Right: Status & Time */}
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '15%' }}>
-                              <span style={{ color: '#10b981', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '4px' }}>Đã xong</span>
-                              <span style={{ color: 'white', fontSize: '14px', fontWeight: 'bold' }}>
-                                {new Date(m.kickoff_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </div>
-                          </div>
-                        ) : (
+
                           <form onSubmit={(e: any) => { 
                             e.preventDefault(); 
                             const h = Number(e.target.home.value);
@@ -549,7 +506,7 @@ export default function AdminPage() {
                             {/* Right: Submit & Time */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '15%' }}>
                               <button type="submit" style={{ backgroundColor: '#374151', color: '#d1d5db', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', border: '1px solid #4b5563', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                SỬA (GHI ĐÈ)
+                                CẬP NHẬT ĐIỂM
                               </button>
                               <span style={{ color: 'white', fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>
                                 {new Date(m.kickoff_time).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
@@ -566,7 +523,6 @@ export default function AdminPage() {
                               )}
                             </div>
                           </form>
-                        )}
                         <div className="flex justify-center mt-3">
                           <button 
                             type="button"
