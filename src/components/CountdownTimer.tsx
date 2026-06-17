@@ -17,8 +17,8 @@ export default function CountdownTimer({ kickoffTime, onExpire }: { kickoffTime:
   useEffect(() => {
     if (!isReady) return;
 
-    // Đóng dự đoán trước 1 tiếng
-    const targetDate = new Date(new Date(kickoffTime).getTime() - 60 * 60 * 1000);
+    // Đóng dự đoán trước 45 phút
+    const targetDate = new Date(new Date(kickoffTime).getTime() - 45 * 60 * 1000);
     
     const updateTimer = () => {
       const now = getCurrentTime();

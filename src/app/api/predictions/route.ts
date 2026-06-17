@@ -32,10 +32,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Match not found' }, { status: 404 });
     }
 
-    // Predictions are locked 1 hour before kickoff
-    const lockTime = new Date(new Date(match.kickoff_time).getTime() - 60 * 60 * 1000);
+    // Predictions are locked 45 minutes before kickoff
+    const lockTime = new Date(new Date(match.kickoff_time).getTime() - 45 * 60 * 1000);
     if (match.status !== 'pending' || new Date() >= lockTime) {
-      return NextResponse.json({ error: 'Match predictions are locked 1 hour before kickoff.' }, { status: 400 });
+      return NextResponse.json({ error: 'Match predictions are locked 45 minutes before kickoff.' }, { status: 400 });
     }
 
     // Save prediction securely using admin
