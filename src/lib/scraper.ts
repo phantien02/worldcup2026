@@ -317,18 +317,43 @@ async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string,
       return null;
     }
 
-    // CẢI TIẾN #2: Thử Regex trước
+    // Bước 2: Thử Regex trước (nhanh, miễn phí)
     const regexResult = tryRegexExtract(combinedText, homeTeam, awayTeam, homeEn, awayEn);
-    if (regexResult && regexResult.home_score !== null && regexResult.away_score !== null) {
-      console.log(`[Scraper] ⚡ ${sourceName} - Regex bắt được: ${regexResult.home_score}-${regexResult.away_score} (${regexResult.status}) → Không cần gọi AI!`);
-      return { result: regexResult, source: sourceName };
+    if (regexResult) {
+      console.log(`[Scraper] ⚡ ${sourceName} - Regex bắt được: ${regexResult.home_score}-${regexResult.away_score} (${regexResult.status})`);
     }
 
-    // Fallback: Gọi AI nếu Regex không bắt được
+    // Bước 3: LUÔN gọi AI (có evidence) để xác nhận hoặc bổ sung
     const aiResult = await analyzeWithGemini(combinedText, homeTeam, awayTeam);
     if (aiResult && aiResult.home_score !== null && aiResult.away_score !== null) {
       console.log(`[Scraper] 🤖 ${sourceName} - AI trả về: ${aiResult.home_score}-${aiResult.away_score} (${aiResult.status})`);
+    }
+
+    // Quyết định kết quả cuối cùng cho nguồn này:
+    if (regexResult && regexResult.home_score !== null && aiResult && aiResult.home_score !== null) {
+      // CẢ HAI đều có kết quả → so sánh
+      if (regexResult.home_score === aiResult.home_score && regexResult.away_score === aiResult.away_score) {
+        // KHỚP NHAU → Tin cậy rất cao!
+        console.log(`[Scraper] ✅✅ ${sourceName} - Regex & AI ĐỒNG Ý: ${aiResult.home_score}-${aiResult.away_score}`);
+        // Ưu tiên status từ AI (vì AI phân tích ngữ cảnh tốt hơn)
+        return { result: aiResult, source: sourceName };
+      } else {
+        // KHÁC NHAU → Ưu tiên AI vì có evidence, nhưng log cảnh báo
+        console.log(`[Scraper] ⚠️ ${sourceName} - Regex (${regexResult.home_score}-${regexResult.away_score}) ≠ AI (${aiResult.home_score}-${aiResult.away_score}) → Ưu tiên AI (có evidence).`);
+        return { result: aiResult, source: sourceName };
+      }
+    }
+
+    // Chỉ AI có kết quả (Regex fail) → dùng AI
+    if (aiResult && aiResult.home_score !== null && aiResult.away_score !== null) {
+      console.log(`[Scraper] 🤖 ${sourceName} - Chỉ AI có kết quả: ${aiResult.home_score}-${aiResult.away_score} (${aiResult.status})`);
       return { result: aiResult, source: sourceName };
+    }
+
+    // Chỉ Regex có kết quả (AI fail) → dùng Regex nhưng cảnh báo
+    if (regexResult && regexResult.home_score !== null && regexResult.away_score !== null) {
+      console.log(`[Scraper] ⚡ ${sourceName} - Chỉ Regex có kết quả (AI fail): ${regexResult.home_score}-${regexResult.away_score} (${regexResult.status})`);
+      return { result: regexResult, source: sourceName };
     }
 
   } catch (err) {
