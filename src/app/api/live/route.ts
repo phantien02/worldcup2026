@@ -71,7 +71,7 @@ export async function GET() {
       const homeName = (m.home_team as any).name || (m.home_team as any)[0]?.name;
       const awayName = (m.away_team as any).name || (m.away_team as any)[0]?.name;
 
-      const scrapeData = await scrapeLiveScore(homeName, awayName);
+      const scrapeData = await scrapeLiveScore(homeName, awayName, m.kickoff_time);
 
       if (scrapeData) {
         let newStatus = m.status;

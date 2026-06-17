@@ -290,7 +290,7 @@ interface RssSourceResult {
   source: string;
 }
 
-async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string, sourceName: string): Promise<RssSourceResult | null> {
+async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string, sourceName: string, _kickoffTime?: string): Promise<RssSourceResult | null> {
   try {
     console.log(`[Scraper] Đang quét ${sourceName}...`);
     const rssXml = await fetchHtml(rssUrl);
@@ -363,14 +363,26 @@ async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string,
   return null;
 }
 
-export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
+export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickoffTime?: string): Promise<ScrapeResult | null> {
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
 
+  // Xây dựng từ khoá ngày thi đấu từ kickoff_time (ví dụ: "17/06/2026" hoặc "June 17")
+  let dateKeywordVN = '';
+  let dateKeywordEN = '';
+  if (kickoffTime) {
+    const d = new Date(kickoffTime);
+    const day = d.getUTCDate();
+    const month = d.getUTCMonth() + 1;
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    dateKeywordVN = ` ${day}/${month}`;
+    dateKeywordEN = ` ${monthNames[d.getUTCMonth()]} ${day}`;
+  }
+
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam} (${homeEn} vs ${awayEn})...`);
 
-  const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' kết quả')}&hl=vi&gl=VN&ceid=VN:vi`;
-  const rssEN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' score')}&hl=en`;
+  const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' World Cup 2026' + dateKeywordVN + ' kết quả')}&hl=vi&gl=VN&ceid=VN:vi`;
+  const rssEN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' World Cup 2026' + dateKeywordEN + ' score')}&hl=en`;
 
   // CẢI TIẾN #4: Cào cả 2 nguồn song song, sau đó cross-check
   const [resultVN, resultEN] = await Promise.all([
