@@ -3,6 +3,7 @@ export interface ScrapeResult {
   away_score: number | null;
   status: 'pending' | 'live' | 'finished';
   match_time: string | null;
+  evidence?: string | null;
   events: {
     home_events: Array<{ player: string, time: string, is_penalty: boolean, assist: string | null }>;
     away_events: Array<{ player: string, time: string, is_penalty: boolean, assist: string | null }>;
@@ -145,7 +146,7 @@ function tryRegexExtract(text: string, homeTeam: string, awayTeam: string, homeE
         Math.min(text.length, (match.index || 0) + match[0].length + 100)
       ).toLowerCase();
 
-      const isFinished = /\b(ft|full[- ]?time|final|kết thúc|chung cuộc|result)\b/i.test(surroundingText);
+      const isFinished = /\b(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished)\b/i.test(surroundingText);
       const isHalfTime = /\b(ht|half[- ]?time|hiệp 1|hiệp một)\b/i.test(surroundingText);
 
       // Nếu rõ ràng là HT thì bỏ qua, không lấy tỷ số hiệp 1
@@ -214,11 +215,10 @@ Trả về một JSON object duy nhất, định dạng chính xác như sau:
 
 Lưu ý quan trọng:
 - CHỈ trả về JSON object, không kèm markdown, không giải thích.
-- CHỈ lấy tỷ số của đúng trận đấu giữa "${homeTeam}" và "${awayTeam}". Tuyệt đối KHÔNG lấy nhầm tỷ số của các đội bóng khác hoặc các trận đấu khác được nhắc đến trong văn bản.
-- Chú ý thứ tự Đội nhà (Home) và Đội khách (Away) để gán bàn thắng chính xác, không được đảo lộn.
-- Ưu tiên tìm kết quả CHUNG CUỘC (Full Time / FT). Nếu thấy cả tỷ số hiệp 1 và tỷ số chung cuộc, chỉ lấy tỷ số chung cuộc.
-- NẾU văn bản chỉ đề cập đến tỷ số Hiệp 1 (HT - Half Time), hoặc trận đấu đang diễn ra (Live), TUYỆT ĐỐI KHÔNG trả về status là "finished". Bắt buộc phải trả về status là "live".
-- CHỈ trả về status "finished" khi có chữ FT (Full-Time) hoặc có thông tin rõ ràng là trận đấu đã kết thúc.
+- CHỈ lấy tỷ số của đúng trận đấu giữa "${homeTeam}" và "${awayTeam}". Tuyệt đối KHÔNG lấy nhầm tỷ số của các đội bóng khác.
+- NẾU evidence chứa chữ "Trực tiếp", "Live", "Đang diễn ra", hoặc chỉ đề cập tỷ số Hiệp 1, bạn PHẢI trả về status là "live", TUYỆT ĐỐI KHÔNG được trả về "finished".
+- CHỈ trả về "finished" nếu chắc chắn trận đấu đã có chữ "FT", "Kết thúc", "Hết giờ".
+- Chú ý thứ tự Đội nhà (Home) và Đội khách (Away).
 - Nếu không tìm thấy tỷ số của ĐÚNG trận đấu này, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": null, "evidence": null }.
 
 Văn bản:
@@ -290,7 +290,7 @@ interface RssSourceResult {
   source: string;
 }
 
-async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string, sourceName: string, _kickoffTime?: string): Promise<RssSourceResult | null> {
+async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string, sourceName: string): Promise<RssSourceResult | null> {
   try {
     console.log(`[Scraper] Đang quét ${sourceName}...`);
     const rssXml = await fetchHtml(rssUrl);
@@ -333,10 +333,22 @@ async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string,
     if (regexResult && regexResult.home_score !== null && aiResult && aiResult.home_score !== null) {
       // CẢ HAI đều có kết quả → so sánh
       if (regexResult.home_score === aiResult.home_score && regexResult.away_score === aiResult.away_score) {
-        // KHỚP NHAU → Tin cậy rất cao!
-        console.log(`[Scraper] ✅✅ ${sourceName} - Regex & AI ĐỒNG Ý: ${aiResult.home_score}-${aiResult.away_score}`);
-        // Ưu tiên status từ AI (vì AI phân tích ngữ cảnh tốt hơn)
-        return { result: aiResult, source: sourceName };
+        let finalStatus = aiResult.status;
+        
+        // Nếu AI bảo finished nhưng Regex bảo live (chưa thấy từ khóa kết thúc), ép về live cho an toàn
+        if (aiResult.status === 'finished' && regexResult.status === 'live') {
+           const evidenceLower = (aiResult.evidence || '').toLowerCase();
+           if (evidenceLower.includes('trực tiếp') || evidenceLower.includes('live') || evidenceLower.includes('đang diễn ra')) {
+              finalStatus = 'live';
+              console.log(`[Scraper] ⚠️ AI báo finished nhưng evidence chứa chữ LIVE → ÉP về LIVE`);
+           } else {
+              finalStatus = 'live'; // Thà trễ còn hơn đóng non trận đấu
+              console.log(`[Scraper] ⚠️ AI báo finished nhưng Regex không thấy chữ kết thúc → ÉP về LIVE cho an toàn`);
+           }
+        }
+
+        console.log(`[Scraper] ✅✅ ${sourceName} - Regex & AI ĐỒNG Ý: ${aiResult.home_score}-${aiResult.away_score} (${finalStatus})`);
+        return { result: { ...aiResult, status: finalStatus, match_time: finalStatus === 'finished' ? 'FT' : null }, source: sourceName };
       } else {
         // KHÁC NHAU → Ưu tiên AI vì có evidence, nhưng log cảnh báo
         console.log(`[Scraper] ⚠️ ${sourceName} - Regex (${regexResult.home_score}-${regexResult.away_score}) ≠ AI (${aiResult.home_score}-${aiResult.away_score}) → Ưu tiên AI (có evidence).`);
@@ -367,22 +379,10 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
 
-  // Xây dựng từ khoá ngày thi đấu từ kickoff_time (ví dụ: "17/06/2026" hoặc "June 17")
-  let dateKeywordVN = '';
-  let dateKeywordEN = '';
-  if (kickoffTime) {
-    const d = new Date(kickoffTime);
-    const day = d.getUTCDate();
-    const month = d.getUTCMonth() + 1;
-    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    dateKeywordVN = ` ${day}/${month}`;
-    dateKeywordEN = ` ${monthNames[d.getUTCMonth()]} ${day}`;
-  }
-
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam} (${homeEn} vs ${awayEn})...`);
 
-  const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' World Cup 2026' + dateKeywordVN + ' kết quả')}&hl=vi&gl=VN&ceid=VN:vi`;
-  const rssEN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' World Cup 2026' + dateKeywordEN + ' score')}&hl=en`;
+  const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' World Cup 2026 kết quả')}&hl=vi&gl=VN&ceid=VN:vi`;
+  const rssEN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' World Cup 2026 score')}&hl=en`;
 
   // CẢI TIẾN #4: Cào cả 2 nguồn song song, sau đó cross-check
   const [resultVN, resultEN] = await Promise.all([
