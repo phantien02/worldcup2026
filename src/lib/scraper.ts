@@ -92,6 +92,105 @@ function getEnglishName(name: string): string {
   return teamNameMap[name] || name;
 }
 
+// =============================================
+// CẢI TIẾN #2: REGEX PRE-EXTRACTION
+// Thử bắt tỷ số bằng Regex trước khi gọi AI (tiết kiệm quota + nhanh hơn)
+// =============================================
+function tryRegexExtract(text: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string): ScrapeResult | null {
+  const homeLower = homeTeam.toLowerCase();
+  const awayLower = awayTeam.toLowerCase();
+  const homeEnLower = homeEn.toLowerCase();
+  const awayEnLower = awayEn.toLowerCase();
+  const textLower = text.toLowerCase();
+
+  // Escape special regex characters in team names
+  const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Tạo danh sách tên đội để match (cả Tiếng Việt và Tiếng Anh)
+  const homeNames = [escapeRegex(homeTeam), escapeRegex(homeEn)].filter((v, i, a) => a.indexOf(v) === i);
+  const awayNames = [escapeRegex(awayTeam), escapeRegex(awayEn)].filter((v, i, a) => a.indexOf(v) === i);
+
+  const homePattern = homeNames.join('|');
+  const awayPattern = awayNames.join('|');
+
+  // Pattern: "HomeTeam X - Y AwayTeam" hoặc "HomeTeam X-Y AwayTeam"
+  // Hỗ trợ các dạng: 4-1, 4 - 1, 4:1, 4 : 1
+  const patterns = [
+    // Home trước, Away sau: "Norway 4-1 Iraq"
+    new RegExp(`(?:${homePattern})\\s*[:\\-–]?\\s*(\\d+)\\s*[\\-–:]\\s*(\\d+)\\s*[:\\-–]?\\s*(?:${awayPattern})`, 'i'),
+    // Home trước, Away sau (có FT/HT): "Norway 4-1 Iraq (FT)"
+    new RegExp(`(?:${homePattern})\\s+(\\d+)\\s*[\\-–:]\\s*(\\d+)\\s+(?:${awayPattern})`, 'i'),
+    // Away trước, Home sau (đảo vị trí): "Iraq 1-4 Norway" 
+    new RegExp(`(?:${awayPattern})\\s*[:\\-–]?\\s*(\\d+)\\s*[\\-–:]\\s*(\\d+)\\s*[:\\-–]?\\s*(?:${homePattern})`, 'i'),
+  ];
+
+  for (let i = 0; i < patterns.length; i++) {
+    const match = text.match(patterns[i]);
+    if (match) {
+      let homeScore: number, awayScore: number;
+
+      if (i <= 1) {
+        // Home trước, Away sau
+        homeScore = parseInt(match[1]);
+        awayScore = parseInt(match[2]);
+      } else {
+        // Away trước, Home sau (i === 2) → phải đảo lại
+        awayScore = parseInt(match[1]);
+        homeScore = parseInt(match[2]);
+      }
+
+      // Kiểm tra xem có chữ FT / Full-Time / kết thúc gần kết quả không
+      const surroundingText = text.substring(
+        Math.max(0, (match.index || 0) - 100),
+        Math.min(text.length, (match.index || 0) + match[0].length + 100)
+      ).toLowerCase();
+
+      const isFinished = /\b(ft|full[- ]?time|final|kết thúc|chung cuộc|result)\b/i.test(surroundingText);
+      const isHalfTime = /\b(ht|half[- ]?time|hiệp 1|hiệp một)\b/i.test(surroundingText);
+
+      // Nếu rõ ràng là HT thì bỏ qua, không lấy tỷ số hiệp 1
+      if (isHalfTime && !isFinished) {
+        console.log(`[Regex] ⏭️ Bỏ qua tỷ số hiệp 1: ${homeScore}-${awayScore}`);
+        continue;
+      }
+
+      const status = isFinished ? 'finished' : 'live';
+
+      console.log(`[Regex] ✅ Bắt được tỷ số: ${homeTeam} ${homeScore} - ${awayScore} ${awayTeam} (${status}) | Pattern #${i + 1}`);
+      return {
+        home_score: homeScore,
+        away_score: awayScore,
+        status,
+        match_time: isFinished ? 'FT' : null,
+        events: null
+      };
+    }
+  }
+
+  return null;
+}
+
+// =============================================
+// CẢI TIẾN #1: LỌC RSS - Chỉ giữ bài liên quan
+// =============================================
+function filterRelevantItems(items: string[], homeTeam: string, awayTeam: string, homeEn: string, awayEn: string): string[] {
+  const teamKeywords = [
+    homeTeam.toLowerCase(), 
+    awayTeam.toLowerCase(), 
+    homeEn.toLowerCase(), 
+    awayEn.toLowerCase()
+  ];
+
+  return items.filter(item => {
+    const itemLower = item.toLowerCase();
+    // Chỉ giữ bài mà tiêu đề/mô tả chứa tên ÍT NHẤT 1 trong 2 đội
+    return teamKeywords.some(keyword => itemLower.includes(keyword));
+  });
+}
+
+// =============================================
+// CẢI TIẾN #3: Prompt AI cải tiến - yêu cầu trích dẫn evidence
+// =============================================
 export async function analyzeWithGemini(text: string, homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -109,7 +208,8 @@ Trả về một JSON object duy nhất, định dạng chính xác như sau:
   "home_score": <số bàn thắng của đội nhà, hoặc null>,
   "away_score": <số bàn thắng của đội khách, hoặc null>,
   "status": "finished" (nếu trận đấu đã kết thúc), "live" (nếu đang diễn ra), hoặc "pending" (nếu chưa bắt đầu/không tìm thấy),
-  "match_time": "FT" hoặc null
+  "match_time": "FT" hoặc null,
+  "evidence": "<trích nguyên văn đoạn text ngắn nhất chứa tỷ số mà bạn dùng để kết luận>"
 }
 
 Lưu ý quan trọng:
@@ -119,7 +219,7 @@ Lưu ý quan trọng:
 - Ưu tiên tìm kết quả CHUNG CUỘC (Full Time / FT). Nếu thấy cả tỷ số hiệp 1 và tỷ số chung cuộc, chỉ lấy tỷ số chung cuộc.
 - NẾU văn bản chỉ đề cập đến tỷ số Hiệp 1 (HT - Half Time), hoặc trận đấu đang diễn ra (Live), TUYỆT ĐỐI KHÔNG trả về status là "finished". Bắt buộc phải trả về status là "live".
 - CHỈ trả về status "finished" khi có chữ FT (Full-Time) hoặc có thông tin rõ ràng là trận đấu đã kết thúc.
-- Nếu không tìm thấy tỷ số của ĐÚNG trận đấu này, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": null }.
+- Nếu không tìm thấy tỷ số của ĐÚNG trận đấu này, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": null, "evidence": null }.
 
 Văn bản:
 """
@@ -159,6 +259,11 @@ ${text}
     }
     
     const result = JSON.parse(match[0]);
+
+    // Log evidence để debug khi có lỗi
+    if (result.evidence) {
+      console.log(`[Gemini] 📝 Evidence: "${result.evidence}"`);
+    }
     
     // Validate
     if (typeof result.home_score !== 'undefined' && typeof result.away_score !== 'undefined' && result.status) {
@@ -176,57 +281,109 @@ function normalize(str: string): string {
   return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/đ/g, 'd');
 }
 
+// =============================================
+// CẢI TIẾN #4: CROSS-CHECK giữa nguồn VN và EN
+// =============================================
+
+interface RssSourceResult {
+  result: ScrapeResult;
+  source: string;
+}
+
+async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string, sourceName: string): Promise<RssSourceResult | null> {
+  try {
+    console.log(`[Scraper] Đang quét ${sourceName}...`);
+    const rssXml = await fetchHtml(rssUrl);
+    if (!rssXml || rssXml.length < 100) return null;
+
+    const allTitles = Array.from(rssXml.matchAll(/<title[^>]*>([\s\S]*?)<\/title>/gi))
+      .map(m => m[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim())
+      .slice(0, 15);
+    
+    const allDescriptions = Array.from(rssXml.matchAll(/<description[^>]*>([\s\S]*?)<\/description>/gi))
+      .map(m => m[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]*>/g, ' ').trim())
+      .slice(0, 15);
+
+    // CẢI TIẾN #1: Lọc chỉ giữ bài có chứa tên đội
+    const relevantTitles = filterRelevantItems(allTitles, homeTeam, awayTeam, homeEn, awayEn);
+    const relevantDescriptions = filterRelevantItems(allDescriptions, homeTeam, awayTeam, homeEn, awayEn);
+
+    console.log(`[Scraper] 🔍 ${sourceName}: ${allTitles.length} tiêu đề → lọc còn ${relevantTitles.length} | ${allDescriptions.length} mô tả → lọc còn ${relevantDescriptions.length}`);
+
+    const combinedText = [...relevantTitles, ...relevantDescriptions].join('\n');
+    
+    if (combinedText.length < 30) {
+      console.log(`[Scraper] ⏭️ ${sourceName}: Sau lọc không còn nội dung liên quan.`);
+      return null;
+    }
+
+    // CẢI TIẾN #2: Thử Regex trước
+    const regexResult = tryRegexExtract(combinedText, homeTeam, awayTeam, homeEn, awayEn);
+    if (regexResult && regexResult.home_score !== null && regexResult.away_score !== null) {
+      console.log(`[Scraper] ⚡ ${sourceName} - Regex bắt được: ${regexResult.home_score}-${regexResult.away_score} (${regexResult.status}) → Không cần gọi AI!`);
+      return { result: regexResult, source: sourceName };
+    }
+
+    // Fallback: Gọi AI nếu Regex không bắt được
+    const aiResult = await analyzeWithGemini(combinedText, homeTeam, awayTeam);
+    if (aiResult && aiResult.home_score !== null && aiResult.away_score !== null) {
+      console.log(`[Scraper] 🤖 ${sourceName} - AI trả về: ${aiResult.home_score}-${aiResult.away_score} (${aiResult.status})`);
+      return { result: aiResult, source: sourceName };
+    }
+
+  } catch (err) {
+    console.error(`[Scraper] Lỗi ${sourceName}:`, err);
+  }
+
+  return null;
+}
+
 export async function scrapeLiveScore(homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
 
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam} (${homeEn} vs ${awayEn})...`);
 
-  // Tìm kiếm duy nhất qua Google News RSS theo đúng yêu cầu
-  const googleNewsUrls = [
-    `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' kết quả')}&hl=vi&gl=VN&ceid=VN:vi`,
-    `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' score')}&hl=en`,
-  ];
+  const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' kết quả')}&hl=vi&gl=VN&ceid=VN:vi`;
+  const rssEN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' score')}&hl=en`;
 
-  for (const rssUrl of googleNewsUrls) {
-    try {
-      console.log(`[Scraper] Đang quét Google News RSS...`);
-      const rssXml = await fetchHtml(rssUrl);
-      if (!rssXml || rssXml.length < 100) continue;
+  // CẢI TIẾN #4: Cào cả 2 nguồn song song, sau đó cross-check
+  const [resultVN, resultEN] = await Promise.all([
+    scrapeFromRss(rssVN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Việt'),
+    scrapeFromRss(rssEN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Anh'),
+  ]);
 
-      const titles = Array.from(rssXml.matchAll(/<title[^>]*>([\s\S]*?)<\/title>/gi))
-        .map(m => m[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim())
-        .slice(0, 15);
-      
-      const descriptions = Array.from(rssXml.matchAll(/<description[^>]*>([\s\S]*?)<\/description>/gi))
-        .map(m => m[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]*>/g, ' ').trim())
-        .slice(0, 15);
-
-      const combinedText = [...titles, ...descriptions].join('\n');
-      
-      if (combinedText.length < 50) continue;
-
-      const textLower = combinedText.toLowerCase();
-      const hasTeamName = textLower.includes(homeTeam.toLowerCase()) || 
-                          textLower.includes(awayTeam.toLowerCase()) ||
-                          textLower.includes(homeEn.toLowerCase()) || 
-                          textLower.includes(awayEn.toLowerCase());
-      
-      if (!hasTeamName) {
-        console.log(`[Scraper] ⏭️ Bỏ qua RSS (không chứa tên đội).`);
-        continue;
-      }
-
-      const result = await analyzeWithGemini(combinedText, homeTeam, awayTeam);
-      if (result && result.home_score !== null && result.away_score !== null) {
-        console.log(`[Scraper] ✅ Chốt tỷ số từ Google News RSS: ${result.home_score} - ${result.away_score} (${result.status})`);
-        return result;
-      }
-    } catch (err) {
-      console.error('[Scraper] Lỗi Google News RSS:', err);
+  // Case 1: Cả 2 nguồn đều có kết quả → So sánh cross-check
+  if (resultVN && resultEN) {
+    if (resultVN.result.home_score === resultEN.result.home_score &&
+        resultVN.result.away_score === resultEN.result.away_score) {
+      console.log(`[Scraper] ✅✅ CROSS-CHECK KHỚP: ${resultVN.result.home_score}-${resultVN.result.away_score} (VN: ${resultVN.result.status}, EN: ${resultEN.result.status})`);
+      // Ưu tiên status "finished" nếu 1 trong 2 nguồn xác nhận
+      const finalStatus = (resultVN.result.status === 'finished' || resultEN.result.status === 'finished') ? 'finished' : resultVN.result.status;
+      return {
+        ...resultVN.result,
+        status: finalStatus,
+        match_time: finalStatus === 'finished' ? 'FT' : resultVN.result.match_time,
+      };
+    } else {
+      // 2 nguồn khác tỷ số → KHÔNG CHẤP NHẬN, quá rủi ro
+      console.log(`[Scraper] ⚠️ CROSS-CHECK KHÔNG KHỚP! VN: ${resultVN.result.home_score}-${resultVN.result.away_score} vs EN: ${resultEN.result.home_score}-${resultEN.result.away_score} → BỎ QUA, chờ lần cào sau.`);
+      return null;
     }
   }
 
-  console.log('[Scraper] ❌ Không tìm thấy kết quả.');
+  // Case 2: Chỉ 1 nguồn có kết quả → Chấp nhận nhưng log cảnh báo
+  if (resultVN) {
+    console.log(`[Scraper] ✅ Chỉ có nguồn VN: ${resultVN.result.home_score}-${resultVN.result.away_score} (${resultVN.result.status}) - Không có nguồn EN để cross-check.`);
+    return resultVN.result;
+  }
+
+  if (resultEN) {
+    console.log(`[Scraper] ✅ Chỉ có nguồn EN: ${resultEN.result.home_score}-${resultEN.result.away_score} (${resultEN.result.status}) - Không có nguồn VN để cross-check.`);
+    return resultEN.result;
+  }
+
+  // Case 3: Không nguồn nào có kết quả
+  console.log('[Scraper] ❌ Không tìm thấy kết quả từ cả 2 nguồn.');
   return null;
 }
