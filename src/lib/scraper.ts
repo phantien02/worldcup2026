@@ -146,7 +146,7 @@ function tryRegexExtract(text: string, homeTeam: string, awayTeam: string, homeE
         Math.min(text.length, (match.index || 0) + match[0].length + 100)
       ).toLowerCase();
 
-      const isFinished = /\b(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished)\b/i.test(surroundingText);
+      const isFinished = /\b(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished|chiến thắng|đánh bại|thắng|vượt qua|win|won|beat|defeat)\b/i.test(surroundingText);
       const isHalfTime = /\b(ht|half[- ]?time|hiệp 1|hiệp một)\b/i.test(surroundingText);
 
       // Nếu rõ ràng là HT thì bỏ qua, không lấy tỷ số hiệp 1
@@ -181,9 +181,17 @@ function filterRelevantItems(items: string[], homeTeam: string, awayTeam: string
     homeEn.toLowerCase(), 
     awayEn.toLowerCase()
   ];
+  
+  const spamKeywords = ['nhận định', 'dự đoán', 'soi kèo', 'tỷ lệ', 'prediction', 'odds', 'preview', 'kèo'];
 
   return items.filter(item => {
     const itemLower = item.toLowerCase();
+    
+    // Loại bài soi kèo
+    if (spamKeywords.some(keyword => itemLower.includes(keyword))) {
+      return false;
+    }
+    
     // Chỉ giữ bài mà tiêu đề/mô tả chứa tên ÍT NHẤT 1 trong 2 đội
     return teamKeywords.some(keyword => itemLower.includes(keyword));
   });
@@ -290,7 +298,7 @@ interface RssSourceResult {
   source: string;
 }
 
-async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string, sourceName: string): Promise<RssSourceResult | null> {
+async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string, sourceName: string, kickoffTime?: string): Promise<RssSourceResult | null> {
   try {
     console.log(`[Scraper] Đang quét ${sourceName}...`);
     const rssXml = await fetchHtml(rssUrl);
@@ -337,13 +345,23 @@ async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string,
         
         // Nếu AI bảo finished nhưng Regex bảo live (chưa thấy từ khóa kết thúc), ép về live cho an toàn
         if (aiResult.status === 'finished' && regexResult.status === 'live') {
-           const evidenceLower = (aiResult.evidence || '').toLowerCase();
-           if (evidenceLower.includes('trực tiếp') || evidenceLower.includes('live') || evidenceLower.includes('đang diễn ra')) {
-              finalStatus = 'live';
-              console.log(`[Scraper] ⚠️ AI báo finished nhưng evidence chứa chữ LIVE → ÉP về LIVE`);
+           let diffMinutes = 0;
+           if (kickoffTime) {
+             diffMinutes = (Date.now() - new Date(kickoffTime).getTime()) / (1000 * 60);
+           }
+           
+           if (diffMinutes > 140) {
+              console.log(`[Scraper] ✅ Trận đã đá ${Math.round(diffMinutes)} phút (> 140p), tin tưởng AI báo finished.`);
+              finalStatus = 'finished';
            } else {
-              finalStatus = 'live'; // Thà trễ còn hơn đóng non trận đấu
-              console.log(`[Scraper] ⚠️ AI báo finished nhưng Regex không thấy chữ kết thúc → ÉP về LIVE cho an toàn`);
+              const evidenceLower = (aiResult.evidence || '').toLowerCase();
+              if (evidenceLower.includes('trực tiếp') || evidenceLower.includes('live') || evidenceLower.includes('đang diễn ra')) {
+                 finalStatus = 'live';
+                 console.log(`[Scraper] ⚠️ AI báo finished nhưng evidence chứa chữ LIVE → ÉP về LIVE`);
+              } else {
+                 finalStatus = 'live'; // Thà trễ còn hơn đóng non trận đấu
+                 console.log(`[Scraper] ⚠️ AI báo finished nhưng Regex không thấy chữ kết thúc → ÉP về LIVE cho an toàn`);
+              }
            }
         }
 
@@ -386,8 +404,8 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
 
   // CẢI TIẾN #4: Cào cả 2 nguồn song song, sau đó cross-check
   const [resultVN, resultEN] = await Promise.all([
-    scrapeFromRss(rssVN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Việt'),
-    scrapeFromRss(rssEN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Anh'),
+    scrapeFromRss(rssVN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Việt', kickoffTime),
+    scrapeFromRss(rssEN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Anh', kickoffTime),
   ]);
 
   // Case 1: Cả 2 nguồn đều có kết quả → So sánh cross-check

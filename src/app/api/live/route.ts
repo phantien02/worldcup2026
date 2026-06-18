@@ -74,6 +74,16 @@ export async function GET() {
       const scrapeData = await scrapeLiveScore(homeName, awayName, m.kickoff_time);
 
       if (scrapeData) {
+        // LUẬT BÓNG ĐÁ KHÔNG CÓ TỶ SỐ LÙI (No-Reverse Score Rule)
+        if (m.home_score !== null && m.away_score !== null && scrapeData.home_score !== null && scrapeData.away_score !== null) {
+           const oldTotal = m.home_score + m.away_score;
+           const newTotal = scrapeData.home_score + scrapeData.away_score;
+           if (newTotal < oldTotal) {
+              console.log(`[API Live] 🛑 CẢNH BÁO: Scraper định đẩy tỷ số từ ${m.home_score}-${m.away_score} xuống ${scrapeData.home_score}-${scrapeData.away_score}. BỊ CHẶN LẠI do tỷ số đi lùi!`);
+              continue; // Bỏ qua cập nhật trận này
+           }
+        }
+
         let newStatus = m.status;
         if (scrapeData.status === 'finished') newStatus = 'finished';
         else if (scrapeData.status === 'live') newStatus = 'live';
