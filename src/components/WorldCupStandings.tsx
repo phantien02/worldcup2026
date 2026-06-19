@@ -63,14 +63,77 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
   });
 
   const sortedGroups = Object.keys(groups).sort().map(groupName => {
-    const teams = Object.values(groups[groupName]).sort((a, b) => {
-      if (a.pts !== b.pts) return b.pts - a.pts;
-      const gdA = a.gf - a.ga;
-      const gdB = b.gf - b.ga;
-      if (gdA !== gdB) return gdB - gdA;
-      return b.gf - a.gf;
+    const groupTeams = Object.values(groups[groupName]);
+
+    // Group teams by points
+    const teamsByPts: Record<number, TeamStats[]> = {};
+    groupTeams.forEach(t => {
+      if (!teamsByPts[t.pts]) teamsByPts[t.pts] = [];
+      teamsByPts[t.pts].push(t);
     });
-    return { name: groupName, teams };
+
+    const ptsDescending = Object.keys(teamsByPts).map(Number).sort((a, b) => b - a);
+    const sortedTeams: TeamStats[] = [];
+
+    ptsDescending.forEach(pts => {
+      const tiedTeams = teamsByPts[pts];
+      
+      if (tiedTeams.length <= 1) {
+        sortedTeams.push(tiedTeams[0]);
+      } else {
+        // Resolve ties using Head-to-Head mini-league
+        const tiedTeamNames = tiedTeams.map(t => t.name);
+        const miniStats: Record<string, { pts: number, gd: number, gf: number }> = {};
+        tiedTeamNames.forEach(name => miniStats[name] = { pts: 0, gd: 0, gf: 0 });
+
+        matches.forEach(m => {
+          if (m.status === 'finished' && m.home_score !== null && m.away_score !== null) {
+            const hTeam = m.home_team?.name;
+            const aTeam = m.away_team?.name;
+            if (hTeam && aTeam && tiedTeamNames.includes(hTeam) && tiedTeamNames.includes(aTeam)) {
+              const hScore = m.home_score;
+              const aScore = m.away_score;
+              
+              miniStats[hTeam].gf += hScore;
+              miniStats[hTeam].gd += (hScore - aScore);
+              miniStats[aTeam].gf += aScore;
+              miniStats[aTeam].gd += (aScore - hScore);
+              
+              if (hScore > aScore) miniStats[hTeam].pts += 3;
+              else if (hScore < aScore) miniStats[aTeam].pts += 3;
+              else {
+                miniStats[hTeam].pts += 1;
+                miniStats[aTeam].pts += 1;
+              }
+            }
+          }
+        });
+
+        const resolved = [...tiedTeams].sort((a, b) => {
+          // 1. Head-to-head points
+          if (miniStats[a.name].pts !== miniStats[b.name].pts) return miniStats[b.name].pts - miniStats[a.name].pts;
+          // 2. Head-to-head goal difference
+          if (miniStats[a.name].gd !== miniStats[b.name].gd) return miniStats[b.name].gd - miniStats[a.name].gd;
+          // 3. Head-to-head goals scored
+          if (miniStats[a.name].gf !== miniStats[b.name].gf) return miniStats[b.name].gf - miniStats[a.name].gf;
+          
+          // 4. Overall goal difference
+          const gdA = a.gf - a.ga;
+          const gdB = b.gf - b.ga;
+          if (gdA !== gdB) return gdB - gdA;
+          
+          // 5. Overall goals scored
+          if (a.gf !== b.gf) return b.gf - a.gf;
+          
+          // Fallback: Alphabetical
+          return a.name.localeCompare(b.name);
+        });
+
+        sortedTeams.push(...resolved);
+      }
+    });
+
+    return { name: groupName, teams: sortedTeams };
   });
 
   if (sortedGroups.length === 0) {
