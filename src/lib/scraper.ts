@@ -97,75 +97,77 @@ function getEnglishName(name: string): string {
 // CẢI TIẾN #2: REGEX PRE-EXTRACTION
 // Thử bắt tỷ số bằng Regex trước khi gọi AI (tiết kiệm quota + nhanh hơn)
 // =============================================
+// =============================================
 function tryRegexExtract(text: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string): ScrapeResult | null {
-  const homeLower = homeTeam.toLowerCase();
-  const awayLower = awayTeam.toLowerCase();
-  const homeEnLower = homeEn.toLowerCase();
-  const awayEnLower = awayEn.toLowerCase();
-  const textLower = text.toLowerCase();
+  // Pattern 1: Tên đội 1 + số + số + Tên đội 2 (vd: Vietnam 2-1 Thailand)
+  const pattern1 = new RegExp(`${homeTeam}|${homeEn}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${awayTeam}|${awayEn}`, 'gi');
+  const pattern1En = new RegExp(`${homeEn}|${homeTeam}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${awayEn}|${awayTeam}`, 'gi');
 
-  // Escape special regex characters in team names
-  const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Pattern 2: Tên đội 2 + số + số + Tên đội 1 (ngược lại)
+  const pattern2 = new RegExp(`${awayTeam}|${awayEn}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${homeTeam}|${homeEn}`, 'gi');
+  const pattern2En = new RegExp(`${awayEn}|${awayTeam}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${homeEn}|${homeTeam}`, 'gi');
 
-  // Tạo danh sách tên đội để match (cả Tiếng Việt và Tiếng Anh)
-  const homeNames = [escapeRegex(homeTeam), escapeRegex(homeEn)].filter((v, i, a) => a.indexOf(v) === i);
-  const awayNames = [escapeRegex(awayTeam), escapeRegex(awayEn)].filter((v, i, a) => a.indexOf(v) === i);
+  // Pattern 3: Tỷ số đứng trước tên đội (vd: 2-1 nghiêng về Vietnam trước Thailand)
+  const pattern3 = new RegExp(`(\\d+)\\s*-\\s*(\\d+).{1,50}?${homeTeam}|${homeEn}.{1,50}?${awayTeam}|${awayEn}`, 'gi');
 
-  const homePattern = homeNames.join('|');
-  const awayPattern = awayNames.join('|');
+  const scorePatterns = [pattern1, pattern2, pattern3, pattern1En, pattern2En];
 
-  // Pattern: "HomeTeam X - Y AwayTeam" hoặc "HomeTeam X-Y AwayTeam"
-  // Hỗ trợ các dạng: 4-1, 4 - 1, 4:1, 4 : 1
-  const patterns = [
-    // Home trước, Away sau: "Norway 4-1 Iraq"
-    new RegExp(`(?:${homePattern})\\s*[:\\-–]?\\s*(\\d+)\\s*[\\-–:]\\s*(\\d+)\\s*[:\\-–]?\\s*(?:${awayPattern})`, 'i'),
-    // Home trước, Away sau (có FT/HT): "Norway 4-1 Iraq (FT)"
-    new RegExp(`(?:${homePattern})\\s+(\\d+)\\s*[\\-–:]\\s*(\\d+)\\s+(?:${awayPattern})`, 'i'),
-    // Away trước, Home sau (đảo vị trí): "Iraq 1-4 Norway" 
-    new RegExp(`(?:${awayPattern})\\s*[:\\-–]?\\s*(\\d+)\\s*[\\-–:]\\s*(\\d+)\\s*[:\\-–]?\\s*(?:${homePattern})`, 'i'),
-  ];
+  let bestMatch: { home_score: number, away_score: number, status: 'live' | 'finished', patternIdx: number } | null = null;
+  let maxTotal = -1;
 
-  for (let i = 0; i < patterns.length; i++) {
-    const match = text.match(patterns[i]);
-    if (match) {
-      let homeScore: number, awayScore: number;
-
-      if (i <= 1) {
-        // Home trước, Away sau
-        homeScore = parseInt(match[1]);
-        awayScore = parseInt(match[2]);
-      } else {
-        // Away trước, Home sau (i === 2) → phải đảo lại
-        awayScore = parseInt(match[1]);
-        homeScore = parseInt(match[2]);
+  for (let i = 0; i < scorePatterns.length; i++) {
+    const globalPattern = scorePatterns[i];
+    let match;
+    
+    // Quét toàn bộ văn bản để tìm TẤT CẢ các tỷ số
+    while ((match = globalPattern.exec(text)) !== null) {
+      let homeScore, awayScore;
+      
+      if (i === 1 || i === 4) { // pattern ngược (away - home)
+        homeScore = parseInt(match[2], 10);
+        awayScore = parseInt(match[1], 10);
+      } else { // pattern xuôi (home - away)
+        homeScore = parseInt(match[1], 10);
+        awayScore = parseInt(match[2], 10);
       }
 
-      // Kiểm tra xem có chữ FT / Full-Time / kết thúc gần kết quả không
+      // Check xung quanh để xem hiệp 1 hay kết thúc
       const surroundingText = text.substring(
         Math.max(0, (match.index || 0) - 100),
         Math.min(text.length, (match.index || 0) + match[0].length + 100)
       ).toLowerCase();
 
-      const isFinished = /\b(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished|chiến thắng|đánh bại|thắng|vượt qua|win|won|beat|defeat)\b/i.test(surroundingText);
-      const isHalfTime = /\b(ht|half[- ]?time|hiệp 1|hiệp một)\b/i.test(surroundingText);
+      // SỬA LỖI DIACRITICS: Bỏ \b cho tiếng Việt, dùng các cụm từ dài an toàn hơn
+      const isFinished = /(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished|giành chiến thắng|đánh bại|thắng lợi|vượt qua|\bwin\b|\bwon\b|\bbeat\b|\bdefeat\b)/i.test(surroundingText);
+      const isHalfTime = /(ht|half[- ]?time|hiệp 1|hiệp một)/i.test(surroundingText);
 
-      // Nếu rõ ràng là HT thì bỏ qua, không lấy tỷ số hiệp 1
+      // Nếu rõ ràng là HT thì bỏ qua
       if (isHalfTime && !isFinished) {
         console.log(`[Regex] ⏭️ Bỏ qua tỷ số hiệp 1: ${homeScore}-${awayScore}`);
         continue;
       }
 
-      const status = isFinished ? 'finished' : 'live';
-
-      console.log(`[Regex] ✅ Bắt được tỷ số: ${homeTeam} ${homeScore} - ${awayScore} ${awayTeam} (${status}) | Pattern #${i + 1}`);
-      return {
-        home_score: homeScore,
-        away_score: awayScore,
-        status,
-        match_time: isFinished ? 'FT' : null,
-        events: null
-      };
+      const totalGoals = homeScore + awayScore;
+      
+      // LUẬT TỶ SỐ CAO NHẤT: Chỉ lấy tỷ số nếu tổng bàn thắng lớn hơn (hoặc bằng nhưng trạng thái xịn hơn)
+      if (totalGoals > maxTotal) {
+        maxTotal = totalGoals;
+        bestMatch = { home_score: homeScore, away_score: awayScore, status: isFinished ? 'finished' : 'live', patternIdx: i };
+      } else if (totalGoals === maxTotal && isFinished && bestMatch && bestMatch.status === 'live') {
+        bestMatch.status = 'finished'; // Ưu tiên finished nếu bằng điểm
+      }
     }
+  }
+
+  if (bestMatch) {
+    console.log(`[Regex] ✅ Bắt được tỷ số CAO NHẤT: ${homeTeam} ${bestMatch.home_score} - ${bestMatch.away_score} ${awayTeam} (${bestMatch.status}) | Pattern #${bestMatch.patternIdx + 1}`);
+    return {
+      home_score: bestMatch.home_score,
+      away_score: bestMatch.away_score,
+      status: bestMatch.status,
+      match_time: bestMatch.status === 'finished' ? 'FT' : null,
+      events: null
+    };
   }
 
   return null;
@@ -223,7 +225,7 @@ Trả về một JSON object duy nhất, định dạng chính xác như sau:
 
 Lưu ý quan trọng:
 - CHỈ trả về JSON object, không kèm markdown, không giải thích.
-- CHỈ lấy tỷ số của đúng trận đấu giữa "${homeTeam}" và "${awayTeam}". Tuyệt đối KHÔNG lấy nhầm tỷ số của các đội bóng khác.
+- CHỈ lấy tỷ số của đúng trận đấu giữa "${homeTeam}" (hoặc "${homeEn}") và "${awayTeam}" (hoặc "${awayEn}"). Có thể báo chí dùng các tên gọi tắt, hãy linh hoạt hiểu ngữ cảnh. Tuyệt đối KHÔNG lấy nhầm tỷ số của các đội bóng khác.
 - NẾU evidence chứa chữ "Trực tiếp", "Live", "Đang diễn ra", hoặc chỉ đề cập tỷ số Hiệp 1, bạn PHẢI trả về status là "live", TUYỆT ĐỐI KHÔNG được trả về "finished".
 - CHỈ trả về "finished" nếu chắc chắn trận đấu đã có chữ "FT", "Kết thúc", "Hết giờ".
 - Chú ý thứ tự Đội nhà (Home) và Đội khách (Away).
