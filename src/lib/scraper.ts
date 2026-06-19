@@ -100,15 +100,15 @@ function getEnglishName(name: string): string {
 // =============================================
 function tryRegexExtract(text: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string): ScrapeResult | null {
   // Pattern 1: Tên đội 1 + số + số + Tên đội 2 (vd: Vietnam 2-1 Thailand)
-  const pattern1 = new RegExp(`${homeTeam}|${homeEn}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${awayTeam}|${awayEn}`, 'gi');
-  const pattern1En = new RegExp(`${homeEn}|${homeTeam}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${awayEn}|${awayTeam}`, 'gi');
+  const pattern1 = new RegExp(`(?:${homeTeam}|${homeEn})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${awayTeam}|${awayEn})`, 'gi');
+  const pattern1En = new RegExp(`(?:${homeEn}|${homeTeam})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${awayEn}|${awayTeam})`, 'gi');
 
   // Pattern 2: Tên đội 2 + số + số + Tên đội 1 (ngược lại)
-  const pattern2 = new RegExp(`${awayTeam}|${awayEn}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${homeTeam}|${homeEn}`, 'gi');
-  const pattern2En = new RegExp(`${awayEn}|${awayTeam}\\s+(\\d+)\\s*-\\s*(\\d+)\\s+${homeEn}|${homeTeam}`, 'gi');
+  const pattern2 = new RegExp(`(?:${awayTeam}|${awayEn})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${homeTeam}|${homeEn})`, 'gi');
+  const pattern2En = new RegExp(`(?:${awayEn}|${awayTeam})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${homeEn}|${homeTeam})`, 'gi');
 
   // Pattern 3: Tỷ số đứng trước tên đội (vd: 2-1 nghiêng về Vietnam trước Thailand)
-  const pattern3 = new RegExp(`(\\d+)\\s*-\\s*(\\d+).{1,50}?${homeTeam}|${homeEn}.{1,50}?${awayTeam}|${awayEn}`, 'gi');
+  const pattern3 = new RegExp(`(\\d+)\\s*-\\s*(\\d+).{1,50}?(?:${homeTeam}|${homeEn}).{1,50}?(?:${awayTeam}|${awayEn})`, 'gi');
 
   const scorePatterns = [pattern1, pattern2, pattern3, pattern1En, pattern2En];
 
