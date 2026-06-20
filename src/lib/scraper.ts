@@ -139,13 +139,6 @@ function tryRegexExtract(text: string, homeTeam: string, awayTeam: string, homeE
 
       // SỬA LỖI DIACRITICS: Bỏ \b cho tiếng Việt, dùng các cụm từ dài an toàn hơn
       const isFinished = /(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished|giành chiến thắng|đánh bại|thắng lợi|vượt qua|\bwin\b|\bwon\b|\bbeat\b|\bdefeat\b)/i.test(surroundingText);
-      const isHalfTime = /(ht|half[- ]?time|hiệp 1|hiệp một)/i.test(surroundingText);
-
-      // Nếu rõ ràng là HT thì bỏ qua
-      if (isHalfTime && !isFinished) {
-        console.log(`[Regex] ⏭️ Bỏ qua tỷ số hiệp 1: ${homeScore}-${awayScore}`);
-        continue;
-      }
 
       const totalGoals = homeScore + awayScore;
       
@@ -212,7 +205,7 @@ export async function analyzeWithGemini(text: string, homeTeam: string, awayTeam
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
 
-  const prompt = `Bạn là chuyên gia phân tích bóng đá. Hãy đọc văn bản sau và tìm tỷ số chung cuộc của trận đấu giữa "${homeTeam}" (hay "${homeEn}") (Đội nhà) và "${awayTeam}" (hay "${awayEn}") (Đội khách).
+  const prompt = `Bạn là chuyên gia phân tích bóng đá. Hãy đọc văn bản sau và tìm tỷ số hiện tại (nếu đang đá) hoặc tỷ số chung cuộc (nếu đã kết thúc) của trận đấu giữa "${homeTeam}" (hay "${homeEn}") (Đội nhà) và "${awayTeam}" (hay "${awayEn}") (Đội khách).
 
 Trả về một JSON object duy nhất, định dạng chính xác như sau:
 {
