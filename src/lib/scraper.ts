@@ -94,80 +94,7 @@ function getEnglishName(name: string): string {
 }
 
 // =============================================
-// CẢI TIẾN #2: REGEX PRE-EXTRACTION
-// Thử bắt tỷ số bằng Regex trước khi gọi AI (tiết kiệm quota + nhanh hơn)
-// =============================================
-// =============================================
-function tryRegexExtract(text: string, homeTeam: string, awayTeam: string, homeEn: string, awayEn: string): ScrapeResult | null {
-  // Pattern 1: Tên đội 1 + số + số + Tên đội 2 (vd: Vietnam 2-1 Thailand)
-  const pattern1 = new RegExp(`(?:${homeTeam}|${homeEn})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${awayTeam}|${awayEn})`, 'gi');
-  const pattern1En = new RegExp(`(?:${homeEn}|${homeTeam})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${awayEn}|${awayTeam})`, 'gi');
-
-  // Pattern 2: Tên đội 2 + số + số + Tên đội 1 (ngược lại)
-  const pattern2 = new RegExp(`(?:${awayTeam}|${awayEn})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${homeTeam}|${homeEn})`, 'gi');
-  const pattern2En = new RegExp(`(?:${awayEn}|${awayTeam})\\s+(\\d+)\\s*-\\s*(\\d+)\\s+(?:${homeEn}|${homeTeam})`, 'gi');
-
-  // Pattern 3: Tỷ số đứng trước tên đội (vd: 2-1 nghiêng về Vietnam trước Thailand)
-  const pattern3 = new RegExp(`(\\d+)\\s*-\\s*(\\d+).{1,50}?(?:${homeTeam}|${homeEn}).{1,50}?(?:${awayTeam}|${awayEn})`, 'gi');
-
-  const scorePatterns = [pattern1, pattern2, pattern3, pattern1En, pattern2En];
-
-  let bestMatch: { home_score: number, away_score: number, status: 'live' | 'finished', patternIdx: number } | null = null;
-  let maxTotal = -1;
-
-  for (let i = 0; i < scorePatterns.length; i++) {
-    const globalPattern = scorePatterns[i];
-    let match;
-    
-    // Quét toàn bộ văn bản để tìm TẤT CẢ các tỷ số
-    while ((match = globalPattern.exec(text)) !== null) {
-      let homeScore, awayScore;
-      
-      if (i === 1 || i === 4) { // pattern ngược (away - home)
-        homeScore = parseInt(match[2], 10);
-        awayScore = parseInt(match[1], 10);
-      } else { // pattern xuôi (home - away)
-        homeScore = parseInt(match[1], 10);
-        awayScore = parseInt(match[2], 10);
-      }
-
-      // Check xung quanh để xem hiệp 1 hay kết thúc
-      const surroundingText = text.substring(
-        Math.max(0, (match.index || 0) - 100),
-        Math.min(text.length, (match.index || 0) + match[0].length + 100)
-      ).toLowerCase();
-
-      // SỬA LỖI DIACRITICS: Bỏ \b cho tiếng Việt, dùng các cụm từ dài an toàn hơn
-      const isFinished = /(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished|giành chiến thắng|đánh bại|thắng lợi|vượt qua|\bwin\b|\bwon\b|\bbeat\b|\bdefeat\b)/i.test(surroundingText);
-
-      const totalGoals = homeScore + awayScore;
-      
-      // LUẬT TỶ SỐ CAO NHẤT: Chỉ lấy tỷ số nếu tổng bàn thắng lớn hơn (hoặc bằng nhưng trạng thái xịn hơn)
-      if (totalGoals > maxTotal) {
-        maxTotal = totalGoals;
-        bestMatch = { home_score: homeScore, away_score: awayScore, status: isFinished ? 'finished' : 'live', patternIdx: i };
-      } else if (totalGoals === maxTotal && isFinished && bestMatch && bestMatch.status === 'live') {
-        bestMatch.status = 'finished'; // Ưu tiên finished nếu bằng điểm
-      }
-    }
-  }
-
-  if (bestMatch) {
-    console.log(`[Regex] ✅ Bắt được tỷ số CAO NHẤT: ${homeTeam} ${bestMatch.home_score} - ${bestMatch.away_score} ${awayTeam} (${bestMatch.status}) | Pattern #${bestMatch.patternIdx + 1}`);
-    return {
-      home_score: bestMatch.home_score,
-      away_score: bestMatch.away_score,
-      status: bestMatch.status,
-      match_time: bestMatch.status === 'finished' ? 'FT' : null,
-      events: null
-    };
-  }
-
-  return null;
-}
-
-// =============================================
-// CẢI TIẾN #1: LỌC RSS - Chỉ giữ bài liên quan
+// LỌC RSS - Chỉ giữ bài liên quan
 // =============================================
 function filterRelevantItems(items: string[], homeTeam: string, awayTeam: string, homeEn: string, awayEn: string): string[] {
   const teamKeywords = [
@@ -181,19 +108,13 @@ function filterRelevantItems(items: string[], homeTeam: string, awayTeam: string
 
   return items.filter(item => {
     const itemLower = item.toLowerCase();
-    
-    // Loại bài soi kèo
-    if (spamKeywords.some(keyword => itemLower.includes(keyword))) {
-      return false;
-    }
-    
-    // Chỉ giữ bài mà tiêu đề/mô tả chứa tên ÍT NHẤT 1 trong 2 đội
+    if (spamKeywords.some(keyword => itemLower.includes(keyword))) return false;
     return teamKeywords.some(keyword => itemLower.includes(keyword));
   });
 }
 
 // =============================================
-// CẢI TIẾN #3: Prompt AI cải tiến - yêu cầu trích dẫn evidence
+// AI LLM - Xử lý văn bản bằng Gemini
 // =============================================
 export async function analyzeWithGemini(text: string, homeTeam: string, awayTeam: string): Promise<ScrapeResult | null> {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -254,21 +175,15 @@ ${text}
     const parts = data.candidates?.[0]?.content?.parts || [];
     const resultText = parts.map((p: any) => p.text).join('\n');
     
-    // Parse JSON using regex to find the first { ... } block
     const match = resultText.match(/\{[\s\S]*\}/);
-    if (!match) {
-      console.error('Không tìm thấy JSON trong chuỗi trả về:', resultText);
-      return null;
-    }
+    if (!match) return null;
     
     const result = JSON.parse(match[0]);
 
-    // Log evidence để debug khi có lỗi
     if (result.evidence) {
       console.log(`[Gemini] 📝 Evidence: "${result.evidence}"`);
     }
     
-    // Validate
     if (typeof result.home_score !== 'undefined' && typeof result.away_score !== 'undefined' && result.status) {
       return result as ScrapeResult;
     }
@@ -279,14 +194,6 @@ ${text}
     return null;
   }
 }
-
-function normalize(str: string): string {
-  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/đ/g, 'd');
-}
-
-// =============================================
-// CẢI TIẾN #4: CROSS-CHECK giữa nguồn VN và EN
-// =============================================
 
 interface RssSourceResult {
   result: ScrapeResult;
@@ -307,7 +214,6 @@ async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string,
       .map(m => m[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]*>/g, ' ').trim())
       .slice(0, 15);
 
-    // CẢI TIẾN #1: Lọc chỉ giữ bài có chứa tên đội
     const relevantTitles = filterRelevantItems(allTitles, homeTeam, awayTeam, homeEn, awayEn);
     const relevantDescriptions = filterRelevantItems(allDescriptions, homeTeam, awayTeam, homeEn, awayEn);
 
@@ -320,65 +226,49 @@ async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string,
       return null;
     }
 
-    // Bước 2: Thử Regex trước (nhanh, miễn phí)
-    const regexResult = tryRegexExtract(combinedText, homeTeam, awayTeam, homeEn, awayEn);
-    if (regexResult) {
-      console.log(`[Scraper] ⚡ ${sourceName} - Regex bắt được: ${regexResult.home_score}-${regexResult.away_score} (${regexResult.status})`);
-    }
-
-    // Bước 3: LUÔN gọi AI (có evidence) để xác nhận hoặc bổ sung
+    // 100% LLM: Gọi thẳng AI
     const aiResult = await analyzeWithGemini(combinedText, homeTeam, awayTeam);
+    
     if (aiResult && aiResult.home_score !== null && aiResult.away_score !== null) {
       console.log(`[Scraper] 🤖 ${sourceName} - AI trả về: ${aiResult.home_score}-${aiResult.away_score} (${aiResult.status})`);
-    }
-
-    // Quyết định kết quả cuối cùng cho nguồn này:
-    if (regexResult && regexResult.home_score !== null && aiResult && aiResult.home_score !== null) {
-      // CẢ HAI đều có kết quả → so sánh
-      if (regexResult.home_score === aiResult.home_score && regexResult.away_score === aiResult.away_score) {
-        let finalStatus = aiResult.status;
+      
+      // SANITY CHECK: Xác thực tính toàn vẹn (Cross-check AI)
+      let finalStatus = aiResult.status;
+      
+      // 1. Status Sanity Check (Xác thực từ khóa Kết thúc)
+      if (aiResult.status === 'finished') {
+        const isFinishedKeyword = /(ft|full[- ]?time|final|kết thúc|chung cuộc|result|hết giờ|end|finished|giành chiến thắng|đánh bại|thắng lợi|vượt qua|\bwin\b|\bwon\b|\bbeat\b|\bdefeat\b)/i.test(combinedText);
         
-        // Nếu AI bảo finished nhưng Regex bảo live (chưa thấy từ khóa kết thúc), ép về live cho an toàn
-        if (aiResult.status === 'finished' && regexResult.status === 'live') {
-           let diffMinutes = 0;
-           if (kickoffTime) {
-             diffMinutes = (Date.now() - new Date(kickoffTime).getTime()) / (1000 * 60);
-           }
-           
-           if (diffMinutes > 140) {
-              console.log(`[Scraper] ✅ Trận đã đá ${Math.round(diffMinutes)} phút (> 140p), tin tưởng AI báo finished.`);
-              finalStatus = 'finished';
-           } else {
-              const evidenceLower = (aiResult.evidence || '').toLowerCase();
-              if (evidenceLower.includes('trực tiếp') || evidenceLower.includes('live') || evidenceLower.includes('đang diễn ra')) {
-                 finalStatus = 'live';
-                 console.log(`[Scraper] ⚠️ AI báo finished nhưng evidence chứa chữ LIVE → ÉP về LIVE`);
-              } else {
-                 finalStatus = 'live'; // Thà trễ còn hơn đóng non trận đấu
-                 console.log(`[Scraper] ⚠️ AI báo finished nhưng Regex không thấy chữ kết thúc → ÉP về LIVE cho an toàn`);
-              }
-           }
+        if (!isFinishedKeyword) {
+          let diffMinutes = 0;
+          if (kickoffTime) {
+            diffMinutes = (Date.now() - new Date(kickoffTime).getTime()) / (1000 * 60);
+          }
+          
+          if (diffMinutes < 140) {
+            console.log(`[Scraper] ⚠️ AI báo finished nhưng bài báo không có từ khóa kết thúc (trận đấu mới qua ${Math.round(diffMinutes)}p) -> ÉP VỀ LIVE!`);
+            finalStatus = 'live';
+          }
         }
-
-        console.log(`[Scraper] ✅✅ ${sourceName} - Regex & AI ĐỒNG Ý: ${aiResult.home_score}-${aiResult.away_score} (${finalStatus})`);
-        return { result: { ...aiResult, status: finalStatus, match_time: finalStatus === 'finished' ? 'FT' : null }, source: sourceName };
-      } else {
-        // KHÁC NHAU → Ưu tiên AI vì có evidence, nhưng log cảnh báo
-        console.log(`[Scraper] ⚠️ ${sourceName} - Regex (${regexResult.home_score}-${regexResult.away_score}) ≠ AI (${aiResult.home_score}-${aiResult.away_score}) → Ưu tiên AI (có evidence).`);
-        return { result: aiResult, source: sourceName };
       }
-    }
 
-    // Chỉ AI có kết quả (Regex fail) → dùng AI
-    if (aiResult && aiResult.home_score !== null && aiResult.away_score !== null) {
-      console.log(`[Scraper] 🤖 ${sourceName} - Chỉ AI có kết quả: ${aiResult.home_score}-${aiResult.away_score} (${aiResult.status})`);
-      return { result: aiResult, source: sourceName };
-    }
+      // 2. Number Sanity Check (Xác thực AI không bịa ra con số ảo)
+      const ev = (aiResult.evidence || '').toLowerCase();
+      const txt = combinedText.toLowerCase();
+      // Nếu là số lớn (>0), thì số đó phải xuất hiện trong evidence hoặc text! (0 đôi khi bị báo bỏ qua ví dụ "thắng tối thiểu")
+      if (aiResult.home_score > 0 && !txt.includes(aiResult.home_score.toString())) {
+        console.log(`[Scraper] 🛑 AI ẢO GIÁC: Không tìm thấy số ${aiResult.home_score} trong bài báo! Từ chối kết quả.`);
+        return null;
+      }
+      if (aiResult.away_score > 0 && !txt.includes(aiResult.away_score.toString())) {
+        console.log(`[Scraper] 🛑 AI ẢO GIÁC: Không tìm thấy số ${aiResult.away_score} trong bài báo! Từ chối kết quả.`);
+        return null;
+      }
 
-    // Chỉ Regex có kết quả (AI fail) → dùng Regex nhưng cảnh báo
-    if (regexResult && regexResult.home_score !== null && regexResult.away_score !== null) {
-      console.log(`[Scraper] ⚡ ${sourceName} - Chỉ Regex có kết quả (AI fail): ${regexResult.home_score}-${regexResult.away_score} (${regexResult.status})`);
-      return { result: regexResult, source: sourceName };
+      return { 
+        result: { ...aiResult, status: finalStatus, match_time: finalStatus === 'finished' ? 'FT' : null }, 
+        source: sourceName 
+      };
     }
 
   } catch (err) {
