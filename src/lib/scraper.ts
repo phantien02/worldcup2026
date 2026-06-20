@@ -399,48 +399,17 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
 
-  console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam} (${homeEn} vs ${awayEn})...`);
+  console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam}...`);
 
   const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' World Cup 2026 kết quả')}&hl=vi&gl=VN&ceid=VN:vi`;
-  const rssEN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeEn + ' vs ' + awayEn + ' World Cup 2026 score')}&hl=en`;
 
-  // CẢI TIẾN #4: Cào cả 2 nguồn song song, sau đó cross-check
-  const [resultVN, resultEN] = await Promise.all([
-    scrapeFromRss(rssVN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Việt', kickoffTime),
-    scrapeFromRss(rssEN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Anh', kickoffTime),
-  ]);
+  // CẢI TIẾN: Lược bỏ nguồn Tiếng Anh và cơ chế cross-check để giảm tải, tránh xung đột theo yêu cầu
+  const resultVN = await scrapeFromRss(rssVN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Việt', kickoffTime);
 
-  // Case 1: Cả 2 nguồn đều có kết quả → So sánh cross-check
-  if (resultVN && resultEN) {
-    if (resultVN.result.home_score === resultEN.result.home_score &&
-        resultVN.result.away_score === resultEN.result.away_score) {
-      console.log(`[Scraper] ✅✅ CROSS-CHECK KHỚP: ${resultVN.result.home_score}-${resultVN.result.away_score} (VN: ${resultVN.result.status}, EN: ${resultEN.result.status})`);
-      // Ưu tiên status "finished" nếu 1 trong 2 nguồn xác nhận
-      const finalStatus = (resultVN.result.status === 'finished' || resultEN.result.status === 'finished') ? 'finished' : resultVN.result.status;
-      return {
-        ...resultVN.result,
-        status: finalStatus,
-        match_time: finalStatus === 'finished' ? 'FT' : resultVN.result.match_time,
-      };
-    } else {
-      // 2 nguồn khác tỷ số → KHÔNG CHẤP NHẬN, quá rủi ro
-      console.log(`[Scraper] ⚠️ CROSS-CHECK KHÔNG KHỚP! VN: ${resultVN.result.home_score}-${resultVN.result.away_score} vs EN: ${resultEN.result.home_score}-${resultEN.result.away_score} → BỎ QUA, chờ lần cào sau.`);
-      return null;
-    }
-  }
-
-  // Case 2: Chỉ 1 nguồn có kết quả → Chấp nhận nhưng log cảnh báo
   if (resultVN) {
-    console.log(`[Scraper] ✅ Chỉ có nguồn VN: ${resultVN.result.home_score}-${resultVN.result.away_score} (${resultVN.result.status}) - Không có nguồn EN để cross-check.`);
     return resultVN.result;
   }
 
-  if (resultEN) {
-    console.log(`[Scraper] ✅ Chỉ có nguồn EN: ${resultEN.result.home_score}-${resultEN.result.away_score} (${resultEN.result.status}) - Không có nguồn VN để cross-check.`);
-    return resultEN.result;
-  }
-
-  // Case 3: Không nguồn nào có kết quả
-  console.log('[Scraper] ❌ Không tìm thấy kết quả từ cả 2 nguồn.');
+  console.log('[Scraper] ❌ Không tìm thấy kết quả từ nguồn RSS Tiếng Việt.');
   return null;
 }
