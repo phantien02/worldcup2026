@@ -401,7 +401,7 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
 
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam}...`);
 
-  const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent(homeTeam + ' vs ' + awayTeam + ' World Cup 2026 kết quả')}&hl=vi&gl=VN&ceid=VN:vi`;
+  const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent('kết quả ' + homeTeam + ' vs ' + awayTeam)}&hl=vi&gl=VN&ceid=VN:vi`;
 
   // CẢI TIẾN: Lược bỏ nguồn Tiếng Anh và cơ chế cross-check để giảm tải, tránh xung đột theo yêu cầu
   const resultVN = await scrapeFromRss(rssVN, homeTeam, awayTeam, homeEn, awayEn, 'RSS Tiếng Việt', kickoffTime);
