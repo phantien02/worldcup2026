@@ -276,12 +276,103 @@ async function scrapeFromRss(rssUrl: string, homeTeam: string, awayTeam: string,
   return null;
 }
 
-export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickoffTime?: string): Promise<ScrapeResult | null> {
+export async function fetchDailyFixturesFromApi(dateVN: string): Promise<any[]> {
+  try {
+    const url = `https://v3.football.api-sports.io/fixtures?date=${dateVN}&timezone=Asia/Ho_Chi_Minh`;
+    console.log(`[API-Football] Gọi API lấy lịch thi đấu ngày ${dateVN}...`);
+    
+    const response = await fetch(url, {
+      headers: {
+        'x-apisports-key': 'ae82719a697b7f86708566d060237fb5'
+      }
+    });
+    
+    if (!response.ok) {
+      console.log(`[API-Football] ❌ Lỗi gọi API: HTTP ${response.status}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    if (data.errors && Object.keys(data.errors).length > 0) {
+      console.log(`[API-Football] ❌ API trả về lỗi:`, data.errors);
+      return [];
+    }
+    
+    console.log(`[API-Football] ✅ Đã lấy được ${data.response?.length || 0} trận đấu cho ngày ${dateVN}.`);
+    return data.response || [];
+  } catch (err) {
+    console.error(`[API-Football] Lỗi hệ thống khi gọi API:`, err);
+    return [];
+  }
+}
+
+export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickoffTime?: string, apiFixtures?: any[]): Promise<ScrapeResult | null> {
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
 
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam}...`);
 
+  // --- 1. TÌM TRONG KẾT QUẢ API-FOOTBALL (ƯU TIÊN 1) ---
+  if (apiFixtures && apiFixtures.length > 0) {
+    // Tìm trận đấu khớp với tên tiếng Anh
+    const match = apiFixtures.find(f => {
+      const apiHome = f.teams.home.name.toLowerCase();
+      const apiAway = f.teams.away.name.toLowerCase();
+      return (apiHome.includes(homeEn.toLowerCase()) || homeEn.toLowerCase().includes(apiHome)) && 
+             (apiAway.includes(awayEn.toLowerCase()) || awayEn.toLowerCase().includes(apiAway));
+    });
+
+    if (match) {
+      console.log(`[API-Football] 🎯 Đã tìm thấy trận ${homeEn} vs ${awayEn} trong dữ liệu API! Trạng thái: ${match.fixture.status.short}`);
+      const statusShort = match.fixture.status.short;
+      
+      let finalStatus: 'pending' | 'live' | 'finished' = 'pending';
+      const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO'];
+      const liveStatuses = ['1H', 'HT', '2H', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE'];
+      
+      if (finishedStatuses.includes(statusShort)) finalStatus = 'finished';
+      else if (liveStatuses.includes(statusShort)) finalStatus = 'live';
+
+      if (finalStatus !== 'pending') {
+        const homeScore = match.goals.home;
+        const awayScore = match.goals.away;
+        
+        // Nếu penalty
+        let eventsData = null;
+        if (statusShort === 'PEN') {
+           eventsData = {
+              home_events: [],
+              away_events: [],
+              shootout: {
+                 home_score: match.score.penalty.home || 0,
+                 away_score: match.score.penalty.away || 0,
+                 home_kicks: [],
+                 away_kicks: []
+              }
+           };
+        }
+
+        if (homeScore !== null && awayScore !== null) {
+          return {
+            home_score: homeScore,
+            away_score: awayScore,
+            status: finalStatus,
+            match_time: statusShort,
+            evidence: 'Dữ liệu được cập nhật từ API-Football',
+            events: eventsData
+          };
+        }
+      } else {
+         console.log(`[API-Football] ⏳ Trận đấu chưa bắt đầu (Status: ${statusShort})`);
+      }
+    } else {
+      console.log(`[API-Football] ⚠️ Không tìm thấy trận ${homeEn} vs ${awayEn} trong danh sách API. Tiến hành Fallback sang AI + RSS...`);
+    }
+  } else {
+    console.log(`[API-Football] ⚠️ Dữ liệu API rỗng hoặc không khả dụng. Tiến hành Fallback sang AI + RSS...`);
+  }
+
+  // --- 2. FALLBACK: TÌM QUA RSS + AI (ƯU TIÊN 2) ---
   const rssVN = `https://news.google.com/rss/search?q=${encodeURIComponent('kết quả ' + homeTeam + ' vs ' + awayTeam)}&hl=vi&gl=VN&ceid=VN:vi`;
 
   // CẢI TIẾN: Lược bỏ nguồn Tiếng Anh và cơ chế cross-check để giảm tải, tránh xung đột theo yêu cầu

@@ -1,20 +1,17 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-server';
-import { scrapeLiveScore } from '@/lib/scraper';
+import { scrapeLiveScore, fetchDailyFixturesFromApi } from '@/lib/scraper';
 import { internalUpdateMatchResult } from '@/lib/match-logic';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // Tăng timeout cho Vercel Hobby lên tối đa 60s để AI cào data không bị ngắt
+export const maxDuration = 60;
 
-// Biến toàn cục để lưu thời gian cào lần cuối (hoạt động tốt trong môi trường serverless nóng)
-// Tránh việc bị spam quá nhiều nếu có 1000 user cùng request
 let lastScrapedAt = 0;
 
 export async function GET() {
   try {
     const now = Date.now();
 
-    // 1. Lấy danh sách trận đấu đang pending hoặc live
     const { data: matches } = await supabaseAdmin
       .from('matches')
       .select('id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id, events, home_team:home_team_id(name), away_team:away_team_id(name)')
@@ -24,9 +21,6 @@ export async function GET() {
       return NextResponse.json({ message: 'Không có trận đấu nào đang diễn ra.' });
     }
 
-    // CHỈ lọc ra những trận ĐÃ CÓ KHẢ NĂNG KẾT THÚC (kickoff + 110 phút trở lên)
-    // Không cào trong lúc đang đá vì không thể lấy được livescore bằng Serverless
-    // Giới hạn: tối đa 5 tiếng sau kickoff (phòng trường hợp hiệp phụ + penalty)
     const activeMatches = matches.filter(m => {
       const kickoff = new Date(m.kickoff_time).getTime();
       const diffMinutes = (now - kickoff) / (1000 * 60);
@@ -35,7 +29,6 @@ export async function GET() {
       const isKnockout = knockoutRounds.includes(m.round || '');
       const minMinutes = isKnockout ? 150 : 120;
 
-      // Cầu dao tự ngắt: Ngưng cào vĩnh viễn nếu đã trôi qua 5 tiếng (300 phút) để chống spam Quota khi trận đấu bị hoãn/hủy
       return (m.status === 'live' || diffMinutes >= minMinutes) && diffMinutes <= 5 * 60;
     });
 
@@ -43,9 +36,7 @@ export async function GET() {
       return NextResponse.json({ message: 'Các trận đấu chưa tới giờ lăn bóng.' });
     }
 
-    // 2. Throttling: Chờ ít nhất 5 PHÚT giữa các lần cào để tiết kiệm Gemini quota
     if (now - lastScrapedAt < 5 * 60 * 1000) {
-      // Chưa đủ 60 giây, chỉ trả về dữ liệu trong DB hiện tại (Cache)
       return NextResponse.json({
         message: 'Đang dùng Cache DB (thời gian chờ 5p)',
         matches: activeMatches.map(m => ({
@@ -58,23 +49,29 @@ export async function GET() {
       });
     }
 
-    // Cập nhật timestamp để các request song song khác rơi vào Cache
     lastScrapedAt = now;
     
     const results = [];
-
-    // Lấy tối đa 2 trận để tránh hit rate limit (15 RPM của Gemini 3.1)
     const matchesToScrape = activeMatches.slice(0, 2);
 
-    // 3. Tiến hành cào dữ liệu cho từng trận đang active
+    // Lấy danh sách các ngày duy nhất (theo giờ VN) của các trận đang đá
+    const uniqueDates = Array.from(new Set(matchesToScrape.map(m => {
+       return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(m.kickoff_time));
+    })));
+
+    let allApiFixtures: any[] = [];
+    for (const dateVN of uniqueDates) {
+       const fixtures = await fetchDailyFixturesFromApi(dateVN);
+       allApiFixtures = allApiFixtures.concat(fixtures);
+    }
+
     for (const m of matchesToScrape) {
       const homeName = (m.home_team as any).name || (m.home_team as any)[0]?.name;
       const awayName = (m.away_team as any).name || (m.away_team as any)[0]?.name;
 
-      const scrapeData = await scrapeLiveScore(homeName, awayName, m.kickoff_time);
+      const scrapeData = await scrapeLiveScore(homeName, awayName, m.kickoff_time, allApiFixtures);
 
       if (scrapeData) {
-        // LUẬT BÓNG ĐÁ KHÔNG CÓ TỶ SỐ LÙI (No-Reverse Score Rule)
         if (m.home_score !== null && m.away_score !== null && scrapeData.home_score !== null && scrapeData.away_score !== null) {
            const oldTotal = m.home_score + m.away_score;
            const newTotal = scrapeData.home_score + scrapeData.away_score;
