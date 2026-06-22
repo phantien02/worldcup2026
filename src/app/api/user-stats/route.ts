@@ -50,7 +50,8 @@ export async function GET(request: Request) {
           if (!m) return null;
           
           let breakdown: string[] = [];
-          const isKnockout = m.round && m.round !== 'Vòng bảng';
+          const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng 3', 'Chung kết'];
+          const isKnockout = m.round && knockoutRounds.includes(m.round);
           const pointsEarned = pred.points_earned || 0;
           let calculatedBasePoints = 0;
 

@@ -17,7 +17,8 @@ export async function GET(req: Request) {
     let updatedPredictionsCount = 0;
 
     for (const match of matches) {
-      const isKnockout = match.round && match.round !== 'Vòng bảng';
+      const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng 3', 'Chung kết'];
+      const isKnockout = match.round && knockoutRounds.includes(match.round);
 
       const { data: predictions, error: predsErr } = await supabaseAdmin
         .from('predictions')
