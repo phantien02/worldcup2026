@@ -41,6 +41,8 @@ export async function GET(request: Request) {
     const matchMap: Record<string, any> = {};
     validMatches.forEach(m => matchMap[m.id] = m);
 
+    const NEW_RULE_CUTOFF = new Date('2026-06-22T05:00:00Z').getTime();
+
     // 4. Combine data
     const userStats = {
       display_name: profile?.display_name || 'Người chơi',
@@ -54,6 +56,8 @@ export async function GET(request: Request) {
           const isKnockout = m.round && knockoutRounds.includes(m.round);
           const pointsEarned = pred.points_earned || 0;
           let calculatedBasePoints = 0;
+          const matchKickoffTime = m.kickoff_time ? new Date(m.kickoff_time).getTime() : 0;
+          const isNewRules = matchKickoffTime >= NEW_RULE_CUTOFF;
 
           if (isKnockout) {
              if (pred.advancing_team_id && pred.advancing_team_id === m.winner_id) {
@@ -67,32 +71,55 @@ export async function GET(request: Request) {
                breakdown.push('Sai đội đi tiếp: 0');
              }
           } else {
-             if (m.home_score !== null && m.away_score !== null && pred.home_score !== null && pred.away_score !== null) {
-               const actualResult = m.home_score > m.away_score ? 'home' : m.home_score === m.away_score ? 'draw' : 'away';
-               const predResult = pred.home_score > pred.away_score ? 'home' : pred.home_score === pred.away_score ? 'draw' : 'away';
-               
-               if (predResult === actualResult) {
-                 breakdown.push('Đúng kết quả: +5');
-                 calculatedBasePoints += 5;
+             if (isNewRules) {
+               if (m.home_score !== null && m.away_score !== null && pred.home_score !== null && pred.away_score !== null) {
+                 const actualResult = m.home_score > m.away_score ? 'home' : m.home_score === m.away_score ? 'draw' : 'away';
+                 const predResult = pred.home_score > pred.away_score ? 'home' : pred.home_score === pred.away_score ? 'draw' : 'away';
                  
-                 if (pred.home_score === m.home_score && pred.away_score === m.away_score) {
-                   breakdown.push('Đúng chính xác tỷ số: +3');
-                   calculatedBasePoints += 3;
-                 } else if (pred.home_score - pred.away_score === m.home_score - m.away_score) {
-                   breakdown.push('Đúng hiệu số: +1');
+                 if (predResult === actualResult) {
+                   breakdown.push('Đúng kết quả: +5');
+                   calculatedBasePoints += 5;
+                   
+                   if (pred.home_score === m.home_score && pred.away_score === m.away_score) {
+                     breakdown.push('Đúng chính xác tỷ số: +3');
+                     calculatedBasePoints += 3;
+                   } else if (pred.home_score - pred.away_score === m.home_score - m.away_score) {
+                     breakdown.push('Đúng hiệu số: +1');
+                     calculatedBasePoints += 1;
+                   }
+                 } else {
+                   breakdown.push('Sai kết quả: 0');
+                 }
+                 
+                 if (pred.home_score === m.home_score) {
+                   breakdown.push(`Đúng số bàn ${m.home_team?.name || 'Đội nhà'}: +1`);
                    calculatedBasePoints += 1;
                  }
-               } else {
-                 breakdown.push('Sai kết quả: 0');
+                 if (pred.away_score === m.away_score) {
+                   breakdown.push(`Đúng số bàn ${m.away_team?.name || 'Đội khách'}: +1`);
+                   calculatedBasePoints += 1;
+                 }
                }
-               
-               if (pred.home_score === m.home_score) {
-                 breakdown.push(`Đúng số bàn ${m.home_team?.name || 'Đội nhà'}: +1`);
-                 calculatedBasePoints += 1;
-               }
-               if (pred.away_score === m.away_score) {
-                 breakdown.push(`Đúng số bàn ${m.away_team?.name || 'Đội khách'}: +1`);
-                 calculatedBasePoints += 1;
+             } else {
+               // Luật Cũ
+               if (m.home_score !== null && m.away_score !== null && pred.home_score !== null && pred.away_score !== null) {
+                 const actualResult = m.home_score > m.away_score ? 'home' : m.home_score === m.away_score ? 'draw' : 'away';
+                 const predResult = pred.home_score > pred.away_score ? 'home' : pred.home_score === pred.away_score ? 'draw' : 'away';
+                 
+                 if (predResult === actualResult) {
+                   breakdown.push('Đúng kết quả: +5');
+                   calculatedBasePoints += 5;
+                   
+                   if (pred.home_score === m.home_score && pred.away_score === m.away_score) {
+                     breakdown.push('Đúng chính xác tỷ số: +3');
+                     calculatedBasePoints += 3;
+                   } else if (pred.home_score - pred.away_score === m.home_score - m.away_score) {
+                     breakdown.push('Đúng hiệu số: +1');
+                     calculatedBasePoints += 1;
+                   }
+                 } else {
+                   breakdown.push('Sai kết quả: 0');
+                 }
                }
              }
           }

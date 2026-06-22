@@ -41,6 +41,10 @@ export async function internalUpdateMatchResult(
 
   if (matchError) throw matchError;
 
+  // Fetch match to get kickoff_time for rule versioning
+  const { data: matchData } = await supabaseAdmin.from('matches').select('kickoff_time').eq('id', matchId).single();
+  const isNewRules = matchData?.kickoff_time ? new Date(matchData.kickoff_time).getTime() >= new Date('2026-06-22T05:00:00Z').getTime() : true;
+
   // Fetch all predictions for this match
   const { data: predictions } = await supabaseAdmin
     .from('predictions')
@@ -82,40 +86,57 @@ export async function internalUpdateMatchResult(
           points += 5; // Đoán đúng hình thức phân định
         }
 
-        // Điểm mạo hiểm Knockout (< 30%)
-        const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
-        if (pickRate < 0.3) {
-          points += 1;
+        if (isNewRules) {
+          // Điểm mạo hiểm Knockout (< 30%)
+          const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
+          if (pickRate < 0.3) {
+            points += 1;
+          }
         }
       }
     } else {
       // Vòng Bảng
-      // 1. Điểm dự đoán phụ độc lập (Đúng tỷ số nhà/khách)
-      if (p.home_score !== null && p.home_score === homeScore) points += 1;
-      if (p.away_score !== null && p.away_score === awayScore) points += 1;
+      if (isNewRules) {
+        // 1. Điểm dự đoán phụ độc lập (Đúng tỷ số nhà/khách)
+        if (p.home_score !== null && p.home_score === homeScore) points += 1;
+        if (p.away_score !== null && p.away_score === awayScore) points += 1;
 
-      // 2. Điểm cơ bản và Điểm thưởng
-      if (p.prediction_result === actualResult) {
-        points += 5; // Điểm cơ bản: Đúng kết quả
-        
-        if (p.home_score !== null && p.away_score !== null) {
-          if (p.home_score === homeScore && p.away_score === awayScore) {
-            points += 3; // Thưởng: Đúng phóc tỷ số
-          } else if (p.home_score - p.away_score === homeScore - awayScore) {
-            points += 1; // Thưởng: Đúng hiệu số bàn thắng
+        // 2. Điểm cơ bản và Điểm thưởng
+        if (p.prediction_result === actualResult) {
+          points += 5; // Điểm cơ bản: Đúng kết quả
+          
+          if (p.home_score !== null && p.away_score !== null) {
+            if (p.home_score === homeScore && p.away_score === awayScore) {
+              points += 3; // Thưởng: Đúng phóc tỷ số
+            } else if (p.home_score - p.away_score === homeScore - awayScore) {
+              points += 1; // Thưởng: Đúng hiệu số bàn thắng
+            }
+          }
+
+          // 3. Điểm mạo hiểm Vòng bảng (< 20%)
+          let pickRate = 0;
+          if (totalPredictions > 0) {
+            if (p.prediction_result === 'home_win') pickRate = homeWinCount / totalPredictions;
+            else if (p.prediction_result === 'away_win') pickRate = awayWinCount / totalPredictions;
+            else if (p.prediction_result === 'draw') drawCount / totalPredictions;
+          }
+          
+          if (pickRate < 0.2) {
+            points += 1;
           }
         }
-
-        // 3. Điểm mạo hiểm Vòng bảng (< 20%)
-        let pickRate = 0;
-        if (totalPredictions > 0) {
-          if (p.prediction_result === 'home_win') pickRate = homeWinCount / totalPredictions;
-          else if (p.prediction_result === 'away_win') pickRate = awayWinCount / totalPredictions;
-          else if (p.prediction_result === 'draw') pickRate = drawCount / totalPredictions;
-        }
-        
-        if (pickRate < 0.2) {
-          points += 1;
+      } else {
+        // LUẬT CŨ
+        if (p.prediction_result === actualResult) {
+          points += 5; // Điểm cơ bản: Đúng kết quả
+          
+          if (p.home_score !== null && p.away_score !== null) {
+            if (p.home_score === homeScore && p.away_score === awayScore) {
+              points += 3; // Thưởng: Đúng phóc tỷ số
+            } else if (p.home_score - p.away_score === homeScore - awayScore) {
+              points += 1; // Thưởng: Đúng hiệu số bàn thắng
+            }
+          }
         }
       }
     }
