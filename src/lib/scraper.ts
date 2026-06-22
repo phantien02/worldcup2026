@@ -137,8 +137,9 @@ Trả về một JSON object duy nhất, định dạng chính xác như sau:
   "evidence": "<trích nguyên văn đoạn text ngắn nhất chứa tỷ số mà bạn dùng để kết luận>"
 }
 
-- ĐẶC BIỆT LƯU Ý VỚI BÁO CHÍ (CLICKBAIT): Đôi khi báo chí giấu tỷ số chung cuộc ở các bài tổng kết (chỉ ghi "Kết quả", "Chiến thắng", "Bị loại"...).
-- NẾU có bài báo tổng kết trận (chứa từ "Kết quả", "Highlight", "Sau trận", "Thắng", "Thua", "Bị loại", "Chung cuộc"): bạn PHẢI CHỐT SỔ (status: "finished"). Về tỷ số, HÃY ƯU TIÊN tìm tỷ số ngay trong bài tổng kết đó (ví dụ "hạ 2-1", "thắng 5-1"). NẾU VÀ CHỈ NẾU bài tổng kết hoàn toàn giấu tỷ số, bạn mới được phép lấy tỷ số cao nhất từ các bài "Trực tiếp" để chốt.
+- ĐẶC BIỆT LƯU Ý VỚI BÁO CHÍ (CLICKBAIT): Đôi khi báo chí giấu tỷ số chung cuộc ở các bài tổng kết (chỉ ghi "Kết quả", "Đánh bại", "Bị loại"...).
+- NẾU có bài báo tổng kết trận (chứa từ "Kết quả", "Highlight", "Sau trận", "Đánh bại", "Hạ gục", "Bị loại", "Chung cuộc"): bạn PHẢI CHỐT SỔ (status: "finished"). Về tỷ số, HÃY ƯU TIÊN tìm tỷ số ngay trong bài tổng kết đó (ví dụ "hạ 2-1"). NẾU VÀ CHỈ NẾU bài tổng kết hoàn toàn giấu tỷ số, bạn mới được phép lấy tỷ số cao nhất từ các bài "Trực tiếp" để chốt.
+- CHÚ Ý CỰC KỲ QUAN TRỌNG: Nếu bài báo có chữ "Hết hiệp 1", "H1", "Hiệp 1", "Hiệp 2", "Phút thứ", "Vượt lên dẫn trước", thì TRẬN ĐẤU VẪN ĐANG DIỄN RA (status: "live"). Tuyệt đối KHÔNG ĐƯỢC trả về "finished" nếu bằng chứng bạn lấy có chứa các từ này, cho dù có từ khóa tổng kết đi nữa!
 - NẾU HOÀN TOÀN KHÔNG có bài báo nào tổng kết, chỉ toàn là "Trực tiếp", "Live", "Đang diễn ra", thì bạn MỚI trả về status là "live".
 - Nếu không tìm thấy tỷ số của ĐÚNG trận đấu này, hãy trả về { "home_score": null, "away_score": null, "status": "pending", "match_time": null, "evidence": null }.
 
