@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     const matchMap: Record<string, any> = {};
     validMatches.forEach(m => matchMap[m.id] = m);
 
-    const NEW_RULE_CUTOFF = new Date('2026-06-22T05:00:00Z').getTime();
+    const NEW_RULE_CUTOFF = new Date('2026-06-24T17:00:00Z').getTime();
 
     // 4. Combine data
     const userStats = {

@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     if (!matches) return NextResponse.json({ message: 'No finished matches found' });
 
     let updatedPredictionsCount = 0;
-    const NEW_RULE_CUTOFF = new Date('2026-06-22T05:00:00Z').getTime();
+    const NEW_RULE_CUTOFF = new Date('2026-06-24T17:00:00Z').getTime();
 
     for (const match of matches) {
       const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng 3', 'Chung kết'];

@@ -43,7 +43,7 @@ export async function internalUpdateMatchResult(
 
   // Fetch match to get kickoff_time for rule versioning
   const { data: matchData } = await supabaseAdmin.from('matches').select('kickoff_time').eq('id', matchId).single();
-  const isNewRules = matchData?.kickoff_time ? new Date(matchData.kickoff_time).getTime() >= new Date('2026-06-22T05:00:00Z').getTime() : true;
+  const isNewRules = matchData?.kickoff_time ? new Date(matchData.kickoff_time).getTime() >= new Date('2026-06-24T17:00:00Z').getTime() : true;
 
   // Fetch all predictions for this match
   const { data: predictions } = await supabaseAdmin
