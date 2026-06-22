@@ -93,6 +93,25 @@ function getEnglishName(name: string): string {
   return teamNameMap[name] || name;
 }
 
+// Bổ sung các tên gọi thay thế (alias) mà API-Football thường hay dùng thay cho tên tiếng Anh phổ thông
+const apiAliasMap: Record<string, string[]> = {
+  'Bờ Biển Ngà': ['Ivory Coast', "Côte d'Ivoire", 'Cote dIvoire'],
+  'Hàn Quốc': ['South Korea', 'Korea Republic'],
+  'Mỹ': ['USA', 'United States', 'USA'],
+  'Iran': ['Iran', 'IR Iran', 'Islamic Republic of Iran'],
+  'Bosnia': ['Bosnia', 'Bosnia and Herzegovina', 'Bosnia & Herzegovina'],
+  'Cộng hòa Séc': ['Czech Republic', 'Czechia'],
+  'Thổ Nhĩ Kỳ': ['Turkey', 'Türkiye'],
+  'CH Ireland': ['Republic of Ireland', 'Ireland'],
+  'Bắc Macedonia': ['North Macedonia', 'Macedonia']
+};
+
+function getApiAliases(viName: string, enName: string): string[] {
+  const customAliases = apiAliasMap[viName] || [];
+  // Gộp tên VN, tên tiếng Anh chuẩn, và các tên thay thế API
+  return Array.from(new Set([viName, enName, ...customAliases])).map(a => a.toLowerCase());
+}
+
 // =============================================
 // LỌC RSS - Chỉ giữ bài liên quan
 // =============================================
@@ -309,17 +328,23 @@ export async function fetchDailyFixturesFromApi(dateVN: string): Promise<any[]> 
 export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickoffTime?: string, apiFixtures?: any[]): Promise<ScrapeResult | null> {
   const homeEn = getEnglishName(homeTeam);
   const awayEn = getEnglishName(awayTeam);
+  
+  const homeAliases = getApiAliases(homeTeam, homeEn);
+  const awayAliases = getApiAliases(awayTeam, awayEn);
 
   console.log(`[Scraper] Đang tìm kết quả cho ${homeTeam} vs ${awayTeam}...`);
 
   // --- 1. TÌM TRONG KẾT QUẢ API-FOOTBALL (ƯU TIÊN 1) ---
   if (apiFixtures && apiFixtures.length > 0) {
-    // Tìm trận đấu khớp với tên tiếng Anh
+    // Tìm trận đấu khớp với tất cả các tên có thể có
     const match = apiFixtures.find(f => {
       const apiHome = f.teams.home.name.toLowerCase();
       const apiAway = f.teams.away.name.toLowerCase();
-      return (apiHome.includes(homeEn.toLowerCase()) || homeEn.toLowerCase().includes(apiHome)) && 
-             (apiAway.includes(awayEn.toLowerCase()) || awayEn.toLowerCase().includes(apiAway));
+      
+      const homeMatches = homeAliases.some(alias => apiHome.includes(alias) || alias.includes(apiHome));
+      const awayMatches = awayAliases.some(alias => apiAway.includes(alias) || alias.includes(apiAway));
+      
+      return homeMatches && awayMatches;
     });
 
     if (match) {
