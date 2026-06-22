@@ -431,7 +431,7 @@ export default function HomePage() {
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 3-1 Đội B (cửa này có 12% vote)</p>
                   <ul className="text-sm space-y-1">
                     <li>Đúng kết quả: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
-                    <li>Đúng số bàn Đội B: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Đúng số bàn của 1 đội (ở đây là Đội B): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                     <li>Điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                   </ul>
                   <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#3b82f6', fontSize: '1.125rem' }}>7 điểm</span></div>
@@ -454,7 +454,7 @@ export default function HomePage() {
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Hòa 1-1</p>
                   <ul className="text-sm space-y-1">
                     <li>Sai kết quả: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
-                    <li>Đúng số bàn Đội B: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Đúng số bàn của 1 đội (ở đây là Đội B): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                   </ul>
                   <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ffcc00', fontSize: '1.125rem' }}>1 điểm</span></div>
                 </div>
