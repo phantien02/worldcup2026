@@ -53,8 +53,13 @@ export default function HomePage() {
   const [loadingUserStats, setLoadingUserStats] = useState(false);
   const [mounted, setMounted] = useState(false);
   
+  const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
+
   useEffect(() => {
     setMounted(true);
+    const handleClick = () => setActiveTooltip(null);
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
   }, []);
 
   const handleUserClick = async (userId: string) => {
@@ -1138,11 +1143,62 @@ export default function HomePage() {
                                     {pred.predicted_home_score} - {pred.predicted_away_score}
                                   </div>
                                 </td>
-                                <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
+                                <td style={{ padding: '1rem 1.5rem', textAlign: 'center', position: 'relative' }}>
                                   {pred.match_status === 'finished' ? (
-                                    <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: pred.points_earned > 0 ? '#10b981' : '#6b7280' }}>
-                                      +{pred.points_earned}
-                                    </span>
+                                    <div 
+                                      className="inline-block relative"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveTooltip(activeTooltip === idx ? null : idx);
+                                      }}
+                                      onMouseEnter={() => window.innerWidth >= 768 && setActiveTooltip(idx)}
+                                      onMouseLeave={() => window.innerWidth >= 768 && setActiveTooltip(null)}
+                                    >
+                                      <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: pred.points_earned > 0 ? '#10b981' : '#6b7280', cursor: 'pointer', borderBottom: '1px dashed rgba(255,255,255,0.3)' }}>
+                                        +{pred.points_earned}
+                                      </span>
+                                      
+                                      {activeTooltip === idx && pred.breakdown && pred.breakdown.length > 0 && (
+                                        <div style={{
+                                          position: 'absolute',
+                                          right: '100%',
+                                          top: '50%',
+                                          transform: 'translateY(-50%)',
+                                          marginRight: '12px',
+                                          backgroundColor: '#1f2937',
+                                          color: 'white',
+                                          padding: '1rem',
+                                          borderRadius: '8px',
+                                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.8)',
+                                          border: '1px solid #374151',
+                                          zIndex: 50,
+                                          minWidth: '220px',
+                                          textAlign: 'left',
+                                          fontSize: '0.875rem',
+                                          pointerEvents: 'none',
+                                          whiteSpace: 'nowrap'
+                                        }}>
+                                          <div style={{ fontWeight: 'bold', marginBottom: '0.5rem', color: '#00d2ff', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem' }}>Chi tiết điểm:</div>
+                                          <ul style={{ listStyleType: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                            {pred.breakdown.map((item: string, i: number) => {
+                                              const parts = item.split(':');
+                                              if (parts.length < 2) return <li key={i}>{item}</li>;
+                                              const label = parts[0].trim();
+                                              const val = parts[1].trim();
+                                              const isBonus = label.includes('mạo hiểm');
+                                              const isZero = val === '0';
+                                              const color = isBonus ? '#ff9900' : isZero ? '#6b7280' : '#00ff87';
+                                              return (
+                                                <li key={i} style={{ color, display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
+                                                  <span>{label}</span>
+                                                  <strong>{val}</strong>
+                                                </li>
+                                              );
+                                            })}
+                                          </ul>
+                                        </div>
+                                      )}
+                                    </div>
                                   ) : (
                                     <span style={{ color: '#4b5563', fontWeight: 'bold' }}>-</span>
                                   )}
