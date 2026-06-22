@@ -357,12 +357,12 @@ export default function HomePage() {
             <div style={{ color: '#d0d0d0', lineHeight: '1.8', fontSize: '1.05rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <h3 className="font-bold text-white text-2xl mb-2 border-b border-gray-700 pb-2" style={{ color: '#ff9900' }}>I. Các Trận Vòng Bảng</h3>
               <p>
-                Người chơi thực hiện dự đoán theo 2 bước: <strong>dự đoán kết quả trận đấu</strong> và <strong>dự đoán tỷ số</strong>.
+                Người chơi thực hiện dự đoán theo 3 phần: <strong>dự đoán kết quả</strong>, <strong>dự đoán tỷ số</strong> và <strong>dự đoán mạo hiểm</strong>.
               </p>
 
               <div>
                 <h3 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>1. Dự đoán kết quả trận đấu</h3>
-                <p className="mb-2">Người chơi chọn một trong ba kết quả: Đội A thắng, Hòa hoặc Đội B thắng.</p>
+                <p className="mb-2">Người chơi chọn một trong ba kết quả: Đội nhà thắng, Hòa hoặc Đội khách thắng.</p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Dự đoán đúng kết quả trận đấu: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                   <li>Dự đoán sai kết quả trận đấu: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
@@ -371,71 +371,84 @@ export default function HomePage() {
 
               <div>
                 <h3 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>2. Dự đoán tỷ số (không bắt buộc)</h3>
-                <p className="mb-2">Người chơi có thể dự đoán tỷ số cụ thể của trận đấu.</p>
+                <p className="mb-2">Người chơi có thể dự đoán tỷ số cụ thể của trận đấu để nhận thêm điểm thưởng tỷ số và điểm phụ.</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Dự đoán đúng chính xác tỷ số: <strong style={{ color: '#00ff87' }}>+3 điểm</strong></li>
-                  <li>Dự đoán sai tỷ số nhưng đúng hiệu số bàn thắng bại: <strong style={{ color: '#ffcc00' }}>+1 điểm</strong></li>
-                  <li>Dự đoán sai tỷ số và sai hiệu số bàn thắng bại: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
+                  <li><span className="text-yellow-400 font-bold">[Thưởng Điểm Phụ Độc Lập]</span> Đoán đúng số bàn thắng của Đội nhà: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                  <li><span className="text-yellow-400 font-bold">[Thưởng Điểm Phụ Độc Lập]</span> Đoán đúng số bàn thắng của Đội khách: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                  <li><span style={{ color: '#a3a3a3', fontStyle: 'italic', fontSize: '0.9rem' }}>(Lưu ý: Điểm phụ vẫn được cộng kể cả khi bạn đoán sai kết quả trận đấu)</span></li>
+                  <li className="mt-2"><span className="text-blue-400 font-bold">[Thưởng Kép nếu Đoán Đúng Kết Quả Trận]</span> Đoán đúng chính xác tỷ số: <strong style={{ color: '#00ff87' }}>+3 điểm</strong></li>
+                  <li><span className="text-blue-400 font-bold">[Thưởng Kép nếu Đoán Đúng Kết Quả Trận]</span> Đoán sai tỷ số nhưng đúng hiệu số: <strong style={{ color: '#ffcc00' }}>+1 điểm</strong></li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h3>
+                <p className="mb-2">Phần thưởng đặc biệt dành cho những người chơi có lối đi riêng.</p>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>dưới 20%</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                 </ul>
               </div>
 
               <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <p className="font-bold text-white text-center text-lg mb-0">
-                  Tổng điểm nhận được = <span style={{ color: '#00d2ff' }}>Điểm dự đoán kết quả</span> + <span style={{ color: '#00d2ff' }}>Điểm dự đoán tỷ số</span>
+                  Tổng điểm nhận được = <span style={{ color: '#00d2ff' }}>Điểm kết quả</span> + <span style={{ color: '#00d2ff' }}>Điểm tỷ số/phụ</span> + <span style={{ color: '#00d2ff' }}>Điểm mạo hiểm</span>
                 </p>
               </div>
 
-              <h3 className="font-bold text-white text-2xl mt-4 mb-2 text-center" style={{ color: '#ff9900' }}>Ví dụ minh họa</h3>
+              <h3 className="font-bold text-white text-2xl mt-4 mb-2 text-center" style={{ color: '#ff9900' }}>Ví dụ minh họa (Vòng Bảng)</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00ff87' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng kết quả và đúng tỷ số</h4>
-                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Kết quả thực tế: Đội A thắng 2-1 Đội B</p>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng tuyệt đối (Tỷ lệ chọn &gt; 20%)</h4>
+                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng 2-1 Đội B</p>
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 2-1 Đội B</p>
                   <ul className="text-sm space-y-1">
                     <li>Đúng kết quả: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
-                    <li>Đúng tỷ số: <strong style={{ color: '#00ff87' }}>+3 điểm</strong></li>
+                    <li>Đúng số bàn Đội A: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Đúng số bàn Đội B: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Đúng chính xác tỷ số: <strong style={{ color: '#00ff87' }}>+3 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>8 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>10 điểm</span></div>
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00d2ff' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 2: Đúng kết quả, sai tỷ số nhưng đúng hiệu số</h4>
-                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Kết quả thực tế: Đội A thắng 2-1 Đội B</p>
-                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 3-2 Đội B</p>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 2: Đúng kết quả, có mạo hiểm (&lt; 20%)</h4>
+                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng 2-1 Đội B</p>
+                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 3-1 Đội B (cửa này có 12% vote)</p>
                   <ul className="text-sm space-y-1">
                     <li>Đúng kết quả: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
-                    <li>Sai tỷ số nhưng cùng hiệu số (+1): <strong style={{ color: '#ffcc00' }}>+1 điểm</strong></li>
+                    <li>Đúng số bàn Đội B (1 bàn): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Điểm mạo hiểm (&lt; 20%): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00d2ff', fontSize: '1.125rem' }}>6 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00d2ff', fontSize: '1.125rem' }}>7 điểm</span></div>
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #ffcc00' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 3: Đúng kết quả nhưng sai tỷ số và sai hiệu số</h4>
-                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Kết quả thực tế: Đội A thắng 2-1 Đội B</p>
-                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 3-1 Đội B</p>
-                  <ul className="text-sm space-y-1">
-                    <li>Đúng kết quả: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
-                    <li>Sai tỷ số và sai hiệu số: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
-                  </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ffcc00', fontSize: '1.125rem' }}>5 điểm</span></div>
-                </div>
-
-                <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #ff004c' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 4: Sai kết quả trận đấu</h4>
-                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Kết quả thực tế: Đội A thắng 2-1 Đội B</p>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 3: Sai kết quả nhưng trúng điểm phụ</h4>
+                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng 2-1 Đội B</p>
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Hòa 1-1</p>
                   <ul className="text-sm space-y-1">
                     <li>Sai kết quả: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
-                    <li>Sai tỷ số và sai hiệu số: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
+                    <li>Đúng số bàn Đội B (1 bàn): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ff004c', fontSize: '1.125rem' }}>0 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ffcc00', fontSize: '1.125rem' }}>1 điểm</span></div>
+                </div>
+
+                <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #ff004c' }}>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 4: Đúng kết quả, sai tỷ số, đúng hiệu số</h4>
+                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng 2-1 Đội B</p>
+                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 3-2 Đội B</p>
+                  <ul className="text-sm space-y-1">
+                    <li>Đúng kết quả: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
+                    <li>Đúng hiệu số (+1): <strong style={{ color: '#ffcc00' }}>+1 điểm</strong></li>
+                  </ul>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ffcc00', fontSize: '1.125rem' }}>6 điểm</span></div>
                 </div>
               </div>
 
               <h3 className="font-bold text-white text-2xl mt-8 mb-2 border-b border-gray-700 pb-2" style={{ color: '#ff9900' }}>II. Các Trận Loại Trực Tiếp (Knock-out)</h3>
               <p>
-                Đối với các trận đấu loại trực tiếp (Từ Vòng 1/16 đến Chung kết), người chơi dự đoán <strong>Đội đi tiếp</strong> (hoặc Đội vô địch) và <strong>Hình thức phân định thắng thua</strong>.
+                Người chơi dự đoán <strong>Đội đi tiếp</strong> và <strong>Hình thức phân định thắng thua</strong>.
               </p>
               
               <div>
@@ -456,9 +469,16 @@ export default function HomePage() {
                 </ul>
               </div>
 
+              <div>
+                <h4 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h4>
+                <ul className="list-disc pl-6 space-y-1">
+                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>dưới 30%</strong> số người chơi lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                </ul>
+              </div>
+
               <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <p className="font-bold text-white text-center text-lg mb-0">
-                  Tổng điểm tối đa cho mỗi trận = <span style={{ color: '#00ff87' }}>15 điểm</span>
+                  Tổng điểm tối đa cho mỗi trận Knock-out = <span style={{ color: '#00ff87' }}>16 điểm</span>
                 </p>
               </div>
 
@@ -466,14 +486,15 @@ export default function HomePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00ff87' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng đội, đúng hình thức</h4>
-                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng sau loạt Luân lưu</p>
-                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A đi tiếp bằng Luân lưu</p>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng đội, mạo hiểm (&lt; 30%)</h4>
+                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội B thắng (Ngựa ô) bằng Luân lưu</p>
+                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội B đi tiếp bằng Luân lưu (cửa Đội B đi tiếp chỉ có 15% chọn)</p>
                   <ul className="text-sm space-y-1">
                     <li>Đúng đội đi tiếp: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                     <li>Đúng hình thức: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
+                    <li>Điểm mạo hiểm (&lt; 30%): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>15 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>16 điểm</span></div>
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00d2ff' }}>
@@ -488,7 +509,7 @@ export default function HomePage() {
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #ffcc00' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 3: Sai đội, đúng hình thức</h4>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 3: Sai đội, sai hình thức</h4>
                   <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội B thắng trong Hiệp phụ</p>
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A đi tiếp bằng Hiệp phụ</p>
                   <ul className="text-sm space-y-1">
@@ -496,17 +517,6 @@ export default function HomePage() {
                     <li>Sai hình thức (do sai đội): <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
                   </ul>
                   <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ffcc00', fontSize: '1.125rem' }}>0 điểm</span></div>
-                </div>
-
-                <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #ff004c' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 4: Sai hoàn toàn</h4>
-                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội B thắng bằng Luân lưu</p>
-                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A đi tiếp trong 90 Phút</p>
-                  <ul className="text-sm space-y-1">
-                    <li>Sai đội đi tiếp: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
-                    <li>Sai hình thức: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
-                  </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ff004c', fontSize: '1.125rem' }}>0 điểm</span></div>
                 </div>
               </div>
 

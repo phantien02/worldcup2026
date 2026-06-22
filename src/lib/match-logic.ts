@@ -52,6 +52,26 @@ export async function internalUpdateMatchResult(
   const userPointsUpdates: Record<string, number> = {};
   const actualResult = homeScore > awayScore ? 'home_win' : homeScore === awayScore ? 'draw' : 'away_win';
 
+  const totalPredictions = predictions.length;
+  let homeWinCount = 0;
+  let awayWinCount = 0;
+  let drawCount = 0;
+  const advancingTeamCounts: Record<number, number> = {};
+
+  if (totalPredictions > 0) {
+    for (const p of predictions) {
+      if (isKnockout) {
+        if (p.advancing_team_id) {
+          advancingTeamCounts[p.advancing_team_id] = (advancingTeamCounts[p.advancing_team_id] || 0) + 1;
+        }
+      } else {
+        if (p.prediction_result === 'home_win') homeWinCount++;
+        else if (p.prediction_result === 'away_win') awayWinCount++;
+        else if (p.prediction_result === 'draw') drawCount++;
+      }
+    }
+  }
+
   for (const p of predictions) {
     let points = 0;
 
@@ -61,16 +81,41 @@ export async function internalUpdateMatchResult(
         if (p.predicted_win_method === winMethod) {
           points += 5; // Đoán đúng hình thức phân định
         }
+
+        // Điểm mạo hiểm Knockout (< 30%)
+        const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
+        if (pickRate < 0.3) {
+          points += 1;
+        }
       }
     } else {
+      // Vòng Bảng
+      // 1. Điểm dự đoán phụ độc lập (Đúng tỷ số nhà/khách)
+      if (p.home_score !== null && p.home_score === homeScore) points += 1;
+      if (p.away_score !== null && p.away_score === awayScore) points += 1;
+
+      // 2. Điểm cơ bản và Điểm thưởng
       if (p.prediction_result === actualResult) {
-        points += 5; // Base points for correct result
+        points += 5; // Điểm cơ bản: Đúng kết quả
+        
         if (p.home_score !== null && p.away_score !== null) {
           if (p.home_score === homeScore && p.away_score === awayScore) {
-            points += 3; // Bonus: Đúng tỷ số hoàn toàn
+            points += 3; // Thưởng: Đúng phóc tỷ số
           } else if (p.home_score - p.away_score === homeScore - awayScore) {
-            points += 1; // Bonus: Đúng hiệu số bàn thắng
+            points += 1; // Thưởng: Đúng hiệu số bàn thắng
           }
+        }
+
+        // 3. Điểm mạo hiểm Vòng bảng (< 20%)
+        let pickRate = 0;
+        if (totalPredictions > 0) {
+          if (p.prediction_result === 'home_win') pickRate = homeWinCount / totalPredictions;
+          else if (p.prediction_result === 'away_win') pickRate = awayWinCount / totalPredictions;
+          else if (p.prediction_result === 'draw') pickRate = drawCount / totalPredictions;
+        }
+        
+        if (pickRate < 0.2) {
+          points += 1;
         }
       }
     }
