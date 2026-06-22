@@ -357,7 +357,7 @@ export default function HomePage() {
             <div style={{ color: '#d0d0d0', lineHeight: '1.8', fontSize: '1.05rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <h3 className="font-bold text-white text-2xl mb-2 border-b border-gray-700 pb-2" style={{ color: '#ff9900' }}>I. Các Trận Vòng Bảng</h3>
               <p>
-                Người chơi thực hiện dự đoán theo 3 phần: <strong>dự đoán kết quả</strong>, <strong>dự đoán tỷ số</strong> và <strong>dự đoán mạo hiểm</strong>.
+                Người chơi thực hiện dự đoán theo 2 phần chính: <strong>dự đoán kết quả</strong> và <strong>dự đoán tỷ số</strong>.
               </p>
 
               <div>
