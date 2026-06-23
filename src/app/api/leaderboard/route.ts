@@ -111,7 +111,6 @@ export async function GET() {
 
     // 3. Build final leaderboard
     const leaderboard = users.map(p => {
-      let totalPreds = 0;
       let correctResults = 0;
       let exactScores = 0;
       let exactDiffs = 0;
@@ -119,8 +118,8 @@ export async function GET() {
       const userPreds = predictions.filter(pred => pred.user_id === p.id);
 
       userPreds.forEach(pred => {
-        totalPreds++;
         const m = matchMap[pred.match_id];
+        if (!m) return; // safeguard
         
         const actualResult = m.home_score > m.away_score ? 'home_win' : m.home_score === m.away_score ? 'draw' : 'away_win';
         
@@ -152,13 +151,14 @@ export async function GET() {
       return {
         ...p,
         stats: {
-          totalPreds,
+          totalPreds: validMatchIds.length,
           correctResults,
           exactScores,
           exactDiffs
         },
         rankHistory: history,
-        rankTrend: rankTrend
+        rankTrend: rankTrend,
+        calculatedTotalPoints: history.length > 0 ? history[history.length - 1].points : 0
       };
     });
 
@@ -171,6 +171,23 @@ export async function GET() {
       const diffDiff = b.stats.exactDiffs - a.stats.exactDiffs;
       if (diffDiff !== 0) return diffDiff;
       return (a.display_name || '').localeCompare(b.display_name || '');
+    });
+
+    // Calculate rankTrend based on the final sorted rank vs previous rank
+    leaderboard.forEach((user, index) => {
+      const currentRank = index + 1;
+      let rankTrend = 0;
+      if (user.rankHistory && user.rankHistory.length >= 2) {
+        // Compare with the rank from the previous day (length - 2)
+        const previousRank = user.rankHistory[user.rankHistory.length - 2].rank;
+        rankTrend = previousRank - currentRank; // positive means went UP in rank
+      }
+      user.rankTrend = rankTrend;
+      
+      // Update the history's last rank to match the final calculated rank to ensure chart is aligned
+      if (user.rankHistory && user.rankHistory.length >= 1) {
+          user.rankHistory[user.rankHistory.length - 1].rank = currentRank;
+      }
     });
 
     return NextResponse.json({ success: true, leaderboard });

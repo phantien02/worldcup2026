@@ -107,8 +107,21 @@ export default function MatchPage() {
         .eq('match_id', id);
 
       if (predsData) {
-        const validPreds = (predsData as any[]).filter(p => p.profiles?.display_name !== 'guest');
-        setPredictions(validPreds);
+        let validPreds = (predsData as any[]).filter(p => p.profiles?.display_name && p.profiles.display_name !== 'guest');
+        
+        // Sắp xếp theo updated_at cũ -> mới, để khi đưa vào Map thì cái mới nhất sẽ đè lên cái cũ
+        validPreds.sort((a, b) => new Date(a.updated_at || 0).getTime() - new Date(b.updated_at || 0).getTime());
+        
+        // Lọc bỏ trùng lặp display_name (do người chơi tạo nhiều tài khoản)
+        const uniquePredsMap = new Map();
+        validPreds.forEach(p => {
+          uniquePredsMap.set(p.profiles.display_name.trim().toLowerCase(), p);
+        });
+        
+        // Lấy danh sách đã lọc và sắp xếp lại theo updated_at mới nhất lên đầu
+        const finalPreds = Array.from(uniquePredsMap.values()).sort((a, b) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime());
+        
+        setPredictions(finalPreds);
         if (user) {
           const mine = predsData.find(p => p.user_id === user.id);
           if (mine) {

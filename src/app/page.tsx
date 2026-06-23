@@ -66,7 +66,8 @@ export default function HomePage() {
     setIsUserModalOpen(true);
     setLoadingUserStats(true);
     try {
-      const res = await fetch(`/api/user-stats?userId=${userId}`);
+      const viewerId = user?.id || '';
+      const res = await fetch(`/api/user-stats?userId=${userId}&viewerId=${viewerId}`);
       if (!res.ok) throw new Error('Failed to fetch user stats');
       const data = await res.json();
       setSelectedUserStats(data);
@@ -1133,14 +1134,14 @@ export default function HomePage() {
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                                   <div style={{ 
-                                    color: pred.match_status === 'finished' ? 
+                                    color: pred.is_hidden ? '#a3a3a3' : (pred.match_status === 'finished' ? 
                                       (pred.predicted_home_score === pred.match_home_score && pred.predicted_away_score === pred.match_away_score ? '#00d2ff' : '#ff004c') 
-                                      : '#00d2ff', 
+                                      : '#00d2ff'), 
                                     fontWeight: 'bold', 
-                                    fontSize: '1.125rem', 
-                                    letterSpacing: '0.1em' 
+                                    fontSize: pred.is_hidden ? '0.9rem' : '1.125rem', 
+                                    letterSpacing: pred.is_hidden ? 'normal' : '0.1em' 
                                   }}>
-                                    {pred.predicted_home_score} - {pred.predicted_away_score}
+                                    {pred.is_hidden ? '🔒 BẢO MẬT' : `${pred.predicted_home_score} - ${pred.predicted_away_score}`}
                                   </div>
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'center', position: 'relative' }}>

@@ -132,6 +132,12 @@ export async function GET(request: Request) {
             breakdown = [];
           }
 
+          // Privacy Check: Hide prediction if the viewer is not the owner, and the match hasn't started yet
+          const viewerId = searchParams.get('viewerId');
+          const isOwner = viewerId === userId;
+          const isLocked = m.status === 'live' || m.status === 'finished' || matchKickoffTime <= Date.now();
+          const isHidden = !isOwner && !isLocked;
+
           return {
             match_id: m.id,
             home_team: m.home_team?.name || 'Đội nhà',
@@ -141,9 +147,10 @@ export async function GET(request: Request) {
             match_away_score: m.away_score,
             match_round: m.round,
             kickoff_time: m.kickoff_time,
-            predicted_home_score: pred.home_score,
-            predicted_away_score: pred.away_score,
+            predicted_home_score: isHidden ? null : pred.home_score,
+            predicted_away_score: isHidden ? null : pred.away_score,
             points_earned: pointsEarned,
+            is_hidden: isHidden,
             breakdown
           };
         })

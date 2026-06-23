@@ -29,6 +29,19 @@ export default function ProfileUpdateForm({ user }: { user: any }) {
       if (displayName.trim() !== user.user_metadata?.display_name) {
         if (!displayName.trim()) throw new Error("Tên hiển thị không được để trống!");
         
+        // Kiểm tra xem tên hiển thị đã tồn tại chưa
+        const { data: existingUsers, error: checkError } = await supabase
+          .from('profiles')
+          .select('id')
+          .ilike('display_name', displayName.trim())
+          .neq('id', user.id)
+          .limit(1);
+          
+        if (checkError) throw checkError;
+        if (existingUsers && existingUsers.length > 0) {
+          throw new Error("Tên hiển thị này đã có người sử dụng. Vui lòng chọn tên khác!");
+        }
+        
         const { error: updateAuthError } = await supabase.auth.updateUser({
           data: { display_name: displayName.trim() }
         });
