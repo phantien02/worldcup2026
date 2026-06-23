@@ -633,6 +633,7 @@ export default function HomePage() {
                     <tr>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '80px' }}>Hạng</th>
                       <th style={{ padding: '0 1rem' }}>Người Chơi</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '80px' }}>Số Trận</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', color: '#fff', width: '80px' }}>Điểm</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán đúng kết quả trận đấu">Đoán KQ</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác tỷ số">Đoán TS</th>
@@ -663,17 +664,20 @@ export default function HomePage() {
                             {user.display_name}
                           </span>
                         </td>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#a3a3a3', fontWeight: '600', fontSize: '1.1rem' }}>
+                          {user.stats?.totalPreds || 0}
+                        </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem' }}>
                           {user.total_points}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00d2ff', fontWeight: '600', fontSize: '1.1rem' }}>
-                          {user.stats?.correctResults || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                          {user.stats?.correctResults || 0}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: '600', fontSize: '1.1rem' }}>
-                          {user.stats?.exactScores || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                          {user.stats?.exactScores || 0}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#fbbf24', fontWeight: '600', fontSize: '1.1rem', borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
-                          {user.stats?.exactDiffs || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                          {user.stats?.exactDiffs || 0}
                         </td>
                       </tr>
                     ))}
