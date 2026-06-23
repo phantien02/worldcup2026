@@ -65,11 +65,7 @@ export default function Navigation() {
             </div>
             <button onClick={signOut} className="btn btn-danger text-[0.8rem] md:text-[1rem]" style={{ padding: '0.4rem 0.8rem', whiteSpace: 'nowrap' }}>ĐĂNG XUẤT</button>
           </div>
-        ) : (
-          <div className="flex justify-end w-full md:w-auto">
-            <Link href="/login" className="btn btn-primary text-[0.8rem] md:text-[1rem] px-3 py-1.5 md:px-4 md:py-2">Đăng nhập</Link>
-          </div>
-        )}
+        ) : null}
       </nav>
     </header>
   );
