@@ -992,18 +992,18 @@ export default function HomePage() {
                           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'var(--danger)', boxShadow: '0 0 10px var(--danger)' }}></div>
                         )}
                         
-                        <div className="flex justify-between items-center mb-6 relative">
-                          <span className="bg-white/10 px-1.5 py-1 md:px-2.5 md:py-1 rounded-md font-bold text-[#00d2ff] text-[0.6rem] md:text-[0.9rem] uppercase relative z-10 whitespace-nowrap">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', position: 'relative' }}>
+                          <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '6px', fontWeight: 'bold', color: '#00d2ff', fontSize: '0.9rem', textTransform: 'uppercase', position: 'relative', zIndex: 10 }}>
                             {(matchMapping as any)[`${home.name} vs ${away.name}`] || `TRẬN ${globalIndex}`}
                           </span>
                           
-                          <div className="absolute top-1/2 left-0 w-full -translate-y-1/2 text-center pointer-events-none z-[1]">
-                            <div className="text-[0.6rem] md:text-[0.85rem] opacity-90 font-bold uppercase tracking-wider text-white inline-block bg-white/10 px-1.5 py-1 md:px-4 md:py-1 rounded-full border border-white/10 whitespace-nowrap">
-                              {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                          <div style={{ position: 'absolute', top: '50%', left: 0, width: '100%', transform: 'translateY(-50%)', textAlign: 'center', pointerEvents: 'none', zIndex: 1 }}>
+                            <div style={{ fontSize: '0.85rem', opacity: 0.9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff', display: 'inline-block', backgroundColor: 'rgba(255,255,255,0.1)', padding: '4px 16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                              {new Date(match.kickoff_time).toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                             </div>
                           </div>
 
-                          <span className={`badge ${badgeClass} text-[0.6rem] md:text-[0.75rem] px-1.5 py-1 md:px-3 md:py-1 whitespace-nowrap`} style={{ position: 'relative', zIndex: 10, letterSpacing: '0' }}>
+                          <span className={`badge ${badgeClass}`} style={{ position: 'relative', zIndex: 10 }}>
                             {isLive ? <span className="animate-pulse">{displayStatus}</span> : displayStatus}
                           </span>
                         </div>
