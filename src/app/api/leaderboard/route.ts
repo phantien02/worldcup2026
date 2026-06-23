@@ -23,13 +23,22 @@ export async function GET() {
 
     let predictions: any[] = [];
     if (validMatchIds.length > 0) {
-        // Fetch predictions for all finished matches
-        const { data: preds, error: predErr } = await supabaseAdmin
-        .from('predictions')
-        .select('user_id, match_id, home_score, away_score, prediction_result, points_earned')
-        .in('match_id', validMatchIds);
-        if (predErr) throw predErr;
-        predictions = preds;
+        let from = 0;
+        const step = 1000;
+        while (true) {
+          const { data: preds, error: predErr } = await supabaseAdmin
+            .from('predictions')
+            .select('user_id, match_id, home_score, away_score, prediction_result, points_earned')
+            .in('match_id', validMatchIds)
+            .range(from, from + step - 1);
+            
+          if (predErr) throw predErr;
+          if (!preds || preds.length === 0) break;
+          
+          predictions = predictions.concat(preds);
+          if (preds.length < step) break;
+          from += step;
+        }
     }
 
     // 1. Group matches by Date
