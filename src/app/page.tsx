@@ -633,8 +633,8 @@ export default function HomePage() {
                     <tr>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '80px' }}>Hạng</th>
                       <th style={{ padding: '0 1rem' }}>Người Chơi</th>
-                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '120px' }} title="Số trận người chơi đã đoán / tổng số trận đã kết thúc">Số Trận Dự Đoán</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', color: '#fff', width: '80px' }}>Điểm</th>
+                      <th style={{ padding: '0 1rem', textAlign: 'center', width: '120px' }} title="Số trận người chơi đã đoán / tổng số trận đã kết thúc">Số Trận Dự Đoán</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán đúng kết quả trận đấu">Đoán KQ</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác tỷ số">Đoán TS</th>
                       <th style={{ padding: '0 1rem', textAlign: 'center', width: '100px' }} title="Dự đoán chính xác hiệu số">Đoán HS</th>
@@ -651,24 +651,26 @@ export default function HomePage() {
                             {user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ 0</span>}
                           </div>
                         </td>
-                        <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          <span 
-                            className="hover:text-[#00d2ff] underline decoration-white/30 hover:decoration-[#00d2ff] transition-colors cursor-pointer"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleUserClick(user.id);
-                            }}
-                            title="Xem chi tiết điểm số"
-                          >
-                            {user.display_name}
-                          </span>
-                        </td>
-                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#a3a3a3', fontWeight: '600', fontSize: '1.1rem' }}>
-                          {user.stats?.actualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                        <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap' }}>
+                          <div className="player-name-container">
+                            <span 
+                              className="player-name-text hover:text-[#00d2ff] underline decoration-white/30 hover:decoration-[#00d2ff] transition-colors cursor-pointer"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleUserClick(user.id);
+                              }}
+                              title="Xem chi tiết điểm số"
+                            >
+                              {user.display_name}
+                            </span>
+                          </div>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem' }}>
                           {user.total_points}
+                        </td>
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#a3a3a3', fontWeight: '600', fontSize: '1.1rem' }}>
+                          {user.stats?.actualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00d2ff', fontWeight: '600', fontSize: '1.1rem' }}>
                           {user.stats?.correctResults || 0}
