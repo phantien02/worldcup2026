@@ -1134,18 +1134,18 @@ export default function HomePage() {
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>
                                   <div style={{ 
-                                    color: pred.is_hidden ? '#a3a3a3' : (pred.match_status === 'finished' ? 
+                                    color: pred.is_hidden ? '#a3a3a3' : pred.is_missing ? '#6b7280' : (pred.match_status === 'finished' ? 
                                       (pred.predicted_home_score === pred.match_home_score && pred.predicted_away_score === pred.match_away_score ? '#00d2ff' : '#ff004c') 
                                       : '#00d2ff'), 
                                     fontWeight: 'bold', 
-                                    fontSize: pred.is_hidden ? '0.9rem' : '1.125rem', 
-                                    letterSpacing: pred.is_hidden ? 'normal' : '0.1em' 
+                                    fontSize: pred.is_hidden || pred.is_missing ? '0.9rem' : '1.125rem', 
+                                    letterSpacing: pred.is_hidden || pred.is_missing ? 'normal' : '0.1em' 
                                   }}>
-                                    {pred.is_hidden ? '🔒 BẢO MẬT' : `${pred.predicted_home_score} - ${pred.predicted_away_score}`}
+                                    {pred.is_hidden ? '🔒 BẢO MẬT' : pred.is_missing ? 'Không dự đoán' : `${pred.predicted_home_score} - ${pred.predicted_away_score}`}
                                   </div>
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'center', position: 'relative' }}>
-                                  {pred.match_status === 'finished' ? (
+                                  {pred.match_status === 'finished' || pred.is_missing ? (
                                     <div 
                                       className="inline-block relative"
                                       onClick={(e) => {

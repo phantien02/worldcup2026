@@ -46,17 +46,39 @@ export async function GET(request: Request) {
     // 4. Combine data
     const userStats = {
       display_name: profile?.display_name || 'Người chơi',
-      matchHistory: predictions
-        .map(pred => {
-          const m = matchMap[pred.match_id];
-          if (!m) return null;
+      matchHistory: validMatches
+        .map(m => {
+          const pred = predictions.find(p => p.match_id === m.id);
+          const matchKickoffTime = m.kickoff_time ? new Date(m.kickoff_time).getTime() : 0;
+          const isLocked = m.status === 'live' || m.status === 'finished' || matchKickoffTime <= Date.now();
           
+          if (!pred) {
+            // Only show unpredicted matches if they are already locked or finished
+            if (!isLocked) return null;
+            
+            return {
+              match_id: m.id,
+              home_team: (m.home_team as any)?.name || 'Đội nhà',
+              away_team: (m.away_team as any)?.name || 'Đội khách',
+              match_status: m.status,
+              match_home_score: m.home_score,
+              match_away_score: m.away_score,
+              match_round: m.round,
+              kickoff_time: m.kickoff_time,
+              predicted_home_score: null,
+              predicted_away_score: null,
+              points_earned: 0,
+              is_hidden: false,
+              is_missing: true,
+              breakdown: ['Không dự đoán: 0']
+            };
+          }
+
           let breakdown: string[] = [];
           const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng 3', 'Chung kết'];
           const isKnockout = m.round && knockoutRounds.includes(m.round);
           const pointsEarned = pred.points_earned || 0;
           let calculatedBasePoints = 0;
-          const matchKickoffTime = m.kickoff_time ? new Date(m.kickoff_time).getTime() : 0;
           const isNewRules = matchKickoffTime >= NEW_RULE_CUTOFF;
 
           if (isKnockout) {
@@ -92,11 +114,11 @@ export async function GET(request: Request) {
                  }
                  
                  if (pred.home_score === m.home_score) {
-                   breakdown.push(`Đúng số bàn ${m.home_team?.name || 'Đội nhà'}: +1`);
+                   breakdown.push(`Đúng số bàn ${(m.home_team as any)?.name || 'Đội nhà'}: +1`);
                    calculatedBasePoints += 1;
                  }
                  if (pred.away_score === m.away_score) {
-                   breakdown.push(`Đúng số bàn ${m.away_team?.name || 'Đội khách'}: +1`);
+                   breakdown.push(`Đúng số bàn ${(m.away_team as any)?.name || 'Đội khách'}: +1`);
                    calculatedBasePoints += 1;
                  }
                }
@@ -135,13 +157,12 @@ export async function GET(request: Request) {
           // Privacy Check: Hide prediction if the viewer is not the owner, and the match hasn't started yet
           const viewerId = searchParams.get('viewerId');
           const isOwner = viewerId === userId;
-          const isLocked = m.status === 'live' || m.status === 'finished' || matchKickoffTime <= Date.now();
           const isHidden = !isOwner && !isLocked;
 
           return {
             match_id: m.id,
-            home_team: m.home_team?.name || 'Đội nhà',
-            away_team: m.away_team?.name || 'Đội khách',
+            home_team: (m.home_team as any)?.name || 'Đội nhà',
+            away_team: (m.away_team as any)?.name || 'Đội khách',
             match_status: m.status,
             match_home_score: m.home_score,
             match_away_score: m.away_score,
@@ -151,6 +172,7 @@ export async function GET(request: Request) {
             predicted_away_score: isHidden ? null : pred.away_score,
             points_earned: pointsEarned,
             is_hidden: isHidden,
+            is_missing: false,
             breakdown
           };
         })
