@@ -161,6 +161,7 @@ export async function GET() {
         ...p,
         stats: {
           totalPreds: validMatchIds.length,
+          actualPreds: userPreds.length,
           correctResults,
           exactScores,
           exactDiffs
