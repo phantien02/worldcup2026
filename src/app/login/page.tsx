@@ -209,7 +209,7 @@ export default function LoginPage() {
         )}
 
         {!isForgotPassword && (
-          <div className="text-center mt-6" style={{ fontSize: '0.875rem', opacity: 0.8 }}>
+          <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.875rem', opacity: 0.8 }}>
             Chưa có tài khoản? <Link href="/register" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Đăng ký ngay</Link>
           </div>
         )}

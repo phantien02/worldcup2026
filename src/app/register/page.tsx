@@ -87,7 +87,7 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <div className="text-center mt-4" style={{ fontSize: '0.875rem', opacity: 0.8 }}>
+        <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.875rem', opacity: 0.8 }}>
           Đã có tài khoản? <Link href="/login" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Đăng nhập</Link>
         </div>
       </div>
