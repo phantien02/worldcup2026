@@ -391,7 +391,7 @@ export default function HomePage() {
                 <h3 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h3>
                 <p className="mb-2">Phần thưởng đặc biệt dành cho những người chơi có lối đi riêng.</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>dưới 20%</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>dưới 20%</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                 </ul>
               </div>
 
@@ -413,9 +413,9 @@ export default function HomePage() {
                     <li>Đúng số bàn Đội A: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                     <li>Đúng số bàn Đội B: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
                     <li>Đúng chính xác tỷ số: <strong style={{ color: '#00ff87' }}>+3 điểm</strong></li>
-                    <li>Điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>11 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>15 điểm</span></div>
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00d2ff' }}>
@@ -438,9 +438,9 @@ export default function HomePage() {
                   <ul className="text-sm space-y-1">
                     <li>Đúng kết quả: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                     <li>Đúng số bàn của 1 đội (ở đây là Đội B): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
-                    <li>Điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#3b82f6', fontSize: '1.125rem' }}>7 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#3b82f6', fontSize: '1.125rem' }}>11 điểm</span></div>
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #a855f7' }}>
@@ -503,13 +503,13 @@ export default function HomePage() {
               <div>
                 <h4 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>dưới 30%</strong> số người chơi lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>dưới 30%</strong> số người chơi lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                 </ul>
               </div>
 
               <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <p className="font-bold text-white text-center text-lg mb-0">
-                  Tổng điểm tối đa cho mỗi trận Knock-out = <span style={{ color: '#00ff87' }}>16 điểm</span>
+                  Tổng điểm tối đa cho mỗi trận Knock-out = <span style={{ color: '#00ff87' }}>25 điểm</span>
                 </p>
               </div>
 
@@ -523,9 +523,9 @@ export default function HomePage() {
                   <ul className="text-sm space-y-1">
                     <li>Đúng đội đi tiếp: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                     <li>Đúng hình thức: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
-                    <li>Điểm mạo hiểm (&lt; 30%): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Điểm mạo hiểm (&lt; 30%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>16 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>25 điểm</span></div>
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00d2ff' }}>
@@ -546,9 +546,9 @@ export default function HomePage() {
                   <ul className="text-sm space-y-1">
                     <li>Đúng đội đi tiếp: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                     <li>Sai hình thức: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
-                    <li>Điểm mạo hiểm (&lt; 30%): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Điểm mạo hiểm (&lt; 30%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                   </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#3b82f6', fontSize: '1.125rem' }}>11 điểm</span></div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#3b82f6', fontSize: '1.125rem' }}>20 điểm</span></div>
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #a855f7' }}>

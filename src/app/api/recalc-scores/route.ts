@@ -62,7 +62,7 @@ export async function GET(req: Request) {
             if (isNewRules) {
               const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
               if (pickRate < 0.3) {
-                points += 1;
+                points += 10;
               }
             }
           }
@@ -90,7 +90,7 @@ export async function GET(req: Request) {
               }
               
               if (pickRate < 0.2) {
-                points += 1;
+                points += 5;
               }
             }
           } else {
