@@ -191,10 +191,10 @@ export default function LoginPage() {
 
         {!isForgotPassword && (
           <>
-            <div className="flex items-center my-6">
-              <div className="flex-1 border-t border-gray-600"></div>
-              <span className="px-4 text-sm text-gray-400">HOẶC</span>
-              <div className="flex-1 border-t border-gray-600"></div>
+            <div style={{ display: 'flex', alignItems: 'center', margin: '2rem 0' }}>
+              <div style={{ flex: 1, borderTop: '1px solid #4b5563' }}></div>
+              <span style={{ padding: '0 1rem', fontSize: '0.875rem', color: '#9ca3af' }}>HOẶC</span>
+              <div style={{ flex: 1, borderTop: '1px solid #4b5563' }}></div>
             </div>
             <button 
               type="button" 
