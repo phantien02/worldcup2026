@@ -18,7 +18,7 @@ export async function GET(req: Request) {
     const NEW_RULE_CUTOFF = new Date('2026-06-24T17:00:00Z').getTime();
 
     for (const match of matches) {
-      const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng 3', 'Chung kết'];
+      const knockoutRounds = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Chung kết'];
       const isKnockout = match.round && knockoutRounds.includes(match.round);
       const matchKickoffTime = match.kickoff_time ? new Date(match.kickoff_time).getTime() : 0;
       const isNewRules = matchKickoffTime >= NEW_RULE_CUTOFF;

@@ -177,23 +177,25 @@ export default function HomePage() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center animate-fade-in" style={{ minHeight: '80vh', padding: '2rem 1rem' }}>
-        <h1 className="logo mb-6 text-center text-5xl md:text-7xl" style={{ lineHeight: 1.1 }}>
-          Dự Đoán World Cup 2026
-        </h1>
-        <p className="text-center mb-10" style={{ fontSize: '1.25rem', color: '#a3a3a3', maxWidth: '700px', lineHeight: 1.6 }}>
-          Hòa mình vào không khí sôi động của World Cup 2026. Thể hiện tài dự đoán thiên bẩm, leo top bảng xếp hạng và giành lấy vinh quang!
-        </p>
-        <div className="flex gap-4">
-          <Link href="/register">
-            <button className="btn btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.25rem', borderRadius: '50px' }}>
-              CHƠI NGAY
-            </button>
-          </Link>
-          <Link href="/login">
-            <button className="btn btn-secondary" style={{ padding: '1rem 3rem', fontSize: '1.25rem', borderRadius: '50px' }}>
-              ĐĂNG NHẬP
-            </button>
-          </Link>
+        <div style={{ backgroundColor: 'rgba(0,0,0,0.6)', padding: '3rem', borderRadius: '16px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '900px', width: '100%' }}>
+          <h1 className="logo mb-6 text-center text-5xl md:text-7xl" style={{ lineHeight: 1.1 }}>
+            Dự Đoán World Cup 2026
+          </h1>
+          <p className="text-center mb-10" style={{ fontSize: '1.25rem', color: '#e5e5e5', maxWidth: '700px', lineHeight: 1.6 }}>
+            Hòa mình vào không khí sôi động của World Cup 2026. Thể hiện tài dự đoán thiên bẩm, leo top bảng xếp hạng và giành lấy vinh quang!
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link href="/register">
+              <button className="btn btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.25rem', borderRadius: '50px' }}>
+                CHƠI NGAY
+              </button>
+            </Link>
+            <Link href="/login">
+              <button className="btn btn-secondary" style={{ padding: '1rem 3rem', fontSize: '1.25rem', borderRadius: '50px' }}>
+                ĐĂNG NHẬP
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     );
