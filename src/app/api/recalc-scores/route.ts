@@ -89,7 +89,7 @@ export async function GET(req: Request) {
                 else if (p.prediction_result === 'draw') pickRate = drawCount / totalPredictions;
               }
               
-              if (pickRate < 0.2) {
+              if (pickRate < 0.3) {
                 points += 5;
               }
             }
