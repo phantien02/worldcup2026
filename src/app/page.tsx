@@ -31,6 +31,7 @@ type Match = {
   penalty_home?: number | null;
   penalty_away?: number | null;
   winner_id?: string | null;
+  globalIndex?: number;
 };
 
 export default function HomePage() {
@@ -128,7 +129,11 @@ export default function HomePage() {
         `)
 
       if (matchesData) {
-        const validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
+        let validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
+        
+        // Compute chronological global index FIRST
+        validMatches.sort((a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
+        validMatches = validMatches.map((m: any, index: number) => ({ ...m, globalIndex: index + 1 }));
         
         // Sort by status (unfinished first, finished last)
         // For unfinished matches: chronological order (soonest first)
@@ -955,7 +960,7 @@ export default function HomePage() {
                   </div>
                 ) : (
                   filteredMatches.map((match) => {
-                    const globalIndex = matches.findIndex(m => m.id === match.id) + 1;
+                    const globalIndex = match.globalIndex || 1;
                     
                     const isPlaceholderName = (name: string) => /^(nhất|nhì|ba|thứ\s*3|thắng|thua)\s/i.test(name);
                     const renderTeamInfo = (teamData: any) => {
