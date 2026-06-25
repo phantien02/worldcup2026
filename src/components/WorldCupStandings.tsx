@@ -181,44 +181,120 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
         return;
       }
 
-      const scenarios: Record<string, number>[] = [];
-      const generateScenarios = (matchIdx: number, currentPoints: Record<string, number>) => {
+      const scenarios: Record<string, string>[] = [];
+      const pendingMatchIds = pendingMatches.map(m => m.id);
+      
+      const generateScenarios = (matchIdx: number, currentOutcomes: Record<string, string>) => {
         if (matchIdx === pendingMatches.length) {
-          scenarios.push(currentPoints);
+          scenarios.push(currentOutcomes);
           return;
         }
         const match = pendingMatches[matchIdx];
-        const h = match.home_team?.name;
-        const a = match.away_team?.name;
-        if (!h || !a) {
-          generateScenarios(matchIdx + 1, currentPoints);
+        if (!match.home_team?.name || !match.away_team?.name) {
+          generateScenarios(matchIdx + 1, currentOutcomes);
           return;
         }
         
-        generateScenarios(matchIdx + 1, { ...currentPoints, [h]: (currentPoints[h] || 0) + 3 });
-        generateScenarios(matchIdx + 1, { ...currentPoints, [h]: (currentPoints[h] || 0) + 1, [a]: (currentPoints[a] || 0) + 1 });
-        generateScenarios(matchIdx + 1, { ...currentPoints, [a]: (currentPoints[a] || 0) + 3 });
+        generateScenarios(matchIdx + 1, { ...currentOutcomes, [match.id]: '1' });
+        generateScenarios(matchIdx + 1, { ...currentOutcomes, [match.id]: 'X' });
+        generateScenarios(matchIdx + 1, { ...currentOutcomes, [match.id]: '2' });
       };
       
-      const basePoints: Record<string, number> = {};
-      group.teams.forEach(t => basePoints[t.name] = t.pts);
-      generateScenarios(0, basePoints);
+      generateScenarios(0, {});
+
+      const canYBeatX = (Y: string, X: string, tiedTeams: string[], scenarioOutcomes: Record<string, string>) => {
+        const ml_pts: Record<string, number> = {};
+        const ml_gd: Record<string, number> = {};
+        const ml_gf: Record<string, number> = {};
+        let allMlFinished = true;
+        
+        tiedTeams.forEach(t => { ml_pts[t] = 0; ml_gd[t] = 0; ml_gf[t] = 0; });
+        
+        for (let i = 0; i < tiedTeams.length; i++) {
+          for (let j = i + 1; j < tiedTeams.length; j++) {
+            const t1 = tiedTeams[i];
+            const t2 = tiedTeams[j];
+            
+            const m = groupMatches.find(match => 
+              (match.home_team?.name === t1 && match.away_team?.name === t2) ||
+              (match.home_team?.name === t2 && match.away_team?.name === t1)
+            );
+            if (!m) continue;
+            
+            const h = m.home_team!.name;
+            const a = m.away_team!.name;
+            
+            if (m.status === 'finished') {
+              const hScore = m.home_score!;
+              const aScore = m.away_score!;
+              ml_gd[h] += (hScore - aScore);
+              ml_gd[a] += (aScore - hScore);
+              ml_gf[h] += hScore;
+              ml_gf[a] += aScore;
+              if (hScore > aScore) ml_pts[h] += 3;
+              else if (hScore < aScore) ml_pts[a] += 3;
+              else { ml_pts[h] += 1; ml_pts[a] += 1; }
+            } else {
+              allMlFinished = false;
+              const outcome = scenarioOutcomes[m.id];
+              if (outcome === '1') ml_pts[h] += 3;
+              else if (outcome === '2') ml_pts[a] += 3;
+              else { ml_pts[h] += 1; ml_pts[a] += 1; }
+            }
+          }
+        }
+        
+        if (ml_pts[Y] > ml_pts[X]) return true;
+        if (ml_pts[Y] < ml_pts[X]) return false;
+        
+        if (allMlFinished) {
+          if (ml_gd[Y] > ml_gd[X]) return true;
+          if (ml_gd[Y] < ml_gd[X]) return false;
+          if (ml_gf[Y] > ml_gf[X]) return true;
+          if (ml_gf[Y] < ml_gf[X]) return false;
+        }
+        return true; 
+      };
 
       group.teams.forEach((team) => {
         let bestRank = 4;
         let worstRank = 1;
         
-        scenarios.forEach(pts => {
+        scenarios.forEach(outcomes => {
+          const pts: Record<string, number> = {};
+          group.teams.forEach(t => pts[t.name] = t.pts);
+          
+          pendingMatches.forEach(m => {
+            const h = m.home_team!.name;
+            const a = m.away_team!.name;
+            const outcome = outcomes[m.id];
+            if (outcome === '1') pts[h] += 3;
+            else if (outcome === '2') pts[a] += 3;
+            else { pts[h] += 1; pts[a] += 1; }
+          });
+          
           let teamsWithMore = 0;
           let teamsWithMoreOrEqual = 0;
           
+          const tiedTeams = group.teams.map(t => t.name).filter(tName => pts[tName] === pts[team.name]);
+          
           group.teams.forEach(other => {
             if (other.name !== team.name) {
-              if ((pts[other.name] || 0) > (pts[team.name] || 0)) {
+              if (pts[other.name] > pts[team.name]) {
                 teamsWithMore++;
                 teamsWithMoreOrEqual++;
-              } else if ((pts[other.name] || 0) === (pts[team.name] || 0)) {
-                teamsWithMoreOrEqual++;
+              } else if (pts[other.name] === pts[team.name]) {
+                const yCouldBeatX = canYBeatX(other.name, team.name, tiedTeams, outcomes);
+                const xCouldBeatY = canYBeatX(team.name, other.name, tiedTeams, outcomes);
+                
+                if (yCouldBeatX && !xCouldBeatY) {
+                   teamsWithMore++;
+                   teamsWithMoreOrEqual++;
+                } else if (!yCouldBeatX && xCouldBeatY) {
+                   // Y definitively loses to X
+                } else {
+                   teamsWithMoreOrEqual++;
+                }
               }
             }
           });
