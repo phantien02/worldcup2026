@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 type TeamStats = {
   name: string;
@@ -145,6 +145,100 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
     );
   }
 
+  const teamColors = useMemo(() => {
+    const colors: Record<string, Record<string, string>> = {};
+    
+    const allGroupMatches = matches.filter(m => m.round?.startsWith('Bảng'));
+    const isGroupStageComplete = allGroupMatches.length > 0 && allGroupMatches.every(m => m.status === 'finished');
+
+    const thirdPlacedTeams = sortedGroups.map(g => g.teams[2]).filter(Boolean);
+    const sortedThirdPlaces = [...thirdPlacedTeams].sort((a, b) => {
+      if (a.pts !== b.pts) return b.pts - a.pts;
+      const gdA = a.gf - a.ga; const gdB = b.gf - b.ga;
+      if (gdA !== gdB) return gdB - gdA;
+      if (a.gf !== b.gf) return b.gf - a.gf;
+      return a.name.localeCompare(b.name);
+    });
+    const top8ThirdPlacesNames = sortedThirdPlaces.slice(0, 8).map(t => t.name);
+
+    sortedGroups.forEach(group => {
+      colors[group.name] = {};
+      const groupMatches = matches.filter(m => m.round === group.name);
+      const pendingMatches = groupMatches.filter(m => m.status !== 'finished');
+      
+      if (pendingMatches.length === 0) {
+        group.teams.forEach((team, idx) => {
+          if (idx === 0 || idx === 1) colors[group.name][team.name] = '#10b981';
+          else if (idx === 3) colors[group.name][team.name] = '#ef4444';
+          else {
+            if (isGroupStageComplete) {
+              colors[group.name][team.name] = top8ThirdPlacesNames.includes(team.name) ? '#10b981' : '#ef4444';
+            } else {
+              colors[group.name][team.name] = '#fbbf24';
+            }
+          }
+        });
+        return;
+      }
+
+      const scenarios: Record<string, number>[] = [];
+      const generateScenarios = (matchIdx: number, currentPoints: Record<string, number>) => {
+        if (matchIdx === pendingMatches.length) {
+          scenarios.push(currentPoints);
+          return;
+        }
+        const match = pendingMatches[matchIdx];
+        const h = match.home_team?.name;
+        const a = match.away_team?.name;
+        if (!h || !a) {
+          generateScenarios(matchIdx + 1, currentPoints);
+          return;
+        }
+        
+        generateScenarios(matchIdx + 1, { ...currentPoints, [h]: (currentPoints[h] || 0) + 3 });
+        generateScenarios(matchIdx + 1, { ...currentPoints, [h]: (currentPoints[h] || 0) + 1, [a]: (currentPoints[a] || 0) + 1 });
+        generateScenarios(matchIdx + 1, { ...currentPoints, [a]: (currentPoints[a] || 0) + 3 });
+      };
+      
+      const basePoints: Record<string, number> = {};
+      group.teams.forEach(t => basePoints[t.name] = t.pts);
+      generateScenarios(0, basePoints);
+
+      group.teams.forEach((team) => {
+        let bestRank = 4;
+        let worstRank = 1;
+        
+        scenarios.forEach(pts => {
+          let teamsWithMore = 0;
+          let teamsWithMoreOrEqual = 0;
+          
+          group.teams.forEach(other => {
+            if (other.name !== team.name) {
+              if ((pts[other.name] || 0) > (pts[team.name] || 0)) {
+                teamsWithMore++;
+                teamsWithMoreOrEqual++;
+              } else if ((pts[other.name] || 0) === (pts[team.name] || 0)) {
+                teamsWithMoreOrEqual++;
+              }
+            }
+          });
+          
+          const rankIfWinTiebreakers = teamsWithMore + 1;
+          const rankIfLoseTiebreakers = teamsWithMoreOrEqual + 1;
+          
+          if (rankIfWinTiebreakers < bestRank) bestRank = rankIfWinTiebreakers;
+          if (rankIfLoseTiebreakers > worstRank) worstRank = rankIfLoseTiebreakers;
+        });
+        
+        if (worstRank <= 2) colors[group.name][team.name] = '#10b981';
+        else if (bestRank >= 4) colors[group.name][team.name] = '#ef4444';
+        else colors[group.name][team.name] = '#fbbf24';
+      });
+    });
+    
+    return colors;
+  }, [matches, sortedGroups]);
+
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.4s ease-out' }}>
       <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
@@ -185,8 +279,8 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
                           alignItems: 'center',
                           justifyContent: 'center',
                           margin: '0 auto',
-                          backgroundColor: idx <= 1 ? '#10b981' : idx === 2 ? '#fbbf24' : '#ef4444',
-                          color: idx === 2 ? '#000' : '#fff',
+                          backgroundColor: teamColors[group.name]?.[team.name] || '#fbbf24',
+                          color: teamColors[group.name]?.[team.name] === '#fbbf24' ? '#000' : '#fff',
                           fontSize: '0.85rem'
                         }}>
                           {idx + 1}
