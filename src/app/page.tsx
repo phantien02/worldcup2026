@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/AuthProvider';
+import { FiLogOut, FiEdit2, FiSave, FiX, FiCheckCircle } from 'react-icons/fi';
 import Link from 'next/link';
 import WorldCupStandings from '@/components/WorldCupStandings';
+import TopScorers, { TopScorer } from '@/components/TopScorers';
 import ProfileUpdateForm from '@/components/ProfileUpdateForm';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '../data/matchMapping.json';
@@ -40,8 +42,10 @@ export default function HomePage() {
   
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
+  const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'matches' | 'standings' | 'rules' | 'profile'>('matches');
+  const [activeTab, setActiveTab] = useState<'matches' | 'standings' | 'leaderboard' | 'rules' | 'profile'>('matches');
+  const [standingsTab, setStandingsTab] = useState<'teams' | 'scorers'>('teams');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [filterRound, setFilterRound] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -154,6 +158,17 @@ export default function HomePage() {
         });
         
         setMatches(validMatches);
+      }
+      
+      // Fetch Top Scorers
+      const { data: topScorersData } = await supabase
+        .from('top_scorers')
+        .select('*')
+        .order('goals', { ascending: false })
+        .order('assists', { ascending: false });
+        
+      if (topScorersData) {
+        setTopScorers(topScorersData);
       }
       
       setLoading(false);
@@ -356,8 +371,56 @@ export default function HomePage() {
 
         {/* Standings Tab */}
         {activeTab === 'standings' && (
-          <div className="w-full max-w-5xl flex flex-col gap-6">
-            <WorldCupStandings matches={matches} />
+          <div className="w-full max-w-5xl flex flex-col gap-6 animate-fade-in">
+            {/* Sub-tabs for Standings */}
+            <div className="flex justify-center mb-6">
+              <div className="glass-panel" style={{ padding: '0.4rem', borderRadius: '50px', display: 'flex', gap: '0.5rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <button
+                  onClick={() => setStandingsTab('teams')}
+                  style={{
+                    padding: '0.6rem 1.5rem',
+                    borderRadius: '50px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.3s ease',
+                    backgroundColor: standingsTab === 'teams' ? 'var(--primary)' : 'transparent',
+                    color: standingsTab === 'teams' ? '#000' : '#a0a0a0',
+                    boxShadow: standingsTab === 'teams' ? '0 0 15px rgba(0,210,255,0.4)' : 'none',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Đội Tuyển
+                </button>
+                <button
+                  onClick={() => setStandingsTab('scorers')}
+                  style={{
+                    padding: '0.6rem 1.5rem',
+                    borderRadius: '50px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.3s ease',
+                    backgroundColor: standingsTab === 'scorers' ? 'var(--primary)' : 'transparent',
+                    color: standingsTab === 'scorers' ? '#000' : '#a0a0a0',
+                    boxShadow: standingsTab === 'scorers' ? '0 0 15px rgba(0,210,255,0.4)' : 'none',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Vua Phá Lưới
+                </button>
+              </div>
+            </div>
+
+            {standingsTab === 'teams' ? (
+              <WorldCupStandings matches={matches} />
+            ) : (
+              <TopScorers scorers={topScorers} matches={matches} />
+            )}
           </div>
         )}
 

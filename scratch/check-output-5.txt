@@ -1,0 +1,112 @@
+◇ injected env (3) from .env.local // tip: ◈ secrets for agents [www.dotenvx.com]
+Bây giờ là: 6/14/2026, 8:17:45 AM
+Có 99 trận pending/live.
+- Brazil vs Marocco | Kickoff: 6/14/2026, 5:00:00 AM | Status: pending | Đã trôi qua: 198 phút
+  => TRẬN NÀY ĐÃ ĐÁ XONG (hoặc qua 110 phút) MÀ CHƯA UPDATE! Cần crawl!
+- Haiti vs Scotland | Kickoff: 6/14/2026, 8:00:00 AM | Status: pending | Đã trôi qua: 18 phút
+- Úc vs Thổ Nhĩ Kỳ | Kickoff: 6/14/2026, 11:00:00 AM | Status: pending | Đã trôi qua: -162 phút
+- Đức vs Curacao | Kickoff: 6/15/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -942 phút
+- Hà Lan vs Nhật Bản | Kickoff: 6/15/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -1122 phút
+- Bờ Biển Ngà vs Ecuador | Kickoff: 6/15/2026, 6:00:00 AM | Status: pending | Đã trôi qua: -1302 phút
+- Thụy Điển vs Tunisia | Kickoff: 6/15/2026, 9:00:00 AM | Status: pending | Đã trôi qua: -1482 phút
+- Tây Ban Nha vs Cape Verde | Kickoff: 6/15/2026, 11:00:00 PM | Status: pending | Đã trôi qua: -2322 phút
+- Bỉ vs Ai Cập | Kickoff: 6/16/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -2502 phút
+- Saudi Arabia vs Uruguay | Kickoff: 6/16/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -2682 phút
+- Iran vs New Zealand | Kickoff: 6/16/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -2862 phút
+- Pháp vs Senegal | Kickoff: 6/17/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -3942 phút
+- Iraq vs Na Uy | Kickoff: 6/17/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -4122 phút
+- Argentina vs Algeria | Kickoff: 6/17/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -4302 phút
+- Áo vs Jordan | Kickoff: 6/17/2026, 11:00:00 AM | Status: pending | Đã trôi qua: -4482 phút
+- Bồ Đào Nha vs CHDC Congo | Kickoff: 6/18/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -5262 phút
+- Anh vs Croatia | Kickoff: 6/18/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -5442 phút
+- Ghana vs Panama | Kickoff: 6/18/2026, 6:00:00 AM | Status: pending | Đã trôi qua: -5622 phút
+- Uzbekistan vs Colombia | Kickoff: 6/18/2026, 9:00:00 AM | Status: pending | Đã trôi qua: -5802 phút
+- CH Séc vs Nam Phi | Kickoff: 6/18/2026, 11:00:00 PM | Status: pending | Đã trôi qua: -6642 phút
+- Thụy Sĩ vs Bosnia | Kickoff: 6/19/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -6822 phút
+- Canada vs Qatar | Kickoff: 6/19/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -7002 phút
+- Mexico vs Hàn Quốc | Kickoff: 6/19/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -7182 phút
+- Mỹ vs Úc | Kickoff: 6/20/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -8262 phút
+- Scotland vs Marocco | Kickoff: 6/20/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -8442 phút
+- Brazil vs Haiti | Kickoff: 6/20/2026, 7:30:00 AM | Status: pending | Đã trôi qua: -8592 phút
+- Thổ Nhĩ Kỳ vs Paraguay | Kickoff: 6/20/2026, 10:00:00 AM | Status: pending | Đã trôi qua: -8742 phút
+- Hà Lan vs Thụy Điển | Kickoff: 6/21/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -9582 phút
+- Đức vs Bờ Biển Ngà | Kickoff: 6/21/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -9762 phút
+- Ecuador vs Curacao | Kickoff: 6/21/2026, 7:00:00 AM | Status: pending | Đã trôi qua: -10002 phút
+- Tunisia vs Nhật Bản | Kickoff: 6/21/2026, 11:00:00 AM | Status: pending | Đã trôi qua: -10242 phút
+- Tây Ban Nha vs Saudi Arabia | Kickoff: 6/21/2026, 11:00:00 PM | Status: pending | Đã trôi qua: -10962 phút
+- Bỉ vs Iran | Kickoff: 6/22/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -11142 phút
+- Uruguay vs Cape Verde | Kickoff: 6/22/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -11322 phút
+- New Zealand vs Ai Cập | Kickoff: 6/22/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -11502 phút
+- Argentina vs Áo | Kickoff: 6/23/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -12462 phút
+- Pháp vs Iraq | Kickoff: 6/23/2026, 4:00:00 AM | Status: pending | Đã trôi qua: -12702 phút
+- Na Uy vs Senegal | Kickoff: 6/23/2026, 7:00:00 AM | Status: pending | Đã trôi qua: -12882 phút
+- Jordan vs Algeria | Kickoff: 6/23/2026, 10:00:00 AM | Status: pending | Đã trôi qua: -13062 phút
+- Bồ Đào Nha vs Uzbekistan | Kickoff: 6/24/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -13902 phút
+- Anh vs Ghana | Kickoff: 6/24/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -14082 phút
+- Panama vs Croatia | Kickoff: 6/24/2026, 6:00:00 AM | Status: pending | Đã trôi qua: -14262 phút
+- Colombia vs CHDC Congo | Kickoff: 6/24/2026, 9:00:00 AM | Status: pending | Đã trôi qua: -14442 phút
+- Bosnia vs Qatar | Kickoff: 6/25/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -15462 phút
+- Thụy Sĩ vs Canada | Kickoff: 6/25/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -15462 phút
+- Marocco vs Haiti | Kickoff: 6/25/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -15642 phút
+- Scotland vs Brazil | Kickoff: 6/25/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -15642 phút
+- CH Séc vs Mexico | Kickoff: 6/25/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -15822 phút
+- Nam Phi vs Hàn Quốc | Kickoff: 6/25/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -15822 phút
+- Curacao vs Bờ Biển Ngà | Kickoff: 6/26/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -16962 phút
+- Ecuador vs Đức | Kickoff: 6/26/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -16962 phút
+- Nhật Bản vs Thụy Điển | Kickoff: 6/26/2026, 6:00:00 AM | Status: pending | Đã trôi qua: -17142 phút
+- Tunisia vs Hà Lan | Kickoff: 6/26/2026, 6:00:00 AM | Status: pending | Đã trôi qua: -17142 phút
+- Thổ Nhĩ Kỳ vs Mỹ | Kickoff: 6/26/2026, 9:00:00 AM | Status: pending | Đã trôi qua: -17322 phút
+- Paraguay vs Úc | Kickoff: 6/26/2026, 9:00:00 AM | Status: pending | Đã trôi qua: -17322 phút
+- Senegal vs Iraq | Kickoff: 6/27/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -18342 phút
+- Na Uy vs Pháp | Kickoff: 6/27/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -18342 phút
+- Cape Verde vs Saudi Arabia | Kickoff: 6/27/2026, 7:00:00 AM | Status: pending | Đã trôi qua: -18642 phút
+- Uruguay vs Tây Ban Nha | Kickoff: 6/27/2026, 7:00:00 AM | Status: pending | Đã trôi qua: -18642 phút
+- New Zealand vs Bỉ | Kickoff: 6/27/2026, 10:00:00 AM | Status: pending | Đã trôi qua: -18822 phút
+- Ai Cập vs Iran | Kickoff: 6/27/2026, 10:00:00 AM | Status: pending | Đã trôi qua: -18822 phút
+- Panama vs Anh | Kickoff: 6/28/2026, 4:00:00 AM | Status: pending | Đã trôi qua: -19902 phút
+- Croatia vs Ghana | Kickoff: 6/28/2026, 4:00:00 AM | Status: pending | Đã trôi qua: -19902 phút
+- CHDC Congo vs Uzbekistan | Kickoff: 6/28/2026, 6:30:00 AM | Status: pending | Đã trôi qua: -20052 phút
+- Colombia vs Bồ Đào Nha | Kickoff: 6/28/2026, 6:30:00 AM | Status: pending | Đã trôi qua: -20052 phút
+- Jordan vs Argentina | Kickoff: 6/28/2026, 9:00:00 AM | Status: pending | Đã trôi qua: -20202 phút
+- Algeria vs Áo | Kickoff: 6/28/2026, 9:00:00 AM | Status: pending | Đã trôi qua: -20202 phút
+- Nhì bảng A vs Nhì bảng B | Kickoff: 6/29/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -21222 phút
+- Nhất bảng C vs Nhì bảng F | Kickoff: 6/30/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -22542 phút
+- Nhất bảng E vs Thứ 3 bảng A/B/C/D/F | Kickoff: 6/30/2026, 3:30:00 AM | Status: pending | Đã trôi qua: -22752 phút
+- Nhất bảng F vs Nhì bảng C | Kickoff: 6/30/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -23022 phút
+- Nhì bảng E vs Nhì bảng I | Kickoff: 7/1/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -23982 phút
+- Nhất bảng I vs Thứ 3 bảng C/D/F/G/H | Kickoff: 7/1/2026, 4:00:00 AM | Status: pending | Đã trôi qua: -24222 phút
+- Nhất bảng A vs Thứ 3 bảng C/E/F/H/I | Kickoff: 7/1/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -24462 phút
+- Nhất bảng L vs Thứ 3 bảng E/H/I/J/K | Kickoff: 7/1/2026, 11:00:00 PM | Status: pending | Đã trôi qua: -25362 phút
+- Nhất bảng G vs Thứ 3 bảng A/E/H/I/J | Kickoff: 7/2/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -25602 phút
+- Nhất bảng D vs Thứ 3 bảng B/E/F/I/J | Kickoff: 7/2/2026, 7:00:00 AM | Status: pending | Đã trôi qua: -25842 phút
+- Nhất bảng H vs Nhì bảng J | Kickoff: 7/3/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -26982 phút
+- Nhì bảng K vs Nhì bảng L | Kickoff: 7/3/2026, 6:00:00 AM | Status: pending | Đã trôi qua: -27222 phút
+- Nhất bảng B vs Thứ 3 bảng E/F/G/I/J | Kickoff: 7/3/2026, 10:00:00 AM | Status: pending | Đã trôi qua: -27462 phút
+- Nhì bảng D vs Nhì bảng G | Kickoff: 7/4/2026, 1:00:00 AM | Status: pending | Đã trôi qua: -28362 phút
+- Nhất bảng J vs Nhì bảng H | Kickoff: 7/4/2026, 5:00:00 AM | Status: pending | Đã trôi qua: -28602 phút
+- Nhất bảng K vs Thứ 3 bảng D/E/I/J/L | Kickoff: 7/4/2026, 8:30:00 AM | Status: pending | Đã trôi qua: -28812 phút
+- Thắng trận 73 vs Thắng trận 75 | Kickoff: 7/5/2026, 12:00:00 AM | Status: pending | Đã trôi qua: -29742 phút
+- Thắng trận 74 vs Thắng trận 77 | Kickoff: 7/5/2026, 4:00:00 AM | Status: pending | Đã trôi qua: -29982 phút
+- Thắng trận 76 vs Thắng trận 78 | Kickoff: 7/6/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -31362 phút
+- Thắng trận 83 vs Thắng trận 84 | Kickoff: 7/6/2026, 6:00:00 AM | Status: pending | Đã trôi qua: -31542 phút
+- Thắng trận 79 vs Thắng trận 80 | Kickoff: 7/6/2026, 7:00:00 AM | Status: pending | Đã trôi qua: -31602 phút
+- Thắng trận 81 vs Thắng trận 82 | Kickoff: 7/7/2026, 7:00:00 AM | Status: pending | Đã trôi qua: -33042 phút
+- Thắng trận 86 vs Thắng trận 88 | Kickoff: 7/7/2026, 11:00:00 PM | Status: pending | Đã trôi qua: -34002 phút
+- Thắng trận 85 vs Thắng trận 87 | Kickoff: 7/8/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -34242 phút
+- Thắng trận 89 vs Thắng trận 90 | Kickoff: 7/10/2026, 3:00:00 AM | Status: pending | Đã trôi qua: -37122 phút
+- Thắng trận 93 vs Thắng trận 94 | Kickoff: 7/11/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -38502 phút
+- Thắng trận 91 vs Thắng trận 92 | Kickoff: 7/12/2026, 4:00:00 AM | Status: pending | Đã trôi qua: -40062 phút
+- Thắng trận 95 vs Thắng trận 96 | Kickoff: 7/12/2026, 8:00:00 AM | Status: pending | Đã trôi qua: -40302 phút
+- Thắng trận 97 vs Thắng trận 98 | Kickoff: 7/15/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -44262 phút
+- Thắng trận 99 vs Thắng trận 100 | Kickoff: 7/16/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -45702 phút
+- Thua trận 101 vs Thua trận 102 | Kickoff: 7/19/2026, 4:00:00 AM | Status: pending | Đã trôi qua: -50142 phút
+- Thắng trận 101 vs Thắng trận 102 | Kickoff: 7/20/2026, 2:00:00 AM | Status: pending | Đã trôi qua: -51462 phút
+\n\nĐang kích hoạt crawler cho các trận đã xong...
+Bắt đầu cào: Brazil vs Marocco...
+[Scraper] Đang tìm kết quả cho Brazil vs Marocco (Brazil vs Marocco)...
+[Scraper] Đang quét https://znews.vn/worldcup-2026...
+[Scraper] ✅ Chốt tỷ số từ https://znews.vn/worldcup-2026: 1 - 1 (finished)
+Lỗi khi cào Brazil vs Marocco: {
+  message: 'Invalid API key',
+  hint: 'Double check your Supabase `anon` or `service_role` API key.'
+}
