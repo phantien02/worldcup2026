@@ -212,7 +212,7 @@ export default function HomePage() {
       }}
     >
       {/* Hero Section */}
-      <div className="text-center animate-fade-in glass-panel mx-auto" style={{ padding: '2.5rem 2rem', maxWidth: '900px', width: '90%' }}>
+      <div className="text-center animate-fade-in glass-panel mx-auto" style={{ padding: '2.5rem 2rem', maxWidth: '900px', width: '90%', marginBottom: '3rem', marginTop: '1rem' }}>
         <h1 className="logo mb-4 text-4xl md:text-6xl" style={{ lineHeight: 1.3 }}>
           Dự Đoán World Cup 2026
         </h1>
