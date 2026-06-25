@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/AuthProvider';
-import { FiLogOut, FiEdit2, FiSave, FiX, FiCheckCircle } from 'react-icons/fi';
+
 import Link from 'next/link';
 import WorldCupStandings from '@/components/WorldCupStandings';
 import TopScorers, { TopScorer } from '@/components/TopScorers';
