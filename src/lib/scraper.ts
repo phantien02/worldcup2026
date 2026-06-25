@@ -389,7 +389,7 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
   // --- 1. TÌM TRONG KẾT QUẢ API-FOOTBALL (ƯU TIÊN 1) ---
   if (apiFixtures && apiFixtures.length > 0) {
     // Tìm trận đấu khớp với tất cả các tên có thể có
-    const match = apiFixtures.find(f => {
+    let match = apiFixtures.find(f => {
       const apiHome = f.teams.home.name.toLowerCase();
       const apiAway = f.teams.away.name.toLowerCase();
       
