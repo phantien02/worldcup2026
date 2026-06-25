@@ -87,9 +87,9 @@ export async function internalUpdateMatchResult(
         }
 
         if (isNewRules) {
-          // Điểm mạo hiểm Knockout (< 30%)
+          // Điểm mạo hiểm Knockout (< 20%)
           const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
-          if (pickRate < 0.3) {
+          if (pickRate < 0.2) {
             points += 10;
           }
         }
@@ -113,7 +113,7 @@ export async function internalUpdateMatchResult(
             }
           }
 
-          // 3. Điểm mạo hiểm Vòng bảng (< 30%)
+          // 3. Điểm mạo hiểm Vòng bảng (< 20%)
           let pickRate = 0;
           if (totalPredictions > 0) {
             if (p.prediction_result === 'home_win') pickRate = homeWinCount / totalPredictions;
@@ -121,7 +121,7 @@ export async function internalUpdateMatchResult(
             else if (p.prediction_result === 'draw') pickRate = drawCount / totalPredictions;
           }
           
-          if (pickRate < 0.3) {
+          if (pickRate < 0.2) {
             points += 5;
           }
         }

@@ -393,7 +393,7 @@ export default function HomePage() {
                 <h3 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h3>
                 <p className="mb-2">Phần thưởng đặc biệt dành cho những người chơi có lối đi riêng.</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>dưới 30%</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
+                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>dưới 20%</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                 </ul>
               </div>
 
@@ -407,7 +407,7 @@ export default function HomePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00ff87' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng tuyệt đối + mạo hiểm (&lt; 30%)</h4>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng tuyệt đối + mạo hiểm (&lt; 20%)</h4>
                   <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng 2-1 Đội B</p>
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 2-1 Đội B (cửa thắng chỉ có 12% chọn)</p>
                   <ul className="text-sm space-y-1">
@@ -505,7 +505,7 @@ export default function HomePage() {
               <div>
                 <h4 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h4>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>dưới 30%</strong> số người chơi lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
+                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>dưới 20%</strong> số người chơi lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                 </ul>
               </div>
 
@@ -519,13 +519,13 @@ export default function HomePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00ff87' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng tuyệt đối + mạo hiểm (&lt; 30%)</h4>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng tuyệt đối + mạo hiểm (&lt; 20%)</h4>
                   <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội B thắng (Ngựa ô) bằng Luân lưu</p>
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội B đi tiếp bằng Luân lưu (cửa Đội B đi tiếp chỉ có 15% chọn)</p>
                   <ul className="text-sm space-y-1">
                     <li>Đúng đội đi tiếp: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                     <li>Đúng hình thức: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
-                    <li>Điểm mạo hiểm (&lt; 30%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
+                    <li>Điểm mạo hiểm (&lt; 20%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                   </ul>
                   <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#00ff87', fontSize: '1.125rem' }}>25 điểm</span></div>
                 </div>
@@ -548,7 +548,7 @@ export default function HomePage() {
                   <ul className="text-sm space-y-1">
                     <li>Đúng đội đi tiếp: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                     <li>Sai hình thức: <strong style={{ color: '#6b7280' }}>+0 điểm</strong></li>
-                    <li>Điểm mạo hiểm (&lt; 30%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
+                    <li>Điểm mạo hiểm (&lt; 20%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                   </ul>
                   <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#3b82f6', fontSize: '1.125rem' }}>20 điểm</span></div>
                 </div>
