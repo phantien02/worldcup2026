@@ -15,7 +15,10 @@ const backgrounds = [
   '/images/bg/stadium_mercedes_1782294718063.png',
   '/images/bg/stadium_metlife_1782294670674.png',
   '/images/bg/stadium_nrg_1782294742593.png',
-  '/images/bg/stadium_sofi_1782294704066.png'
+  '/images/bg/stadium_sofi_1782294704066.png',
+  '/images/bg/stadium_bc_place.png',
+  '/images/bg/stadium_akron.png',
+  '/images/bg/stadium_bbva.png'
 ];
 
 function shuffleArray(array: string[]) {
