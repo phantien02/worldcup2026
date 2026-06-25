@@ -212,12 +212,12 @@ export default function HomePage() {
       }}
     >
       {/* Hero Section */}
-      <div className="text-center animate-fade-in" style={{ padding: '2rem 1rem' }}>
-        <h1 className="logo mb-4 text-4xl md:text-6xl" style={{ lineHeight: 1.2 }}>
+      <div className="text-center animate-fade-in glass-panel mx-auto" style={{ padding: '2.5rem 2rem', maxWidth: '900px', width: '90%' }}>
+        <h1 className="logo mb-4 text-4xl md:text-6xl" style={{ lineHeight: 1.3 }}>
           Dự Đoán World Cup 2026
         </h1>
-        <p style={{ fontSize: '1.1rem', color: '#a3a3a3', maxWidth: '600px', margin: '0 auto' }}>
-          Chào mừng trở lại, <span style={{ color: '#fff', fontWeight: 'bold' }}>{isGuest ? 'Khách Tham Quan' : user.user_metadata?.display_name}</span>! Hãy bắt đầu dự đoán các trận đấu bên dưới.
+        <p style={{ fontSize: '1.2rem', color: '#e5e5e5', maxWidth: '700px', margin: '0 auto', lineHeight: 1.6 }}>
+          Chào mừng trở lại, <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>{isGuest ? 'Khách Tham Quan' : user.user_metadata?.display_name}</span>! Hãy bắt đầu dự đoán các trận đấu bên dưới.
         </p>
       </div>
 
