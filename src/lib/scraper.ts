@@ -217,6 +217,53 @@ ${text}
   }
 }
 
+// Hàm mới: Dùng AI để tìm ID trận đấu từ JSON của API khi string matching thất bại
+export async function findMatchWithGemini(homeTeam: string, awayTeam: string, apiFixtures: any[]): Promise<any | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  const simplifiedFixtures = apiFixtures.map(f => ({
+    id: f.fixture.id,
+    home: f.teams.home.name,
+    away: f.teams.away.name
+  }));
+
+  const prompt = `Bạn là chuyên gia bóng đá. Trong danh sách các trận đấu sau, trận nào là trận giữa "${homeTeam}" và "${awayTeam}"? (Chú ý các tên quốc gia có thể được viết bằng ngôn ngữ khác nhau, ví dụ: Séc = Czechia, Ma Rốc = Morocco, Bờ Biển Ngà = Ivory Coast, v.v...).
+  
+Danh sách:
+${JSON.stringify(simplifiedFixtures, null, 2)}
+
+Hãy trả về DUY NHẤT một JSON object có định dạng: { "id": <id trận đấu> }. Nếu không tìm thấy trận nào khớp, trả về { "id": null }. Không giải thích gì thêm.`;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1 }
+      })
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    const resultText = parts.map((p: any) => p.text).join('\n');
+    
+    const match = resultText.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    
+    const result = JSON.parse(match[0]);
+    if (result.id) {
+       return apiFixtures.find(f => f.fixture.id === result.id) || null;
+    }
+    return null;
+  } catch (err) {
+    console.error('Lỗi LLM tìm trận đấu:', err);
+    return null;
+  }
+}
+
 interface RssSourceResult {
   result: ScrapeResult;
   source: string;
@@ -352,8 +399,17 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
       return homeMatches && awayMatches;
     });
 
+    // CẢI TIẾN: Nếu text match thất bại, ném cho AI "hiểu"
+    if (!match) {
+      console.log(`[API-Football] ⚠️ Không tìm thấy trận ${homeTeam} vs ${awayTeam} bằng chữ. Đang nhờ AI "dò" trong danh sách...`);
+      match = await findMatchWithGemini(homeTeam, awayTeam, apiFixtures);
+      if (match) {
+        console.log(`[API-Football] 🧠 AI đã tìm thành công trận: ${match.teams.home.name} vs ${match.teams.away.name} (ID: ${match.fixture.id})`);
+      }
+    }
+
     if (match) {
-      console.log(`[API-Football] 🎯 Đã tìm thấy trận ${homeEn} vs ${awayEn} trong dữ liệu API! Trạng thái: ${match.fixture.status.short}`);
+      console.log(`[API-Football] 🎯 Đã xác định trận ${homeTeam} vs ${awayTeam} trong dữ liệu API! Trạng thái: ${match.fixture.status.short}`);
       const statusShort = match.fixture.status.short;
       
       let finalStatus: 'pending' | 'live' | 'finished' = 'pending';
@@ -396,7 +452,7 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
          console.log(`[API-Football] ⏳ Trận đấu chưa bắt đầu (Status: ${statusShort})`);
       }
     } else {
-      console.log(`[API-Football] ⚠️ Không tìm thấy trận ${homeEn} vs ${awayEn} trong danh sách API. Tiến hành Fallback sang AI + RSS...`);
+      console.log(`[API-Football] ⚠️ AI cũng không tìm thấy trận ${homeTeam} vs ${awayTeam}. Tiến hành Fallback sang RSS...`);
     }
   } else {
     console.log(`[API-Football] ⚠️ Dữ liệu API rỗng hoặc không khả dụng. Tiến hành Fallback sang AI + RSS...`);
