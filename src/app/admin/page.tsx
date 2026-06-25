@@ -9,7 +9,7 @@ import matchMapping from '@/data/matchMapping.json';
 
 type Team = { id: string; name: string; flag_url?: string; code?: string };
 type Match = { id: string; home_team: Team; away_team: Team; status: string; home_score: number; away_score: number; kickoff_time: string; round?: string; home_team_id: string; away_team_id: string };
-type UserProfile = { id: string; display_name: string; total_points: number; created_at: string };
+type UserProfile = { id: string; display_name: string; total_points: number; created_at: string; email?: string };
 
 export default function AdminPage() {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -556,6 +556,7 @@ export default function AdminPage() {
                 <div key={u.id} className="flex justify-between items-center p-4" style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
                   <div>
                     <div className="font-bold text-lg">{u.display_name}</div>
+                    <div style={{ fontSize: '0.875rem', opacity: 0.8, color: '#a3a3a3', marginBottom: '0.25rem' }}>Account gốc: <span style={{ color: '#00d2ff' }}>{u.email}</span></div>
                     <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>Điểm: {u.total_points} - Tham gia: {new Date(u.created_at).toLocaleDateString('vi-VN')}</div>
                   </div>
                   <div className="flex gap-2">

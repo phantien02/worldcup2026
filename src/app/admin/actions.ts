@@ -113,8 +113,19 @@ export async function rejectPasswordRequest(requestId: string) {
 
 export async function getAllUsers() {
   await verifyAdmin();
-  const { data } = await supabaseAdmin.from('profiles').select('id, display_name, total_points, created_at').order('display_name');
-  return (data || []).filter(u => u.display_name !== 'guest');
+  const { data: profiles } = await supabaseAdmin.from('profiles').select('id, display_name, total_points, created_at').order('display_name');
+  
+  const { data: { users } } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+  
+  const enrichedProfiles = (profiles || []).map(p => {
+    const authUser = users.find(u => u.id === p.id);
+    return {
+      ...p,
+      email: authUser?.email || 'N/A'
+    };
+  });
+  
+  return enrichedProfiles.filter(u => u.display_name !== 'guest');
 }
 
 export async function deleteUserAccount(userId: string) {
