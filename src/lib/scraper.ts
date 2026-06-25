@@ -79,7 +79,7 @@ const teamNameMap: Record<string, string> = {
   'Canada': 'Canada', 'Mỹ': 'USA',
   'Nigeria': 'Nigeria', 'Cameroon': 'Cameroon',
   'Ai Cập': 'Egypt', 'Ghana': 'Ghana', 'Senegal': 'Senegal',
-  'Morocco': 'Morocco', 'Tunisia': 'Tunisia', 'Algeria': 'Algeria',
+  'Morocco': 'Morocco', 'Morrocco': 'Morocco', 'Ma Rốc': 'Morocco', 'Ma-rốc': 'Morocco', 'Maroc': 'Morocco', 'Tunisia': 'Tunisia', 'Algeria': 'Algeria',
   'Nam Phi': 'South Africa', 'Bờ Biển Ngà': 'Ivory Coast',
   'CHDC Congo': 'DR Congo', 'Congo DR': 'DR Congo',
   'Mali': 'Mali', 'Burkina Faso': 'Burkina Faso',
@@ -105,7 +105,10 @@ const apiAliasMap: Record<string, string[]> = {
   'Séc': ['Czech Republic', 'Czechia'],
   'Thổ Nhĩ Kỳ': ['Turkey', 'Türkiye'],
   'CH Ireland': ['Republic of Ireland', 'Ireland'],
-  'Bắc Macedonia': ['North Macedonia', 'Macedonia']
+  'Bắc Macedonia': ['North Macedonia', 'Macedonia'],
+  'Morocco': ['Morocco', 'Morrocco', 'Ma Rốc', 'Ma-rốc', 'Maroc'],
+  'Ma Rốc': ['Morocco', 'Morrocco', 'Ma Rốc', 'Ma-rốc', 'Maroc'],
+  'Haiti': ['Haiti', 'Haití']
 };
 
 function getApiAliases(viName: string, enName: string): string[] {
