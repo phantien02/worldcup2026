@@ -63,6 +63,7 @@ const teamNameMap: Record<string, string> = {
   'Ba Lan': 'Poland', 'Thổ Nhĩ Kỳ': 'Turkey', 'Đan Mạch': 'Denmark',
   'Thụy Điển': 'Sweden', 'Na Uy': 'Norway', 'Phần Lan': 'Finland',
   'Áo': 'Austria', 'Hy Lạp': 'Greece', 'Serbia': 'Serbia',
+  'Séc': 'Czech Republic', 'Cộng hòa Séc': 'Czech Republic',
   'Nhật Bản': 'Japan', 'Hàn Quốc': 'South Korea',
   'Úc': 'Australia', 'Ả Rập Xê Út': 'Saudi Arabia',
   'Iran': 'Iran', 'Iraq': 'Iraq',
@@ -101,6 +102,7 @@ const apiAliasMap: Record<string, string[]> = {
   'Iran': ['Iran', 'IR Iran', 'Islamic Republic of Iran'],
   'Bosnia': ['Bosnia', 'Bosnia and Herzegovina', 'Bosnia & Herzegovina'],
   'Cộng hòa Séc': ['Czech Republic', 'Czechia'],
+  'Séc': ['Czech Republic', 'Czechia'],
   'Thổ Nhĩ Kỳ': ['Turkey', 'Türkiye'],
   'CH Ireland': ['Republic of Ireland', 'Ireland'],
   'Bắc Macedonia': ['North Macedonia', 'Macedonia']
