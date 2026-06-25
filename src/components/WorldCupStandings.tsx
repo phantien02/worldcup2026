@@ -176,7 +176,22 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
                 <tbody>
                   {group.teams.map((team, idx) => (
                     <tr key={team.name} className="hover-card" style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', transition: 'background-color 0.2s' }}>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', fontWeight: 'bold', color: '#a0a0a0' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', fontWeight: 'bold' }}>
+                        <div style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto',
+                          backgroundColor: idx <= 1 ? '#10b981' : idx === 2 ? '#fbbf24' : '#ef4444',
+                          color: idx === 2 ? '#000' : '#fff',
+                          fontSize: '0.85rem'
+                        }}>
+                          {idx + 1}
+                        </div>
+                      </td>
                       <td style={{ padding: '0.75rem 1rem', fontWeight: '600', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         {team.flag_url ? (
                           <img src={team.flag_url} alt={team.name} style={{ width: '28px', height: '20px', objectFit: 'cover', borderRadius: '2px', border: '1px solid rgba(255,255,255,0.1)' }} />
