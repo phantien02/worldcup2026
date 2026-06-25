@@ -148,18 +148,72 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
   const teamColors = useMemo(() => {
     const colors: Record<string, Record<string, string>> = {};
     
-    const allGroupMatches = matches.filter(m => m.round?.startsWith('Bảng'));
-    const isGroupStageComplete = allGroupMatches.length > 0 && allGroupMatches.every(m => m.status === 'finished');
-
-    const thirdPlacedTeams = sortedGroups.map(g => g.teams[2]).filter(Boolean);
-    const sortedThirdPlaces = [...thirdPlacedTeams].sort((a, b) => {
-      if (a.pts !== b.pts) return b.pts - a.pts;
-      const gdA = a.gf - a.ga; const gdB = b.gf - b.ga;
-      if (gdA !== gdB) return gdB - gdA;
-      if (a.gf !== b.gf) return b.gf - a.gf;
-      return a.name.localeCompare(b.name);
+    type GroupSummary = {
+      isFinished: boolean;
+      t3_pts: number; t3_gd: number; t3_gf: number;
+      max_pts3: number; min_pts3: number;
+    };
+    const groupSummaries: Record<string, GroupSummary> = {};
+    
+    sortedGroups.forEach(group => {
+      const groupMatches = matches.filter(m => m.round === group.name);
+      const pendingMatches = groupMatches.filter(m => m.status !== 'finished');
+      
+      if (pendingMatches.length === 0) {
+        const t3 = group.teams[2]; // 3rd placed team
+        groupSummaries[group.name] = {
+          isFinished: true,
+          t3_pts: t3 ? t3.pts : 0,
+          t3_gd: t3 ? (t3.gf - t3.ga) : 0,
+          t3_gf: t3 ? t3.gf : 0,
+          max_pts3: t3 ? t3.pts : 0,
+          min_pts3: t3 ? t3.pts : 0,
+        };
+      } else {
+        const scenarios: Record<string, string>[] = [];
+        const generateScenarios = (matchIdx: number, currentOutcomes: Record<string, string>) => {
+          if (matchIdx === pendingMatches.length) {
+            scenarios.push(currentOutcomes);
+            return;
+          }
+          const match = pendingMatches[matchIdx];
+          if (!match.home_team?.name || !match.away_team?.name) {
+            generateScenarios(matchIdx + 1, currentOutcomes);
+            return;
+          }
+          generateScenarios(matchIdx + 1, { ...currentOutcomes, [match.id]: '1' });
+          generateScenarios(matchIdx + 1, { ...currentOutcomes, [match.id]: 'X' });
+          generateScenarios(matchIdx + 1, { ...currentOutcomes, [match.id]: '2' });
+        };
+        generateScenarios(0, {});
+        
+        let max_pts3 = -1;
+        let min_pts3 = 999;
+        
+        scenarios.forEach(outcomes => {
+          const pts: Record<string, number> = {};
+          group.teams.forEach(t => pts[t.name] = t.pts);
+          pendingMatches.forEach(m => {
+            const h = m.home_team!.name;
+            const a = m.away_team!.name;
+            const outcome = outcomes[m.id];
+            if (outcome === '1') pts[h] += 3;
+            else if (outcome === '2') pts[a] += 3;
+            else { pts[h] += 1; pts[a] += 1; }
+          });
+          const sortedPts = Object.values(pts).sort((a, b) => b - a);
+          const p3 = sortedPts[2] || 0;
+          if (p3 > max_pts3) max_pts3 = p3;
+          if (p3 < min_pts3) min_pts3 = p3;
+        });
+        
+        groupSummaries[group.name] = {
+          isFinished: false,
+          t3_pts: 0, t3_gd: 0, t3_gf: 0,
+          max_pts3, min_pts3
+        };
+      }
     });
-    const top8ThirdPlacesNames = sortedThirdPlaces.slice(0, 8).map(t => t.name);
 
     sortedGroups.forEach(group => {
       colors[group.name] = {};
@@ -171,10 +225,35 @@ export default function WorldCupStandings({ matches }: { matches: any[] }) {
           if (idx === 0 || idx === 1) colors[group.name][team.name] = '#10b981';
           else if (idx === 3) colors[group.name][team.name] = '#ef4444';
           else {
-            if (isGroupStageComplete) {
-              colors[group.name][team.name] = top8ThirdPlacesNames.includes(team.name) ? '#10b981' : '#ef4444';
+            const R = { pts: team.pts, gd: team.gf - team.ga, gf: team.gf };
+            let canPossiblyBeatCount = 0;
+            let definitivelyBeatsCount = 0;
+            
+            Object.keys(groupSummaries).forEach(gName => {
+               if (gName === group.name) return;
+               const G = groupSummaries[gName];
+               
+               if (G.isFinished) {
+                  if (G.t3_pts > R.pts) { canPossiblyBeatCount++; definitivelyBeatsCount++; }
+                  else if (G.t3_pts === R.pts) {
+                     if (G.t3_gd > R.gd) { canPossiblyBeatCount++; definitivelyBeatsCount++; }
+                     else if (G.t3_gd === R.gd) {
+                        if (G.t3_gf > R.gf) { canPossiblyBeatCount++; definitivelyBeatsCount++; }
+                        else if (G.t3_gf === R.gf) { canPossiblyBeatCount++; }
+                     }
+                  }
+               } else {
+                  if (G.max_pts3 >= R.pts) canPossiblyBeatCount++;
+                  if (G.min_pts3 > R.pts) definitivelyBeatsCount++;
+               }
+            });
+            
+            if (canPossiblyBeatCount <= 7) {
+               colors[group.name][team.name] = '#10b981'; // GUARANTEED Top 8
+            } else if (definitivelyBeatsCount >= 8) {
+               colors[group.name][team.name] = '#ef4444'; // GUARANTEED Eliminated
             } else {
-              colors[group.name][team.name] = '#fbbf24';
+               colors[group.name][team.name] = '#fbbf24'; // Uncertain
             }
           }
         });
