@@ -580,7 +580,7 @@ export default function HomePage() {
 
               <h3 className="font-bold text-white text-2xl mt-4 mb-2 text-center" style={{ color: '#ff9900' }}>Ví dụ minh họa (Knock-out)</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00ff87' }}>
                   <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Thắng tuyệt đối lớn</h4>
                   <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng Đội B 2-1 (trong 120 phút)</p>
@@ -633,16 +633,6 @@ export default function HomePage() {
                   <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#8b5cf6', fontSize: '1.125rem' }}>1 điểm</span></div>
                 </div>
 
-                <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #ec4899' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 5: Không dự đoán tỷ số (Bỏ trống)</h4>
-                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Hòa 1-1, Đội A thắng Luân lưu</p>
-                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A đi tiếp (không mạo hiểm), để trống tỷ số</p>
-                  <ul className="text-sm space-y-1">
-                    <li>Đúng đội đi tiếp: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
-                    <li>Các mục liên quan tới tỷ số: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
-                  </ul>
-                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ec4899', fontSize: '1.125rem' }}>10 điểm</span></div>
-                </div>
               </div>
 
             </div>

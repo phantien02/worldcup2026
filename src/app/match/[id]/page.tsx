@@ -241,14 +241,25 @@ export default function MatchPage() {
       payload.advancing_team_id = advancingTeamId;
       
       const hasScore = myPrediction.home !== '' && myPrediction.away !== '';
-      if (myPrediction.home !== '' || myPrediction.away !== '') {
-        if (!hasScore) {
-          setMessage({ text: 'Vui lòng nhập đầy đủ tỷ số cả 2 đội hoặc để trống cả hai!', type: 'danger' });
-          return;
-        }
+      if (!hasScore) {
+        setMessage({ text: 'Vui lòng nhập đầy đủ tỷ số trong 120 phút!', type: 'danger' });
+        return;
       }
-      payload.home_score = hasScore ? Number(myPrediction.home) : null;
-      payload.away_score = hasScore ? Number(myPrediction.away) : null;
+
+      const h = Number(myPrediction.home);
+      const a = Number(myPrediction.away);
+      
+      if (advancingTeamId === match.home_team_id && h < a) {
+        setMessage({ text: 'Tỷ số không hợp lý! Bạn chọn Đội nhà đi tiếp thì tỷ số Đội nhà không thể nhỏ hơn Đội khách.', type: 'danger' });
+        return;
+      }
+      if (advancingTeamId === match.away_team_id && a < h) {
+        setMessage({ text: 'Tỷ số không hợp lý! Bạn chọn Đội khách đi tiếp thì tỷ số Đội khách không thể nhỏ hơn Đội nhà.', type: 'danger' });
+        return;
+      }
+      
+      payload.home_score = h;
+      payload.away_score = a;
     } else {
       if (!resultChoice) {
         setMessage({ text: 'Vui lòng chọn kết quả Thắng/Hòa/Thua!', type: 'danger' });
@@ -512,7 +523,7 @@ export default function MatchPage() {
                   
                   <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <label style={{ display: 'block', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '1rem' }}>
-                      2. Dự đoán Tỷ số (trong 120 phút)
+                      2. Dự đoán Tỷ số (trong 120 phút) (Bắt buộc)
                     </label>
                     
                     <div className="flex justify-center items-center gap-4 mt-4">
