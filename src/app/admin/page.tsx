@@ -247,8 +247,8 @@ export default function AdminPage() {
   const getPredictionAnalysis = (points: number, isKnockout: boolean) => {
     if (points === 0) return "Sai";
     if (isKnockout) {
-      if (points === 15) return "Đúng đội đi tiếp & Hình thức";
-      if (points === 10) return "Chỉ đúng đội đi tiếp";
+      if (points >= 15) return "Đúng đội đi tiếp & Có điểm Tỷ số";
+      if (points >= 10) return "Đúng đội đi tiếp";
     } else {
       if (points === 8) return "Đúng tỷ số 100%";
       if (points === 6) return "Sai tỷ số, đúng hiệu số";
@@ -722,8 +722,9 @@ export default function AdminPage() {
                         let voteResult = "";
                         let predDetails = "";
                         if (isKnockout) {
-                          voteResult = p.prediction_result;
-                          predDetails = p.prediction_method === '90_mins' ? "90'" : p.prediction_method === 'extra_time' ? "120'" : "Pen";
+                          const advTeam = p.advancing_team_id === selectedMatchForPredictions.home_team_id ? selectedMatchForPredictions.home_team?.name : p.advancing_team_id === selectedMatchForPredictions.away_team_id ? selectedMatchForPredictions.away_team?.name : '';
+                          voteResult = `Đi tiếp: ${advTeam}`;
+                          predDetails = p.home_score !== null && p.away_score !== null ? `${p.home_score} - ${p.away_score}` : "Không dự đoán TS";
                         } else {
                           if (p.home_score > p.away_score) voteResult = `${selectedMatchForPredictions.home_team?.name} thắng`;
                           else if (p.home_score < p.away_score) voteResult = `${selectedMatchForPredictions.away_team?.name} thắng`;

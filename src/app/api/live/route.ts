@@ -107,11 +107,21 @@ export async function GET() {
             // (Thực tế LLM có thể đọc được Penalty nếu cấu hình Prompt chi tiết hơn)
             let winMethod: any = '90_mins';
             let winnerId = undefined;
+            let penaltyHome = undefined;
+            let penaltyAway = undefined;
 
             if (isKnockout) {
-               // Đơn giản hóa: Đội nào điểm cao hơn thì thắng. Nếu hòa thì có thể là Penalty (tạm set theo tỷ số)
-               if (scrapeData.home_score! > scrapeData.away_score!) winnerId = m.home_team_id;
-               else if (scrapeData.away_score! > scrapeData.home_score!) winnerId = m.away_team_id;
+               if (scrapeData.events?.shootout) {
+                 winMethod = 'penalties';
+                 penaltyHome = scrapeData.events.shootout.home_score;
+                 penaltyAway = scrapeData.events.shootout.away_score;
+                 winnerId = penaltyHome > penaltyAway ? m.home_team_id : m.away_team_id;
+               } else if (scrapeData.home_score !== scrapeData.away_score) {
+                 winnerId = scrapeData.home_score! > scrapeData.away_score! ? m.home_team_id : m.away_team_id;
+                 // Note: we can't tell easily between 90_mins and extra_time just from scores if we only have the final, but API has match_time!
+                 if (scrapeData.match_time === 'AET') winMethod = 'extra_time';
+                 else winMethod = '90_mins';
+               }
             }
 
             await internalUpdateMatchResult(
@@ -121,10 +131,10 @@ export async function GET() {
               isKnockout,
               winnerId,
               winMethod,
-              scrapeData.home_score!, // Tỷ số 90 phút tạm bằng tỷ số chung cuộc
+              scrapeData.home_score!, // Tỷ số 90 phút tạm bằng tỷ số chung cuộc (vì ko có data 90p)
               scrapeData.away_score!,
-              undefined,
-              undefined,
+              penaltyHome,
+              penaltyAway,
               scrapeData.events
             );
             results.push({ match_id: m.id, action: 'finished_and_calculated' });

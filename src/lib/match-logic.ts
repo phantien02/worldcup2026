@@ -79,12 +79,9 @@ export async function internalUpdateMatchResult(
   for (const p of predictions) {
     let points = 0;
 
-    if (isKnockout && p.advancing_team_id) {
-      if (p.advancing_team_id === winnerId) {
+    if (isKnockout) {
+      if (p.advancing_team_id && p.advancing_team_id === winnerId) {
         points += 10; // Đoán đúng đội đi tiếp
-        if (p.predicted_win_method === winMethod) {
-          points += 5; // Đoán đúng hình thức phân định
-        }
 
         if (isNewRules) {
           // Điểm mạo hiểm Knockout (< 20%)
@@ -93,6 +90,21 @@ export async function internalUpdateMatchResult(
             points += 10;
           }
         }
+      }
+      
+      // Dự đoán tỷ số 120 phút độc lập
+      if (p.home_score !== null && p.away_score !== null) {
+        let scorePoints = 0;
+        if (p.home_score === homeScore && p.away_score === awayScore) {
+           scorePoints = 5; // Thưởng: Đúng phóc tỷ số 120 phút
+        } else if (p.home_score - p.away_score === homeScore - awayScore) {
+           scorePoints = 1; // Thưởng: Đoán sai tỷ số nhưng đúng hiệu số (120 phút)
+        }
+        
+        if (p.home_score === homeScore) scorePoints += 1;
+        if (p.away_score === awayScore) scorePoints += 1;
+        
+        points += scorePoints;
       }
     } else {
       // Vòng Bảng

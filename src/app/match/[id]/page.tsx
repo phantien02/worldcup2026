@@ -78,7 +78,7 @@ export default function MatchPage() {
       const { data: matchData } = await supabase
         .from('matches')
         .select(`
-          id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id, events, winner_id, win_method,
+          id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id, events, winner_id, win_method, penalty_home, penalty_away,
           home_team:home_team_id (name, flag_url),
           away_team:away_team_id (name, flag_url)
         `)
@@ -140,14 +140,14 @@ export default function MatchPage() {
               
               if (isKO) {
                 const isCorrectTeam = mine.advancing_team_id && matchData.winner_id && mine.advancing_team_id === matchData.winner_id;
-                const isCorrectMethod = mine.predicted_win_method && matchData.win_method && mine.predicted_win_method === matchData.win_method;
-                if (isCorrectTeam && isCorrectMethod) type = 'perfect';
+                const isExactScore = mine.home_score !== null && Number(mine.home_score) === Number(matchData.home_score) && Number(mine.away_score) === Number(matchData.away_score);
+                if (isCorrectTeam && isExactScore) type = 'perfect';
                 else if (isCorrectTeam) type = 'correct';
                 else type = 'wrong';
               } else {
-                const actualResult = matchData.home_score > matchData.away_score ? 'home_win' : matchData.home_score === matchData.away_score ? 'draw' : 'away_win';
+                const actualResult = Number(matchData.home_score) > Number(matchData.away_score) ? 'home_win' : Number(matchData.home_score) === Number(matchData.away_score) ? 'draw' : 'away_win';
                 const isCorrectResult = mine.prediction_result === actualResult;
-                const isExactScore = isCorrectResult && mine.home_score !== null && mine.home_score === matchData.home_score && mine.away_score === matchData.away_score;
+                const isExactScore = isCorrectResult && mine.home_score !== null && Number(mine.home_score) === Number(matchData.home_score) && Number(mine.away_score) === Number(matchData.away_score);
                 
                 if (isExactScore) type = 'perfect';
                 else if (isCorrectResult) type = 'correct';
@@ -238,12 +238,17 @@ export default function MatchPage() {
         setMessage({ text: 'Vui lòng chọn đội đi tiếp!', type: 'danger' });
         return;
       }
-      if (!predictedWinMethod) {
-        setMessage({ text: 'Vui lòng chọn hình thức đi tiếp!', type: 'danger' });
-        return;
-      }
       payload.advancing_team_id = advancingTeamId;
-      payload.predicted_win_method = predictedWinMethod;
+      
+      const hasScore = myPrediction.home !== '' && myPrediction.away !== '';
+      if (myPrediction.home !== '' || myPrediction.away !== '') {
+        if (!hasScore) {
+          setMessage({ text: 'Vui lòng nhập đầy đủ tỷ số cả 2 đội hoặc để trống cả hai!', type: 'danger' });
+          return;
+        }
+      }
+      payload.home_score = hasScore ? Number(myPrediction.home) : null;
+      payload.away_score = hasScore ? Number(myPrediction.away) : null;
     } else {
       if (!resultChoice) {
         setMessage({ text: 'Vui lòng chọn kết quả Thắng/Hòa/Thua!', type: 'danger' });
@@ -414,7 +419,16 @@ export default function MatchPage() {
           
           <div className="flex flex-col items-center justify-center" style={{ flexShrink: 0, padding: '0 0.5rem' }}>
             <div className="text-center" style={{ fontSize: match.status !== 'pending' ? '2.5rem' : '1.8rem', fontWeight: '900', background: 'var(--primary)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))', whiteSpace: 'nowrap' }}>
-              {match.status !== 'pending' ? `${match.home_score} - ${match.away_score}` : (new Date() >= new Date(match.kickoff_time) ? <div style={{ color: 'var(--danger)', fontSize: '1rem', textTransform: 'uppercase', lineHeight: '1.4', background: 'none', WebkitTextFillColor: 'initial' }}>Kết quả đang<br/>được cập nhật</div> : 'VS')}
+              {match.status !== 'pending' ? (
+                <div className="flex flex-col items-center">
+                  <span>{match.home_score} - {match.away_score}</span>
+                  {(match as any).penalty_home !== null && (match as any).penalty_away !== null && (
+                    <span style={{ fontSize: '1.2rem', color: 'var(--warning)', background: 'none', WebkitTextFillColor: 'var(--warning)', marginTop: '-5px' }}>
+                      (Pen: {(match as any).penalty_home}-{(match as any).penalty_away})
+                    </span>
+                  )}
+                </div>
+              ) : (new Date() >= new Date(match.kickoff_time) ? <div style={{ color: 'var(--danger)', fontSize: '1rem', textTransform: 'uppercase', lineHeight: '1.4', background: 'none', WebkitTextFillColor: 'initial' }}>Kết quả đang<br/>được cập nhật</div> : 'VS')}
             </div>
           </div>
 
@@ -452,9 +466,9 @@ export default function MatchPage() {
                    <div style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
                     {match.round === 'Chung kết' ? 'Đội vô địch:' : match.round === 'Tranh hạng ba' ? 'Đội chiến thắng:' : 'Đội đi tiếp:'} <strong style={{ color: 'var(--primary)', textTransform: 'uppercase' }}>{advancingTeamId === match.home_team_id ? match.home_team?.name : advancingTeamId === match.away_team_id ? match.away_team?.name : 'Chưa dự đoán'}</strong>
                   </div>
-                  {predictedWinMethod && (
+                  {myPrediction.home !== '' && (
                     <div style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
-                      Hình thức: <strong style={{ color: 'var(--warning)' }}>{predictedWinMethod === '90_mins' ? "Trong 90 Phút" : predictedWinMethod === 'extra_time' ? "Hiệp phụ" : "Luân lưu (Penalty)"}</strong>
+                      Tỷ số 120 phút: <strong style={{ color: 'var(--warning)' }}>{myPrediction.home} - {myPrediction.away}</strong>
                     </div>
                   )}
                 </div>
@@ -498,21 +512,25 @@ export default function MatchPage() {
                   
                   <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <label style={{ display: 'block', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '1rem' }}>
-                      2. Chọn hình thức phân định (Bắt buộc)
+                      2. Dự đoán Tỷ số trong 120 phút (Tùy chọn)
                     </label>
-                    <div className="flex flex-col gap-3">
-                      <label className="flex items-center gap-3 p-3 bg-black/20 rounded cursor-pointer border border-white/5 hover:border-white/20 transition-all">
-                        <input type="radio" name="winMethod" value="90_mins" checked={predictedWinMethod === '90_mins'} onChange={() => setPredictedWinMethod('90_mins')} className="w-5 h-5 accent-primary" />
-                        <span className="text-lg">Trong 90 Phút</span>
-                      </label>
-                      <label className="flex items-center gap-3 p-3 bg-black/20 rounded cursor-pointer border border-white/5 hover:border-white/20 transition-all">
-                        <input type="radio" name="winMethod" value="extra_time" checked={predictedWinMethod === 'extra_time'} onChange={() => setPredictedWinMethod('extra_time')} className="w-5 h-5 accent-primary" />
-                        <span className="text-lg">Hiệp phụ (120 Phút)</span>
-                      </label>
-                      <label className="flex items-center gap-3 p-3 bg-black/20 rounded cursor-pointer border border-white/5 hover:border-white/20 transition-all">
-                        <input type="radio" name="winMethod" value="penalties" checked={predictedWinMethod === 'penalties'} onChange={() => setPredictedWinMethod('penalties')} className="w-5 h-5 accent-primary" />
-                        <span className="text-lg">Luân lưu (Penalty)</span>
-                      </label>
+                    
+                    <div className="flex justify-center items-center gap-4 mt-4">
+                      <input 
+                        type="number" min="0" max="20" placeholder="-"
+                        value={myPrediction.home} 
+                        onChange={e => setMyPrediction({...myPrediction, home: e.target.value === '' ? '' : Number(e.target.value)})}
+                        className="appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none m-0"
+                        style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 'bold', background: 'rgba(255,255,255,0.1)', border: '2px solid rgba(255,255,255,0.2)', width: '90px', height: '90px', borderRadius: '16px', color: '#fff' }}
+                      />
+                      <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'rgba(255,255,255,0.5)' }}>-</span>
+                      <input 
+                        type="number" min="0" max="20" placeholder="-"
+                        value={myPrediction.away} 
+                        onChange={e => setMyPrediction({...myPrediction, away: e.target.value === '' ? '' : Number(e.target.value)})}
+                        className="appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none m-0"
+                        style={{ textAlign: 'center', fontSize: '2rem', fontWeight: 'bold', background: 'rgba(255,255,255,0.1)', border: '2px solid rgba(255,255,255,0.2)', width: '90px', height: '90px', borderRadius: '16px', color: '#fff' }}
+                      />
                     </div>
                   </div>
                 </>
@@ -663,31 +681,23 @@ export default function MatchPage() {
                 </div>
               </div>
 
-              <div>
-                <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--warning)' }}>Hình thức chiến thắng:</h4>
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-4">
-                    <div style={{ width: '80px', fontSize: '0.9rem' }}>90 Phút</div>
-                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ width: `${(statsKnockout.win90 / total) * 100}%`, background: '#3b82f6', height: '100%' }}></div>
-                    </div>
-                    <div style={{ width: '40px', textAlign: 'right', fontSize: '0.8rem' }}>{Math.round((statsKnockout.win90 / total) * 100)}%</div>
+              <div style={{ marginTop: '2rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <h4 style={{ fontWeight: 'bold', marginBottom: '1rem', color: 'var(--success)' }}>Top dự đoán tỷ số 120 phút:</h4>
+                {topScores.length > 0 ? (
+                  <div className="flex flex-col gap-3">
+                    {topScores.map(([score, count], i) => (
+                      <div key={score} className="flex items-center gap-4">
+                        <div style={{ width: '60px', fontWeight: 'bold', fontSize: '1.1rem', color: i === 0 ? 'var(--warning)' : 'white' }}>{score}</div>
+                        <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ width: `${(count / total) * 100}%`, background: i === 0 ? 'var(--warning)' : 'var(--primary)', height: '100%' }}></div>
+                        </div>
+                        <div style={{ width: '50px', textAlign: 'right', fontSize: '0.9rem', opacity: 0.8 }}>{Math.round((count / total) * 100)}%</div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div style={{ width: '80px', fontSize: '0.9rem' }}>Hiệp phụ</div>
-                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ width: `${(statsKnockout.win120 / total) * 100}%`, background: '#8b5cf6', height: '100%' }}></div>
-                    </div>
-                    <div style={{ width: '40px', textAlign: 'right', fontSize: '0.8rem' }}>{Math.round((statsKnockout.win120 / total) * 100)}%</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div style={{ width: '80px', fontSize: '0.9rem' }}>Luân lưu</div>
-                    <div style={{ flex: 1, background: 'rgba(0,0,0,0.3)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ width: `${(statsKnockout.winPen / total) * 100}%`, background: '#f59e0b', height: '100%' }}></div>
-                    </div>
-                    <div style={{ width: '40px', textAlign: 'right', fontSize: '0.8rem' }}>{Math.round((statsKnockout.winPen / total) * 100)}%</div>
-                  </div>
-                </div>
+                ) : (
+                  <div style={{ opacity: 0.7, fontStyle: 'italic', fontSize: '0.95rem' }}>Chưa có dự đoán tỷ số nào.</div>
+                )}
               </div>
             </div>
           )}
@@ -714,9 +724,9 @@ export default function MatchPage() {
                           <div style={{ fontWeight: 'bold', textTransform: 'uppercase', color: p.advancing_team_id === match.home_team_id ? 'var(--primary)' : 'var(--danger)' }}>
                             {p.advancing_team_id === match.home_team_id ? match.home_team?.name : match.away_team?.name}
                           </div>
-                          <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>
-                            {p.predicted_win_method === '90_mins' ? "Thắng trong 90'" : p.predicted_win_method === 'extra_time' ? "Thắng Hiệp phụ" : "Thắng Luân lưu"}
-                          </div>
+                          {p.home_score !== null && p.away_score !== null && (
+                            <div style={{ fontSize: '0.875rem', opacity: 0.8, marginTop: '0.25rem' }}>Tỷ số: {p.home_score} - {p.away_score}</div>
+                          )}
                         </>
                       )}
                     </div>
