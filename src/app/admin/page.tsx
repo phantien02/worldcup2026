@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { updateMatchResult, createMatch, createTeam, getPasswordRequests, resetUserPassword, rejectPasswordRequest, getAllUsers, deleteUserAccount, deleteMatchAdmin } from './actions';
 import matchMapping from '@/data/matchMapping.json';
+import { resolvePlaceholderTeam } from '@/utils/standings';
 
 type Team = { id: string; name: string; flag_url?: string; code?: string };
 type Match = { id: string; home_team: Team; away_team: Team; status: string; home_score: number; away_score: number; kickoff_time: string; round?: string; home_team_id: string; away_team_id: string };
@@ -450,7 +451,15 @@ export default function AdminPage() {
                   
                   {/* Các trận trong vòng */}
                   <div className="flex flex-col gap-2">
-                    {roundMatches.map((m) => (
+                    {roundMatches.map((m) => {
+                      const resolvedHome = resolvePlaceholderTeam(m.home_team?.name, matches);
+                      const resolvedAway = resolvePlaceholderTeam(m.away_team?.name, matches);
+                      const homeName = resolvedHome ? resolvedHome.name : m.home_team?.name;
+                      const awayName = resolvedAway ? resolvedAway.name : m.away_team?.name;
+                      const homeFlag = resolvedHome ? { ...m.home_team, flag_url: resolvedHome.flag_url } : m.home_team;
+                      const awayFlag = resolvedAway ? { ...m.away_team, flag_url: resolvedAway.flag_url } : m.away_team;
+                      
+                      return (
                       <div key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '12px 0' }}>
 
                           <form onSubmit={(e: any) => { 
@@ -489,8 +498,8 @@ export default function AdminPage() {
                             {/* Center: Match Data */}
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '70%', gap: '1rem' }}>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '35%', gap: '0.5rem' }}>
-                                <span style={{ color: 'white', fontWeight: 'bold', textAlign: 'right', fontSize: '15px' }}>{m.home_team?.name}</span>
-                                {renderFlag(m.home_team)}
+                                <span style={{ color: 'white', fontWeight: 'bold', textAlign: 'right', fontSize: '15px' }}>{homeName}</span>
+                                {renderFlag(homeFlag)}
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                                 <input name="home" type="number" min="0" required placeholder="" defaultValue={m.home_score ?? ''} style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#9ca3af', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', outline: 'none' }} />
@@ -498,8 +507,8 @@ export default function AdminPage() {
                                 <input name="away" type="number" min="0" required placeholder="" defaultValue={m.away_score ?? ''} style={{ width: '120px', height: '40px', backgroundColor: '#0a0a0c', border: '1px solid #222', borderRadius: '12px', color: '#9ca3af', textAlign: 'center', fontSize: '16px', fontWeight: 'bold', outline: 'none' }} />
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: '35%', gap: '0.5rem' }}>
-                                {renderFlag(m.away_team)}
-                                <span style={{ color: 'white', fontWeight: 'bold', textAlign: 'left', fontSize: '15px' }}>{m.away_team?.name}</span>
+                                {renderFlag(awayFlag)}
+                                <span style={{ color: 'white', fontWeight: 'bold', textAlign: 'left', fontSize: '15px' }}>{awayName}</span>
                               </div>
                             </div>
                           
@@ -723,7 +732,7 @@ export default function AdminPage() {
                         let predDetails = "";
                         if (isKnockout) {
                           const advTeam = p.advancing_team_id === selectedMatchForPredictions.home_team_id ? selectedMatchForPredictions.home_team?.name : p.advancing_team_id === selectedMatchForPredictions.away_team_id ? selectedMatchForPredictions.away_team?.name : '';
-                          voteResult = `Đi tiếp: ${advTeam}`;
+                          voteResult = advTeam ? `Đi tiếp: ${advTeam}` : '';
                           predDetails = p.home_score !== null && p.away_score !== null ? `${p.home_score} - ${p.away_score}` : "Không dự đoán TS";
                         } else {
                           if (p.home_score > p.away_score) voteResult = `${selectedMatchForPredictions.home_team?.name} thắng`;
@@ -792,7 +801,9 @@ export default function AdminPage() {
                             {!p ? (
                               <span style={{ color: '#4b5563', fontStyle: 'italic' }}>-</span>
                             ) : isKnockout ? (
-                              <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>{p.prediction_result}</span>
+                              <span style={{ color: '#00d2ff', fontWeight: 'bold' }}>
+                                {p.advancing_team_id === selectedMatchForPredictions.home_team_id ? resolvePlaceholderTeam(selectedMatchForPredictions.home_team?.name, matches)?.name || selectedMatchForPredictions.home_team?.name : p.advancing_team_id === selectedMatchForPredictions.away_team_id ? resolvePlaceholderTeam(selectedMatchForPredictions.away_team?.name, matches)?.name || selectedMatchForPredictions.away_team?.name : ''}
+                              </span>
                             ) : (
                               <span style={{ color: p.home_score > p.away_score ? '#00d2ff' : p.home_score < p.away_score ? '#ff004c' : '#ffcc00', fontWeight: 'bold' }}>
                                 {p.home_score > p.away_score ? `${selectedMatchForPredictions.home_team?.name} thắng` : p.home_score < p.away_score ? `${selectedMatchForPredictions.away_team?.name} thắng` : 'Hòa'}
@@ -803,7 +814,7 @@ export default function AdminPage() {
                             {!p ? (
                               <span style={{ color: '#4b5563', fontStyle: 'italic' }}>Chưa dự đoán</span>
                             ) : isKnockout ? (
-                              <div style={{ color: '#22d3ee', fontWeight: 'bold' }}>{p.prediction_result} <span style={{ color: '#9ca3af', fontWeight: 'normal', fontSize: '0.75rem', marginLeft: '0.25rem' }}>({p.prediction_method === '90_mins' ? "90'" : p.prediction_method === 'extra_time' ? "120'" : "Pen"})</span></div>
+                              <div style={{ color: '#22d3ee', fontWeight: 'bold' }}>{p.home_score !== null && p.away_score !== null ? `${p.home_score} - ${p.away_score}` : <span style={{color: '#6b7280', fontSize: '0.85rem'}}>Không đoán TS</span>}</div>
                             ) : (
                               <div style={{ color: '#22d3ee', fontWeight: 'bold', fontSize: '1.125rem', letterSpacing: '0.1em' }}>{p.home_score} - {p.away_score}</div>
                             )}
