@@ -456,8 +456,8 @@ export default function AdminPage() {
                       const resolvedAway = resolvePlaceholderTeam(m.away_team?.name, matches);
                       const homeName = resolvedHome ? resolvedHome.name : m.home_team?.name;
                       const awayName = resolvedAway ? resolvedAway.name : m.away_team?.name;
-                      const homeFlag = resolvedHome ? { ...m.home_team, flag_url: resolvedHome.flag_url } : m.home_team;
-                      const awayFlag = resolvedAway ? { ...m.away_team, flag_url: resolvedAway.flag_url } : m.away_team;
+                      const homeFlag = resolvedHome ? { ...m.home_team, name: resolvedHome.name, flag_url: resolvedHome.flag_url } : m.home_team;
+                      const awayFlag = resolvedAway ? { ...m.away_team, name: resolvedAway.name, flag_url: resolvedAway.flag_url } : m.away_team;
                       
                       return (
                       <div key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '12px 0' }}>
