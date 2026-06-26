@@ -250,11 +250,11 @@ export default function MatchPage() {
       const a = Number(myPrediction.away);
       
       if (advancingTeamId === match.home_team_id && h < a) {
-        setMessage({ text: 'Tỷ số không hợp lý! Bạn chọn Đội nhà đi tiếp thì tỷ số Đội nhà không thể nhỏ hơn Đội khách.', type: 'danger' });
+        setMessage({ text: 'Tỷ số không hợp lệ! Vui lòng chọn lại.', type: 'danger' });
         return;
       }
       if (advancingTeamId === match.away_team_id && a < h) {
-        setMessage({ text: 'Tỷ số không hợp lý! Bạn chọn Đội khách đi tiếp thì tỷ số Đội khách không thể nhỏ hơn Đội nhà.', type: 'danger' });
+        setMessage({ text: 'Tỷ số không hợp lệ! Vui lòng chọn lại.', type: 'danger' });
         return;
       }
       
