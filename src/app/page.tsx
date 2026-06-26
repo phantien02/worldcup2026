@@ -580,7 +580,7 @@ export default function HomePage() {
 
               <h3 className="font-bold text-white text-2xl mt-4 mb-2 text-center" style={{ color: '#ff9900' }}>Ví dụ minh họa (Knock-out)</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00ff87' }}>
                   <h4 className="font-bold text-white text-lg mb-2">TH1: Hoàn hảo (Trúng Jackpot)</h4>
                   <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: A thắng B 2-1 (120 phút)</p>
@@ -646,7 +646,7 @@ export default function HomePage() {
                 </div>
 
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #ef4444' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">TH6: Sai đội (Vớt vát tỷ số hoà)</h4>
+                  <h4 className="font-bold text-white text-lg mb-2">TH6: Sai đội (Vớt vát tỷ số)</h4>
                   <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Hoà 1-1, A thắng luân lưu</p>
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: B đi tiếp, tỷ số 1-1</p>
                   <ul className="text-sm space-y-1">
@@ -655,6 +655,31 @@ export default function HomePage() {
                     <li>Đúng số bàn 2 đội (1+1): <strong style={{ color: '#00ff87' }}>+2 điểm</strong></li>
                   </ul>
                   <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#ef4444', fontSize: '1.125rem' }}>7 điểm</span></div>
+                </div>
+
+                <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #94a3b8' }}>
+                  <h4 className="font-bold text-white text-lg mb-2">TH7: Sai đội, Trúng 1 bàn (An ủi)</h4>
+                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: A thắng B 2-1</p>
+                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: B đi tiếp, tỷ số 0-1</p>
+                  <ul className="text-sm space-y-1">
+                    <li>Sai đội đi tiếp: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
+                    <li>Sai tỷ số, sai hiệu số: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
+                    <li>Đúng số bàn Đội B (1 bàn): <strong style={{ color: '#00ff87' }}>+1 điểm</strong></li>
+                    <li>Sai số bàn Đội A: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
+                  </ul>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#94a3b8', fontSize: '1.125rem' }}>1 điểm</span></div>
+                </div>
+
+                <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #475569' }}>
+                  <h4 className="font-bold text-white text-lg mb-2">TH8: Trắng tay toàn tập</h4>
+                  <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: A thắng B 2-0</p>
+                  <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: B đi tiếp, tỷ số 1-2</p>
+                  <ul className="text-sm space-y-1">
+                    <li>Sai đội đi tiếp: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
+                    <li>Sai tỷ số, sai hiệu số: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
+                    <li>Sai bàn Đội A & Đội B: <strong style={{ color: '#ff004c' }}>+0 điểm</strong></li>
+                  </ul>
+                  <div className="mt-2 pt-2 border-t border-gray-700 font-bold text-white">Tổng cộng: <span style={{ color: '#475569', fontSize: '1.125rem' }}>0 điểm</span></div>
                 </div>
               </div>
 
