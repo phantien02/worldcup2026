@@ -499,13 +499,13 @@ export default function MatchPage() {
                         style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
                           background: advancingTeamId === match.home_team_id ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
                           boxShadow: advancingTeamId === match.home_team_id ? '0 0 15px var(--primary)' : 'none', color: '#fff' }}>
-                        {match.home_team?.name}
+                        {home.name}
                       </button>
                       <button type="button" onClick={() => setAdvancingTeamId(match.away_team_id)} 
                         style={{ padding: '1rem', borderRadius: '12px', fontWeight: 'bold', transition: 'all 0.2s', border: '1px solid rgba(255,255,255,0.1)',
                           background: advancingTeamId === match.away_team_id ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
                           boxShadow: advancingTeamId === match.away_team_id ? '0 0 15px var(--primary)' : 'none', color: '#fff' }}>
-                        {match.away_team?.name}
+                        {away.name}
                       </button>
                     </div>
                   </div>
