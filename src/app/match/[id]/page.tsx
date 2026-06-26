@@ -78,7 +78,7 @@ export default function MatchPage() {
       const { data: matchData } = await supabase
         .from('matches')
         .select(`
-          id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id, events,
+          id, kickoff_time, status, home_score, away_score, round, home_team_id, away_team_id, events, winner_id, win_method,
           home_team:home_team_id (name, flag_url),
           away_team:away_team_id (name, flag_url)
         `)
@@ -134,9 +134,25 @@ export default function MatchPage() {
             
             if (matchData?.status === 'finished' && mine.points_earned !== null) {
               let type: 'perfect' | 'correct' | 'wrong' | null = null;
-              if (mine.points_earned === 8 || mine.points_earned === 15) type = 'perfect';
-              else if (mine.points_earned === 5 || mine.points_earned === 6 || mine.points_earned === 10) type = 'correct';
-              else type = 'wrong';
+              
+              const knockoutRoundsList = ['Vòng 32 đội', 'Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Chung kết'];
+              const isKO = knockoutRoundsList.includes(matchData.round || '');
+              
+              if (isKO) {
+                const isCorrectTeam = mine.advancing_team_id && matchData.winner_id && mine.advancing_team_id === matchData.winner_id;
+                const isCorrectMethod = mine.predicted_win_method && matchData.win_method && mine.predicted_win_method === matchData.win_method;
+                if (isCorrectTeam && isCorrectMethod) type = 'perfect';
+                else if (isCorrectTeam) type = 'correct';
+                else type = 'wrong';
+              } else {
+                const actualResult = matchData.home_score > matchData.away_score ? 'home_win' : matchData.home_score === matchData.away_score ? 'draw' : 'away_win';
+                const isCorrectResult = mine.prediction_result === actualResult;
+                const isExactScore = isCorrectResult && mine.home_score !== null && mine.home_score === matchData.home_score && mine.away_score === matchData.away_score;
+                
+                if (isExactScore) type = 'perfect';
+                else if (isCorrectResult) type = 'correct';
+                else type = 'wrong';
+              }
               
               setPopupType(type);
               setShowResultPopup(true);
