@@ -492,7 +492,7 @@ export default function MatchPage() {
                 <>
                   <div>
                     <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                      1. {match.round === 'Chung kết' ? 'Chọn Đội vô địch' : match.round === 'Tranh hạng ba' ? 'Chọn Đội chiến thắng' : 'Chọn Đội đi tiếp'} (Bắt buộc)
+                      1. {match.round === 'Chung kết' ? 'Chọn Đội vô địch' : match.round === 'Tranh hạng ba' ? 'Chọn Đội chiến thắng' : 'Chọn Đội đi tiếp'}
                     </label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <button type="button" onClick={() => setAdvancingTeamId(match.home_team_id)} 
@@ -512,7 +512,7 @@ export default function MatchPage() {
                   
                   <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <label style={{ display: 'block', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '1rem' }}>
-                      2. Dự đoán Tỷ số trong 120 phút (Tùy chọn)
+                      2. Dự đoán Tỷ số (trong 120 phút)
                     </label>
                     
                     <div className="flex justify-center items-center gap-4 mt-4">
