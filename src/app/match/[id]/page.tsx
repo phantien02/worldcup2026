@@ -249,11 +249,11 @@ export default function MatchPage() {
       const h = Number(myPrediction.home);
       const a = Number(myPrediction.away);
       
-      if (advancingTeamId === match.home_team_id && h < a) {
+      if (advancingTeamId === match?.home_team_id && h < a) {
         setMessage({ text: 'Tỷ số không hợp lệ! Vui lòng chọn lại.', type: 'danger' });
         return;
       }
-      if (advancingTeamId === match.away_team_id && a < h) {
+      if (advancingTeamId === match?.away_team_id && a < h) {
         setMessage({ text: 'Tỷ số không hợp lệ! Vui lòng chọn lại.', type: 'danger' });
         return;
       }
