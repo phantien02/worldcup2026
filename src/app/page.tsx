@@ -151,16 +151,21 @@ export default function HomePage() {
         });
         
         // Sort by status (unfinished first, finished last)
+        // For unfinished matches: chronological order (soonest first)
+        // For finished matches: reverse chronological order (most recently finished first)
         validMatches.sort((a: any, b: any) => {
           const aFinished = a.status === 'finished';
           const bFinished = b.status === 'finished';
           if (aFinished && !bFinished) return 1;
           if (!aFinished && bFinished) return -1;
           
+          const timeA = new Date(a.kickoff_time).getTime();
+          const timeB = new Date(b.kickoff_time).getTime();
+          
           if (aFinished && bFinished) {
-            return b.matchNumber - a.matchNumber; // Highest match number first for finished
+            return timeB - timeA; // Most recent first
           }
-          return a.matchNumber - b.matchNumber; // Lowest match number first for pending
+          return timeA - timeB; // Soonest first
         });
         
         setMatches(validMatches);
