@@ -94,6 +94,53 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
           </div>
         </div>
       </div>
+  const FinalMatchCard = ({ num }: { num: number }) => {
+    const m = matchMap.get(num);
+    
+    // Calculate if team is winner
+    const homeWon = m?.status === 'finished' && m.home_score !== null && m.away_score !== null && m.home_score > m.away_score;
+    const awayWon = m?.status === 'finished' && m.home_score !== null && m.away_score !== null && m.away_score > m.home_score;
+    
+    const home = getTeamInfo(m?.home_team);
+    const away = getTeamInfo(m?.away_team);
+
+    return (
+      <div className={styles.finalMatchWrapper}>
+        <div className={styles.finalMatchCard}>
+          <div className={styles.finalHeader}>
+            <div className={styles.trophyContainer}>
+              <div className={styles.trophyIcon}>🏆</div>
+            </div>
+            <div className={styles.finalTitle}>CHUNG KẾT</div>
+            {m ? <div className={styles.finalTime}>{formatTime(m.kickoff_time)}</div> : <div className={styles.finalTime}>Chưa có lịch</div>}
+          </div>
+          <div className={styles.finalBody}>
+            <div className={`${styles.finalTeam} ${homeWon ? styles.winner : ''}`}>
+              {home.flag ? (
+                <img src={home.flag} alt="flag" className={styles.finalFlag} />
+              ) : (
+                <div className={styles.finalFlagPlaceholder}></div>
+              )}
+              <span className={styles.finalTeamName}>{home.name}</span>
+            </div>
+            
+            <div className={styles.finalScoreBox}>
+              <span className={styles.finalScore}>{m?.status === 'finished' ? m.home_score : '-'}</span>
+              <span className={styles.finalScoreDivider}>:</span>
+              <span className={styles.finalScore}>{m?.status === 'finished' ? m.away_score : '-'}</span>
+            </div>
+            
+            <div className={`${styles.finalTeam} ${awayWon ? styles.winner : ''}`}>
+              <span className={styles.finalTeamName}>{away.name}</span>
+              {away.flag ? (
+                <img src={away.flag} alt="flag" className={styles.finalFlag} />
+              ) : (
+                <div className={styles.finalFlagPlaceholder}></div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -130,12 +177,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
 
         {/* CENTER FINAL */}
         <div className={styles.bracketCenter}>
-          <div className={styles.trophyContainer}>
-            <img src="/trophy.png" alt="World Cup Trophy" className={styles.trophyImage} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-            <div className={styles.trophyIcon}>🏆</div>
-          </div>
-          <div className={styles.finalLabel}>CHUNG KẾT</div>
-          <MatchCard num={104} />
+          <FinalMatchCard num={104} />
         </div>
 
         {/* RIGHT BRACKET */}

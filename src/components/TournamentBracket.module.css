@@ -65,22 +65,185 @@
   width: 100%;
 }
 
-/* Horizontal connectors */
-.bracketHalf > .round .matchWrapper::after {
+/* Horizontal and Vertical connectors (Bracket Tree) */
+.leftSide:nth-child(odd)::after {
   content: '';
   position: absolute;
+  right: -2rem;
   top: 50%;
   width: 2rem;
-  border-top: 2px solid rgba(255, 255, 255, 0.15);
+  height: 50%;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-right: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-right-radius: 6px;
   z-index: 1;
 }
 
-.leftSide::after {
+.leftSide:nth-child(even)::after {
+  content: '';
+  position: absolute;
   right: -2rem;
+  bottom: 50%;
+  width: 2rem;
+  height: 50%;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  border-right: 2px solid rgba(255, 255, 255, 0.4);
+  border-bottom-right-radius: 6px;
+  z-index: 1;
 }
 
-.rightSide::after {
+.rightSide:nth-child(odd)::after {
+  content: '';
+  position: absolute;
   left: -2rem;
+  top: 50%;
+  width: 2rem;
+  height: 50%;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-left: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-left-radius: 6px;
+  z-index: 1;
+}
+
+.rightSide:nth-child(even)::after {
+  content: '';
+  position: absolute;
+  left: -2rem;
+  bottom: 50%;
+  width: 2rem;
+  height: 50%;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  border-left: 2px solid rgba(255, 255, 255, 0.4);
+  border-bottom-left-radius: 6px;
+  z-index: 1;
+}
+
+/* Semifinal direct line to center */
+.round:last-child .leftSide::after {
+  height: 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-right: none;
+  border-bottom: none;
+  border-radius: 0;
+}
+
+.round:last-child .rightSide::after {
+  height: 0;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-left: none;
+  border-bottom: none;
+  border-radius: 0;
+}
+
+/* Final Match Card Styling */
+.finalMatchWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.finalMatchCard {
+  width: 100%;
+  background: rgba(30, 25, 0, 0.85);
+  border: 2px solid rgba(255, 215, 0, 0.5);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.15);
+  z-index: 2;
+}
+
+.finalHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.trophyContainer {
+  margin-bottom: 0.5rem;
+}
+
+.trophyIcon {
+  font-size: 3rem;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  animation: float 3s ease-in-out infinite;
+}
+
+.finalTitle {
+  font-weight: 900;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.2rem;
+}
+
+.finalTime {
+  font-size: 0.8rem;
+  color: #ccc;
+  margin-top: 0.2rem;
+}
+
+.finalBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.finalTeam {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.finalFlag {
+  width: 48px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.finalFlagPlaceholder {
+  width: 48px;
+  height: 32px;
+  background: #333;
+  border-radius: 4px;
+}
+
+.finalTeamName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+}
+
+.finalScoreBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0,0,0,0.6);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.finalScore {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.finalScoreDivider {
+  font-size: 1.2rem;
+  color: #888;
+}
+
+.finalTeam.winner .finalTeamName {
+  color: #ffd700;
 }
 
 .matchCard {
