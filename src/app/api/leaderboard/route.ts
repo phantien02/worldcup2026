@@ -130,12 +130,15 @@ export async function GET() {
       const label = `Trận ${matchIndex + 1}`;
 
       users.forEach(u => {
+        const hTeam: any = currentMatch.home_team;
+        const aTeam: any = currentMatch.away_team;
+        
         userPointsHistoryMap[u.id].push({
           date: label, // keep key as 'date' for frontend compatibility
           points: pointsEarnedInThisMatch[u.id],
           cumulativePoints: userStatsTracker[u.id].totalPts,
-          homeFlag: currentMatch.home_team?.flag_url,
-          awayFlag: currentMatch.away_team?.flag_url
+          homeFlag: Array.isArray(hTeam) ? hTeam[0]?.flag_url : hTeam?.flag_url,
+          awayFlag: Array.isArray(aTeam) ? aTeam[0]?.flag_url : aTeam?.flag_url
         });
       });
     });
