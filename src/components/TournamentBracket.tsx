@@ -162,8 +162,8 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
             <MatchCard num={75} />
             <MatchCard num={83} />
             <MatchCard num={84} />
-            <MatchCard num={81} />
             <MatchCard num={82} />
+            <MatchCard num={81} />
           </div>
           <div className={styles.round}>
             <MatchCard num={89} />
