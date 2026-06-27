@@ -876,16 +876,13 @@ export default function HomePage() {
                     <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 16px', borderRadius: '8px', boxShadow: '0 8px 16px rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
                       {chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag ? (
                         <div className="flex flex-col mb-3 pb-3 border-b border-white/10">
-                          <div className="text-gray-400 text-[11px] font-bold uppercase tracking-widest text-center mb-2.5">{label}</div>
-                          <div className="flex flex-col gap-2 ml-1">
-                            <div className="flex items-center gap-2.5">
-                              <img src={matchData.homeFlag} alt="home" className="w-[20px] h-[14px] object-cover rounded-[3px] shadow-sm opacity-90" />
-                              <span className="text-gray-100 text-[13px] font-semibold">{matchData.homeName}</span>
-                            </div>
-                            <div className="flex items-center gap-2.5">
-                              <img src={matchData.awayFlag} alt="away" className="w-[20px] h-[14px] object-cover rounded-[3px] shadow-sm opacity-90" />
-                              <span className="text-gray-100 text-[13px] font-semibold">{matchData.awayName}</span>
-                            </div>
+                          <div className="text-gray-400 text-[11px] font-bold uppercase tracking-widest text-center mb-2">{label}</div>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <img src={matchData.homeFlag} alt="home" style={{ width: '14px', height: '14px', objectFit: 'contain', display: 'inline-block' }} />
+                            <span className="text-gray-100 text-[13px] font-semibold">{matchData.homeName}</span>
+                            <span className="text-cyan-500 text-[10px] font-black italic mx-1 opacity-80">VS</span>
+                            <span className="text-gray-100 text-[13px] font-semibold">{matchData.awayName}</span>
+                            <img src={matchData.awayFlag} alt="away" style={{ width: '14px', height: '14px', objectFit: 'contain', display: 'inline-block' }} />
                           </div>
                         </div>
                       ) : (
