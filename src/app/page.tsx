@@ -842,11 +842,14 @@ export default function HomePage() {
               // Build Chart Data
               const datesMap = new Map();
               leaderboard.forEach(user => {
+                let prevCumulativePoints = 0;
                 user.rankHistory?.forEach((record: any) => {
                   if (!datesMap.has(record.date)) {
                     datesMap.set(record.date, { date: record.date });
                   }
-                  datesMap.get(record.date)[user.display_name] = chartType === 'points' ? record.points : record.rank;
+                  const dailyPoints = record.points - prevCumulativePoints;
+                  datesMap.get(record.date)[user.display_name] = chartType === 'points' ? dailyPoints : record.rank;
+                  prevCumulativePoints = record.points;
                 });
               });
               const chartData = Array.from(datesMap.values());
