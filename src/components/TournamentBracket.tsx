@@ -117,6 +117,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
               </div>
             )}
             <div className={isThirdPlace ? styles.thirdPlaceTitle : styles.finalTitle}>{title}</div>
+            {m ? <div className={styles.finalTime}>{formatTime(m.kickoff_time)}</div> : <div className={styles.finalTime}>Chưa có lịch</div>}
           </div>
           <div className={styles.finalBody}>
             <div className={`${styles.finalTeam} ${homeWon ? styles.winner : ''}`}>
@@ -128,13 +129,10 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
               <span className={styles.finalTeamName}>{home.name}</span>
             </div>
             
-            <div className={styles.finalCenterInfo}>
-              {m ? <div className={styles.finalTime}>{formatTime(m.kickoff_time)}</div> : <div className={styles.finalTime}>Chưa có lịch</div>}
-              <div className={styles.finalScoreBox}>
-                <span className={styles.finalScore}>{m?.status === 'finished' ? m.home_score : '-'}</span>
-                <span className={styles.finalScoreDivider}>:</span>
-                <span className={styles.finalScore}>{m?.status === 'finished' ? m.away_score : '-'}</span>
-              </div>
+            <div className={styles.finalScoreBox}>
+              <span className={styles.finalScore}>{m?.status === 'finished' ? m.home_score : '-'}</span>
+              <span className={styles.finalScoreDivider}>:</span>
+              <span className={styles.finalScore}>{m?.status === 'finished' ? m.away_score : '-'}</span>
             </div>
             
             <div className={`${styles.finalTeam} ${awayWon ? styles.winner : ''}`}>
