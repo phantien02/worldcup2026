@@ -878,11 +878,11 @@ export default function HomePage() {
                         <div className="flex flex-col items-center mb-2 pb-2 border-b border-white/10">
                           <div className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">{label}</div>
                           <div className="flex items-center justify-center gap-1.5">
-                            <img src={matchData.homeFlag} alt="home" className="w-[18px] h-[12px] object-cover rounded-sm shadow-sm opacity-90" />
-                            <span className="text-gray-100 text-xs font-semibold">{matchData.homeName}</span>
-                            <span className="text-cyan-500 text-[9px] font-black italic mx-1 opacity-80">VS</span>
-                            <span className="text-gray-100 text-xs font-semibold">{matchData.awayName}</span>
-                            <img src={matchData.awayFlag} alt="away" className="w-[18px] h-[12px] object-cover rounded-sm shadow-sm opacity-90" />
+                            <img src={matchData.homeFlag} alt="home" className="w-[14px] h-[14px] object-contain" />
+                            <span className="text-gray-100 text-[11px] font-semibold">{matchData.homeName}</span>
+                            <span className="text-gray-500 text-[9px] font-bold mx-0.5">VS</span>
+                            <span className="text-gray-100 text-[11px] font-semibold">{matchData.awayName}</span>
+                            <img src={matchData.awayFlag} alt="away" className="w-[14px] h-[14px] object-contain" />
                           </div>
                         </div>
                       ) : (
