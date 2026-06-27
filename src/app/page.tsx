@@ -733,15 +733,15 @@ export default function HomePage() {
             </div>
             
             {leaderboardView === 'chart' && (
-              <div className="flex p-1.5 bg-black/60 backdrop-blur-md rounded-2xl border border-white/20 w-full max-w-2xl shadow-xl">
+              <div className="flex justify-center gap-3 w-full mt-2">
                 <button
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 md:py-4 rounded-xl text-sm md:text-lg font-extrabold transition-all duration-300 ${chartType === 'rank' ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.5)] scale-[1.02]' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                  className={`px-4 md:px-8 py-2 md:py-3 rounded-lg text-sm md:text-lg font-bold transition-colors shadow-md border ${chartType === 'rank' ? 'bg-[#2563eb] text-white border-[#3b82f6]' : 'bg-[#374151] text-gray-300 border-[#4b5563] hover:bg-[#4b5563]'}`}
                   onClick={() => setChartType('rank')}
                 >
                   🏆 Thứ hạng
                 </button>
                 <button
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 md:py-4 rounded-xl text-sm md:text-lg font-extrabold transition-all duration-300 ${chartType === 'points' ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.5)] scale-[1.02]' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                  className={`px-4 md:px-8 py-2 md:py-3 rounded-lg text-sm md:text-lg font-bold transition-colors shadow-md border ${chartType === 'points' ? 'bg-[#2563eb] text-white border-[#3b82f6]' : 'bg-[#374151] text-gray-300 border-[#4b5563] hover:bg-[#4b5563]'}`}
                   onClick={() => setChartType('points')}
                 >
                   ⭐️ Điểm số
