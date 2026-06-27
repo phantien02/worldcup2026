@@ -2,6 +2,8 @@ import React from 'react';
 import styles from './TournamentBracket.module.css';
 import Image from 'next/image';
 
+import { resolvePlaceholderTeam } from '@/utils/standings';
+
 interface Team {
   name: string;
   flag_url?: string;
@@ -34,6 +36,19 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
     return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
   };
 
+  const isPlaceholderName = (name: string) => /^(nhất|nhì|ba|thứ\s*3|thắng|thua)\s/i.test(name);
+  const getTeamInfo = (teamData: Team | undefined) => {
+    if (!teamData) return { name: 'TBD', flag: null };
+    const resolved = resolvePlaceholderTeam(teamData.name, matches as any);
+    if (resolved) {
+      return { name: resolved.name, flag: resolved.flag_url };
+    }
+    if (isPlaceholderName(teamData.name)) {
+      return { name: teamData.name, flag: null };
+    }
+    return { name: teamData.name, flag: teamData.flag_url };
+  };
+
   const MatchCard = ({ num, isRight = false }: { num: number, isRight?: boolean }) => {
     const m = matchMap.get(num);
     
@@ -41,6 +56,9 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
     const homeWon = m?.status === 'finished' && m.home_score !== null && m.away_score !== null && m.home_score > m.away_score;
     const awayWon = m?.status === 'finished' && m.home_score !== null && m.away_score !== null && m.away_score > m.home_score;
     const isDraw = m?.status === 'finished' && m.home_score !== null && m.away_score !== null && m.home_score === m.away_score;
+
+    const home = getTeamInfo(m?.home_team);
+    const away = getTeamInfo(m?.away_team);
 
     return (
       <div className={`${styles.matchWrapper} ${isRight ? styles.rightSide : styles.leftSide}`}>
@@ -53,23 +71,23 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
           <div className={styles.matchBody}>
             <div className={`${styles.team} ${homeWon || isDraw ? styles.winner : ''}`}>
               <div className={styles.teamInfo}>
-                {m?.home_team?.flag_url ? (
-                  <img src={m.home_team.flag_url} alt="flag" className={styles.flag} />
+                {home.flag ? (
+                  <img src={home.flag} alt="flag" className={styles.flag} />
                 ) : (
                   <div className={styles.flagPlaceholder}></div>
                 )}
-                <span className={styles.teamName}>{m?.home_team?.name || 'TBD'}</span>
+                <span className={styles.teamName} title={home.name}>{home.name}</span>
               </div>
               <span className={styles.score}>{m?.status === 'finished' ? m.home_score : '-'}</span>
             </div>
             <div className={`${styles.team} ${awayWon || isDraw ? styles.winner : ''}`}>
               <div className={styles.teamInfo}>
-                {m?.away_team?.flag_url ? (
-                  <img src={m.away_team.flag_url} alt="flag" className={styles.flag} />
+                {away.flag ? (
+                  <img src={away.flag} alt="flag" className={styles.flag} />
                 ) : (
                   <div className={styles.flagPlaceholder}></div>
                 )}
-                <span className={styles.teamName}>{m?.away_team?.name || 'TBD'}</span>
+                <span className={styles.teamName} title={away.name}>{away.name}</span>
               </div>
               <span className={styles.score}>{m?.status === 'finished' ? m.away_score : '-'}</span>
             </div>

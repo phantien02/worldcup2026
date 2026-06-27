@@ -27,16 +27,16 @@
 
 .bracketScroll {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  min-width: 1400px;
+  min-width: 1700px;
   padding: 0 2rem;
 }
 
 .bracketHalf {
   display: flex;
   gap: 2rem;
-  flex: 1;
+  flex-shrink: 0;
 }
 
 .bracketHalfRight {
@@ -46,14 +46,30 @@
 .round {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  gap: 1.5rem;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 150px;
 }
+
+/* Perfect vertical alignment using calculated heights */
+.bracketHalf:not(.bracketHalfRight) .round:nth-child(1) .matchWrapper,
+.bracketHalfRight .round:nth-child(4) .matchWrapper { height: 100px; }
+
+.bracketHalf:not(.bracketHalfRight) .round:nth-child(2) .matchWrapper,
+.bracketHalfRight .round:nth-child(3) .matchWrapper { height: 200px; }
+
+.bracketHalf:not(.bracketHalfRight) .round:nth-child(3) .matchWrapper,
+.bracketHalfRight .round:nth-child(2) .matchWrapper { height: 400px; }
+
+.bracketHalf:not(.bracketHalfRight) .round:nth-child(4) .matchWrapper,
+.bracketHalfRight .round:nth-child(1) .matchWrapper { height: 800px; }
 
 .matchWrapper {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 /* Horizontal connectors */
