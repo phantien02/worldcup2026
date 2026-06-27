@@ -870,7 +870,7 @@ export default function HomePage() {
                   {/* Left Column: Chart */}
                   <div className="flex-1" style={{ height: '500px' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                      <LineChart key={chartType} data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                         <XAxis dataKey="date" stroke="#a3a3a3" tick={{ fill: '#a3a3a3' }} tickMargin={10} />
                         <YAxis 
