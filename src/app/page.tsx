@@ -709,22 +709,22 @@ export default function HomePage() {
             <span style={{ color: '#ff9900' }}>●</span> BXH Người Chơi
           </h2>
           
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
-            <div className="flex items-center gap-2">
-              <label className="text-[11px] md:text-[1.1rem] font-bold whitespace-nowrap text-gray-300 md:text-white">Giao diện:</label>
+          <div className="flex flex-col justify-center items-center gap-6 mb-8 w-full">
+            <div className="flex items-center gap-3">
+              <label className="text-[14px] md:text-[1.2rem] font-bold whitespace-nowrap text-gray-300 md:text-white">Giao diện:</label>
               <select 
                 value={leaderboardView}
                 onChange={(e) => setLeaderboardView(e.target.value as 'list' | 'chart')}
-                className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#ff9900] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 pl-3 md:py-3 md:pl-6 w-auto max-w-full"
+                className="bg-[#0a0a0a] text-white font-bold border-2 border-orange-500 rounded-xl outline-none cursor-pointer appearance-none text-[14px] md:text-[1.2rem] py-2 pl-4 md:py-3 md:pl-6 w-auto max-w-full"
                 style={{
                   WebkitAppearance: 'none',
                   MozAppearance: 'none',
                   appearance: 'none',
                   backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
                   backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 0.75rem top 50%',
-                  backgroundSize: '0.65rem auto',
-                  paddingRight: '3rem',
+                  backgroundPosition: 'right 1rem top 50%',
+                  backgroundSize: '0.8rem auto',
+                  paddingRight: '3.5rem',
                 }}
               >
                 <option value="list">📋 Dạng Danh Sách</option>
@@ -733,15 +733,15 @@ export default function HomePage() {
             </div>
             
             {leaderboardView === 'chart' && (
-              <div className="flex items-center bg-[#0a0a0a] rounded-lg md:rounded-xl border md:border-2 border-[#00d2ff] overflow-hidden">
+              <div className="flex p-1.5 bg-black/60 backdrop-blur-md rounded-2xl border border-white/20 w-full max-w-2xl shadow-xl">
                 <button
-                  className={`px-3 md:px-6 py-1.5 md:py-3 text-[11px] md:text-[1.1rem] font-bold transition-colors ${chartType === 'rank' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white'}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 md:py-4 rounded-xl text-sm md:text-lg font-extrabold transition-all duration-300 ${chartType === 'rank' ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.5)] scale-[1.02]' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
                   onClick={() => setChartType('rank')}
                 >
                   🏆 Thứ hạng
                 </button>
                 <button
-                  className={`px-3 md:px-6 py-1.5 md:py-3 text-[11px] md:text-[1.1rem] font-bold transition-colors ${chartType === 'points' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white'}`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 md:py-4 rounded-xl text-sm md:text-lg font-extrabold transition-all duration-300 ${chartType === 'points' ? 'bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.5)] scale-[1.02]' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
                   onClick={() => setChartType('points')}
                 >
                   ⭐️ Điểm số
