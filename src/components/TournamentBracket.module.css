@@ -52,17 +52,10 @@
 }
 
 /* Perfect vertical alignment using calculated heights */
-.bracketHalf:not(.bracketHalfRight) .round:nth-child(1) .matchWrapper,
-.bracketHalfRight .round:nth-child(4) .matchWrapper { height: 100px; }
-
-.bracketHalf:not(.bracketHalfRight) .round:nth-child(2) .matchWrapper,
-.bracketHalfRight .round:nth-child(3) .matchWrapper { height: 200px; }
-
-.bracketHalf:not(.bracketHalfRight) .round:nth-child(3) .matchWrapper,
-.bracketHalfRight .round:nth-child(2) .matchWrapper { height: 400px; }
-
-.bracketHalf:not(.bracketHalfRight) .round:nth-child(4) .matchWrapper,
-.bracketHalfRight .round:nth-child(1) .matchWrapper { height: 800px; }
+.round:nth-child(1) .matchWrapper { height: 100px; }
+.round:nth-child(2) .matchWrapper { height: 200px; }
+.round:nth-child(3) .matchWrapper { height: 400px; }
+.round:nth-child(4) .matchWrapper { height: 800px; }
 
 .matchWrapper {
   position: relative;
@@ -73,7 +66,7 @@
 }
 
 /* Horizontal connectors */
-.bracketHalf > .round:not(:last-child) .matchWrapper::after {
+.bracketHalf > .round .matchWrapper::after {
   content: '';
   position: absolute;
   top: 50%;

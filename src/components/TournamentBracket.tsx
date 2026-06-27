@@ -141,19 +141,6 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
         {/* RIGHT BRACKET */}
         <div className={`${styles.bracketHalf} ${styles.bracketHalfRight}`}>
           <div className={styles.round}>
-            <MatchCard num={102} isRight />
-          </div>
-          <div className={styles.round}>
-            <MatchCard num={99} isRight />
-            <MatchCard num={100} isRight />
-          </div>
-          <div className={styles.round}>
-            <MatchCard num={91} isRight />
-            <MatchCard num={92} isRight />
-            <MatchCard num={95} isRight />
-            <MatchCard num={96} isRight />
-          </div>
-          <div className={styles.round}>
             <MatchCard num={76} isRight />
             <MatchCard num={78} isRight />
             <MatchCard num={79} isRight />
@@ -162,6 +149,19 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
             <MatchCard num={88} isRight />
             <MatchCard num={85} isRight />
             <MatchCard num={87} isRight />
+          </div>
+          <div className={styles.round}>
+            <MatchCard num={91} isRight />
+            <MatchCard num={92} isRight />
+            <MatchCard num={95} isRight />
+            <MatchCard num={96} isRight />
+          </div>
+          <div className={styles.round}>
+            <MatchCard num={99} isRight />
+            <MatchCard num={100} isRight />
+          </div>
+          <div className={styles.round}>
+            <MatchCard num={102} isRight />
           </div>
         </div>
 
