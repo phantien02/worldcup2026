@@ -88,6 +88,7 @@ export default function HomePage() {
     }
   };
   const [leaderboardView, setLeaderboardView] = useState<'list' | 'chart'>('list');
+  const [chartType, setChartType] = useState<'rank' | 'points'>('rank');
   const [hiddenPlayers, setHiddenPlayers] = useState<string[]>([]);
   const [initializedChart, setInitializedChart] = useState(false);
 
@@ -708,7 +709,7 @@ export default function HomePage() {
             <span style={{ color: '#ff9900' }}>●</span> BXH Người Chơi
           </h2>
           
-          <div className="flex justify-center mb-6">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
             <div className="flex items-center gap-2">
               <label className="text-[11px] md:text-[1.1rem] font-bold whitespace-nowrap text-gray-300 md:text-white">Giao diện:</label>
               <select 
@@ -730,6 +731,23 @@ export default function HomePage() {
                 <option value="chart">📈 Dạng Biểu Đồ</option>
               </select>
             </div>
+            
+            {leaderboardView === 'chart' && (
+              <div className="flex items-center bg-[#0a0a0a] rounded-lg md:rounded-xl border md:border-2 border-[#00d2ff] overflow-hidden">
+                <button
+                  className={`px-3 md:px-6 py-1.5 md:py-3 text-[11px] md:text-[1.1rem] font-bold transition-colors ${chartType === 'rank' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white'}`}
+                  onClick={() => setChartType('rank')}
+                >
+                  🏆 Thứ hạng
+                </button>
+                <button
+                  className={`px-3 md:px-6 py-1.5 md:py-3 text-[11px] md:text-[1.1rem] font-bold transition-colors ${chartType === 'points' ? 'bg-[#00d2ff] text-black' : 'text-gray-400 hover:text-white'}`}
+                  onClick={() => setChartType('points')}
+                >
+                  ⭐️ Điểm số
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="glass-panel" style={{ padding: '1.5rem', overflowX: 'auto' }}>
@@ -806,7 +824,7 @@ export default function HomePage() {
                   if (!datesMap.has(record.date)) {
                     datesMap.set(record.date, { date: record.date });
                   }
-                  datesMap.get(record.date)[user.display_name] = record.rank;
+                  datesMap.get(record.date)[user.display_name] = chartType === 'points' ? record.points : record.rank;
                 });
               });
               const chartData = Array.from(datesMap.values());
@@ -831,9 +849,9 @@ export default function HomePage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                         <XAxis dataKey="date" stroke="#a3a3a3" tick={{ fill: '#a3a3a3' }} tickMargin={10} />
                         <YAxis 
-                          reversed 
-                          domain={[1, maxRank]} 
-                          ticks={Array.from({length: maxRank}, (_, i) => i + 1)}
+                          reversed={chartType === 'rank'} 
+                          domain={chartType === 'rank' ? [1, maxRank] : ['auto', 'auto']} 
+                          ticks={chartType === 'rank' ? Array.from({length: maxRank}, (_, i) => i + 1) : undefined}
                           stroke="#a3a3a3" 
                           tick={{ fill: '#a3a3a3' }}
                           width={40}
