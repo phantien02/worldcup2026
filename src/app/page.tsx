@@ -873,16 +873,19 @@ export default function HomePage() {
                 if (active && payload && payload.length) {
                   const matchData = chartData.find((d: any) => d.date === label);
                   return (
-                    <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '10px 14px', borderRadius: '8px', boxShadow: '0 8px 16px rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+                    <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px 16px', borderRadius: '8px', boxShadow: '0 8px 16px rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
                       {chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag ? (
-                        <div className="flex flex-col items-center mb-2 pb-2 border-b border-white/10">
-                          <div className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">{label}</div>
-                          <div className="flex items-center justify-center gap-1.5">
-                            <img src={matchData.homeFlag} alt="home" className="w-[14px] h-[14px] object-contain" />
-                            <span className="text-gray-100 text-[11px] font-semibold">{matchData.homeName}</span>
-                            <span className="text-gray-500 text-[9px] font-bold mx-0.5">VS</span>
-                            <span className="text-gray-100 text-[11px] font-semibold">{matchData.awayName}</span>
-                            <img src={matchData.awayFlag} alt="away" className="w-[14px] h-[14px] object-contain" />
+                        <div className="flex flex-col mb-3 pb-3 border-b border-white/10">
+                          <div className="text-gray-400 text-[11px] font-bold uppercase tracking-widest text-center mb-2.5">{label}</div>
+                          <div className="flex flex-col gap-2 ml-1">
+                            <div className="flex items-center gap-2.5">
+                              <img src={matchData.homeFlag} alt="home" className="w-[20px] h-[14px] object-cover rounded-[3px] shadow-sm opacity-90" />
+                              <span className="text-gray-100 text-[13px] font-semibold">{matchData.homeName}</span>
+                            </div>
+                            <div className="flex items-center gap-2.5">
+                              <img src={matchData.awayFlag} alt="away" className="w-[20px] h-[14px] object-cover rounded-[3px] shadow-sm opacity-90" />
+                              <span className="text-gray-100 text-[13px] font-semibold">{matchData.awayName}</span>
+                            </div>
                           </div>
                         </div>
                       ) : (
@@ -891,12 +894,12 @@ export default function HomePage() {
                         </div>
                       )}
                       
-                      <div className="flex flex-col gap-1.5 mt-2">
+                      <div className="flex flex-col gap-1.5 mt-1">
                         {payload.map((entry: any, index: number) => (
-                          <div key={index} className="flex justify-between items-center gap-8">
+                          <div key={index} className="flex justify-between items-center gap-8 ml-1 mr-1">
                             <div className="flex items-center gap-2">
                               <div className="w-1.5 h-1.5 rounded-full opacity-80" style={{ backgroundColor: entry.color }}></div>
-                              <span className="text-gray-300 text-xs font-medium">{entry.name}</span>
+                              <span className="text-gray-300 text-[13px] font-medium">{entry.name}</span>
                             </div>
                             <span style={{ color: entry.color }} className="text-[13px] font-black">{entry.value}</span>
                           </div>
