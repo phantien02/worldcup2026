@@ -53,17 +53,31 @@ export async function GET(req: Request) {
       for (const p of predictions) {
         let points = 0;
 
-        if (isKnockout && p.advancing_team_id) {
-          if (p.advancing_team_id === match.winner_id) {
-            points += 10;
-            if (p.predicted_win_method === match.win_method) {
-              points += 5;
-            }
-            if (isNewRules) {
-              const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
-              if (pickRate < 0.2) {
-                points += 10;
+        if (isKnockout) {
+          if (p.advancing_team_id) {
+            if (p.advancing_team_id === match.winner_id) {
+              points += 10;
+              if (p.predicted_win_method === match.win_method) {
+                points += 5;
               }
+              if (isNewRules) {
+                const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
+                if (pickRate < 0.2) {
+                  points += 10;
+                }
+              }
+            }
+          }
+
+          // Điểm dự đoán Tỷ số 120 phút (ĐỘC LẬP)
+          if (p.home_score !== null && p.home_score === match.home_score) points += 1;
+          if (p.away_score !== null && p.away_score === match.away_score) points += 1;
+
+          if (p.home_score !== null && p.away_score !== null) {
+            if (p.home_score === match.home_score && p.away_score === match.away_score) {
+              points += 5; // Thưởng Lớn: Đúng phóc tỷ số 120p
+            } else if (p.home_score - p.away_score === match.home_score - match.away_score) {
+              points += 1; // Thưởng Vớt: Sai tỷ số nhưng đúng hiệu số
             }
           }
         } else {

@@ -764,8 +764,8 @@ export default function HomePage() {
                             </span>
                           </div>
                         </td>
-                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: 'bold', fontSize: '1.4rem' }}>
-                          {user.total_points}
+                        <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: '900', fontSize: '1.25rem' }}>
+                          {user.calculatedTotalPoints || 0}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#a3a3a3', fontWeight: '600', fontSize: '1.1rem' }}>
                           {user.stats?.actualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>

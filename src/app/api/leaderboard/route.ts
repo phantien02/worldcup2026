@@ -174,7 +174,7 @@ export async function GET() {
 
     // Final Sort
     leaderboard.sort((a, b) => {
-      const ptDiff = (b.total_points || 0) - (a.total_points || 0);
+      const ptDiff = b.calculatedTotalPoints - a.calculatedTotalPoints;
       if (ptDiff !== 0) return ptDiff;
       const scoreDiff = b.stats.exactScores - a.stats.exactScores;
       if (scoreDiff !== 0) return scoreDiff;
