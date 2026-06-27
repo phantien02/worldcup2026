@@ -10,7 +10,7 @@ export async function GET() {
 
     const { data: matches, error: matchErr } = await supabaseAdmin
       .from('matches')
-      .select('id, home_score, away_score, status, round, kickoff_time')
+      .select('id, home_score, away_score, status, round, kickoff_time, home_team:home_team_id(name, flag_url), away_team:away_team_id(name, flag_url)')
       .eq('status', 'finished');
     if (matchErr) throw matchErr;
 
@@ -133,7 +133,9 @@ export async function GET() {
         userPointsHistoryMap[u.id].push({
           date: label, // keep key as 'date' for frontend compatibility
           points: pointsEarnedInThisMatch[u.id],
-          cumulativePoints: userStatsTracker[u.id].totalPts
+          cumulativePoints: userStatsTracker[u.id].totalPts,
+          homeFlag: currentMatch.home_team?.flag_url,
+          awayFlag: currentMatch.away_team?.flag_url
         });
       });
     });

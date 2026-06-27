@@ -10,7 +10,7 @@ import TopScorers, { TopScorer } from '@/components/TopScorers';
 import ProfileUpdateForm from '@/components/ProfileUpdateForm';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '../data/matchMapping.json';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import TournamentBracket from '@/components/TournamentBracket';
 
 type Profile = {
@@ -863,14 +863,38 @@ export default function HomePage() {
                 );
               };
 
+              const CustomXAxisTick = (props: any) => {
+                const { x, y, payload } = props;
+                const matchData = chartData.find((d: any) => d.date === payload.value);
+                
+                if (chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag) {
+                  return (
+                    <g transform={`translate(${x},${y})`}>
+                      <image href={matchData.homeFlag} x={-18} y={5} height={12} width={16} />
+                      <text x={0} y={15} fill="#a3a3a3" fontSize={10} textAnchor="middle">vs</text>
+                      <image href={matchData.awayFlag} x={2} y={5} height={12} width={16} />
+                    </g>
+                  );
+                }
+
+                return (
+                  <text x={x} y={y + 15} fill="#a3a3a3" textAnchor="middle" fontSize={12} fontWeight="bold">
+                    {payload.value}
+                  </text>
+                );
+              };
+
+              const ChartComponent = chartType === 'rank' ? LineChart : BarChart;
+              const DataComponent = chartType === 'rank' ? Line : Bar;
+
               return (
                 <div className="flex flex-col md:flex-row gap-6 w-full" style={{ minHeight: '500px', padding: '1rem 0' }}>
                   {/* Left Column: Chart */}
                   <div className="flex-1" style={{ height: '500px' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart key={chartType} data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+                      <ChartComponent key={chartType} data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                        <XAxis dataKey="date" stroke="#a3a3a3" tick={{ fill: '#a3a3a3' }} tickMargin={10} />
+                        <XAxis dataKey="date" stroke="#a3a3a3" tick={<CustomXAxisTick />} tickMargin={10} interval={0} />
                         <YAxis 
                           reversed={chartType === 'rank'} 
                           domain={chartType === 'rank' ? [1, maxRank] : ['auto', 'auto']} 
@@ -885,19 +909,21 @@ export default function HomePage() {
                         />
                         {leaderboard.map((user, idx) => (
                           !hiddenPlayers.includes(user.display_name) && (
-                            <Line 
+                            <DataComponent 
                               key={user.id}
                               type="linear" 
                               dataKey={user.display_name} 
-                              stroke={colors[leaderboard.findIndex(u => u.id === user.id) % colors.length]} 
+                              stroke={chartType === 'rank' ? colors[leaderboard.findIndex(u => u.id === user.id) % colors.length] : undefined}
+                              fill={chartType === 'points' ? colors[leaderboard.findIndex(u => u.id === user.id) % colors.length] : undefined}
                               strokeWidth={3}
                               dot={{ r: 4, strokeWidth: 2 }}
                               activeDot={{ r: 6 }}
                               isAnimationActive={true}
+                              radius={chartType === 'points' ? [4, 4, 0, 0] : undefined}
                             />
                           )
                         ))}
-                      </LineChart>
+                      </ChartComponent>
                     </ResponsiveContainer>
                   </div>
                   
