@@ -41,60 +41,99 @@ export async function GET() {
         }
     }
 
-    // 1. Sort matches chronologically
-    validMatches.sort((a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
+    // 1. Group matches by Date for Rank History
+    const datesSet = new Set<string>();
+    validMatches.forEach(m => {
+      const dateIso = new Date(m.kickoff_time).toISOString().split('T')[0];
+      datesSet.add(dateIso);
+    });
+    const sortedDates = Array.from(datesSet).sort();
 
     const users = profiles.filter(p => p.display_name !== 'guest');
-    const userHistoryMap: Record<string, any[]> = {};
-    const userStatsTracker: Record<string, { totalPts: number, exactScores: number, exactDiffs: number }> = {};
     
-    users.forEach(u => {
-      userHistoryMap[u.id] = [];
-      userStatsTracker[u.id] = { totalPts: 0, exactScores: 0, exactDiffs: 0 };
-    });
+    // For Rank History (By Date)
+    const userRankHistoryMap: Record<string, any[]> = {};
+    users.forEach(u => userRankHistoryMap[u.id] = []);
 
-    // 2. Calculate Rank for each Match chronologically
-    validMatches.forEach((currentMatch, matchIndex) => {
-      // Find predictions for THIS match
-      const matchPreds = predictions.filter(pred => pred.match_id === currentMatch.id);
-      
-      matchPreds.forEach(pred => {
-         const tracker = userStatsTracker[pred.user_id];
-         if (!tracker) return; // skip guests
-         
-         tracker.totalPts += (pred.points_earned || 0);
-         
-         if (pred.home_score !== null && pred.away_score !== null && currentMatch.home_score !== null && currentMatch.away_score !== null) {
-            const isExactScore = pred.home_score === currentMatch.home_score && pred.away_score === currentMatch.away_score;
-            const isExactDiff = (pred.home_score - pred.away_score) === (currentMatch.home_score - currentMatch.away_score);
-            if (isExactScore) tracker.exactScores++;
-            else if (isExactDiff) tracker.exactDiffs++;
-         }
+    sortedDates.forEach(date => {
+      // Find matches up to this date
+      const matchesUpToDate = validMatches.filter(m => {
+        const mDate = new Date(m.kickoff_time).toISOString().split('T')[0];
+        return mDate <= date;
+      });
+      const matchIdsUpToDate = new Set(matchesUpToDate.map(m => m.id));
+
+      const dateStats = users.map(p => {
+        let totalPts = 0;
+        let exactScores = 0;
+        let exactDiffs = 0;
+
+        const userPreds = predictions.filter(pred => pred.user_id === p.id && matchIdsUpToDate.has(pred.match_id));
+
+        userPreds.forEach(pred => {
+          totalPts += (pred.points_earned || 0);
+          const m = matchMap[pred.match_id];
+          if (pred.home_score !== null && pred.away_score !== null && m.home_score !== null && m.away_score !== null) {
+            const isExactScore = pred.home_score === m.home_score && pred.away_score === m.away_score;
+            const isExactDiff = (pred.home_score - pred.away_score) === (m.home_score - m.away_score);
+            if (isExactScore) exactScores++;
+            else if (isExactDiff) exactDiffs++;
+          }
+        });
+        return { id: p.id, display_name: p.display_name, totalPts, exactScores, exactDiffs };
       });
 
-      // Sort users to get rank
-      const currentStatsArray = users.map(u => ({
-          id: u.id,
-          display_name: u.display_name,
-          totalPts: userStatsTracker[u.id].totalPts,
-          exactScores: userStatsTracker[u.id].exactScores,
-          exactDiffs: userStatsTracker[u.id].exactDiffs
-      }));
-      
-      currentStatsArray.sort((a, b) => {
+      dateStats.sort((a, b) => {
         if (b.totalPts !== a.totalPts) return b.totalPts - a.totalPts;
         if (b.exactScores !== a.exactScores) return b.exactScores - a.exactScores;
         if (b.exactDiffs !== a.exactDiffs) return b.exactDiffs - a.exactDiffs;
         return (a.display_name || '').localeCompare(b.display_name || '');
       });
 
+      const [yyyy, mm, dd] = date.split('-');
+      const dateStr = `${dd}-${mm}`;
+      
+      dateStats.forEach((stat, index) => {
+        userRankHistoryMap[stat.id].push({
+          date: dateStr,
+          rank: index + 1
+        });
+      });
+    });
+
+    // 2. Group matches by Match for Points History
+    validMatches.sort((a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
+    
+    const userPointsHistoryMap: Record<string, any[]> = {};
+    const userStatsTracker: Record<string, { totalPts: number }> = {};
+    
+    users.forEach(u => {
+      userPointsHistoryMap[u.id] = [];
+      userStatsTracker[u.id] = { totalPts: 0 };
+    });
+
+    validMatches.forEach((currentMatch, matchIndex) => {
+      const matchPreds = predictions.filter(pred => pred.match_id === currentMatch.id);
+      
+      const pointsEarnedInThisMatch: Record<string, number> = {};
+      users.forEach(u => pointsEarnedInThisMatch[u.id] = 0);
+
+      matchPreds.forEach(pred => {
+         const tracker = userStatsTracker[pred.user_id];
+         if (!tracker) return;
+         
+         const earned = pred.points_earned || 0;
+         tracker.totalPts += earned;
+         pointsEarnedInThisMatch[pred.user_id] += earned;
+      });
+
       const label = `Trận ${matchIndex + 1}`;
 
-      currentStatsArray.forEach((stat, rankIndex) => {
-        userHistoryMap[stat.id].push({
+      users.forEach(u => {
+        userPointsHistoryMap[u.id].push({
           date: label, // keep key as 'date' for frontend compatibility
-          rank: rankIndex + 1,
-          points: stat.totalPts
+          points: pointsEarnedInThisMatch[u.id],
+          cumulativePoints: userStatsTracker[u.id].totalPts
         });
       });
     });
@@ -129,7 +168,8 @@ export async function GET() {
         }
       });
 
-      const history = userHistoryMap[p.id] || [];
+      const history = userRankHistoryMap[p.id] || [];
+      const ptsHistory = userPointsHistoryMap[p.id] || [];
       // Calculate rankTrend based on the last 2 records
       let rankTrend = 0;
       if (history.length >= 2) {
@@ -148,8 +188,9 @@ export async function GET() {
           exactDiffs
         },
         rankHistory: history,
+        pointsHistory: ptsHistory,
         rankTrend: rankTrend,
-        calculatedTotalPoints: history.length > 0 ? history[history.length - 1].points : 0
+        calculatedTotalPoints: ptsHistory.length > 0 ? ptsHistory[ptsHistory.length - 1].cumulativePoints : 0
       };
     });
 
