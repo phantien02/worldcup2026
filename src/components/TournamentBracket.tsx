@@ -97,7 +97,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
     );
   };
 
-  const FinalMatchCard = ({ num }: { num: number }) => {
+  const FinalMatchCard = ({ num, title, isThirdPlace = false }: { num: number, title: string, isThirdPlace?: boolean }) => {
     const m = matchMap.get(num);
     
     // Calculate if team is winner
@@ -109,13 +109,14 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
 
     return (
       <div className={styles.finalMatchWrapper}>
-        <div className={styles.finalMatchCard}>
+        <div className={`${styles.finalMatchCard} ${isThirdPlace ? styles.thirdPlaceCard : ''}`}>
           <div className={styles.finalHeader}>
-            <div className={styles.trophyContainer}>
-              <div className={styles.trophyIcon}>🏆</div>
-            </div>
-            <div className={styles.finalTitle}>CHUNG KẾT</div>
-            {m ? <div className={styles.finalTime}>{formatTime(m.kickoff_time)}</div> : <div className={styles.finalTime}>Chưa có lịch</div>}
+            {!isThirdPlace && (
+              <div className={styles.trophyContainer}>
+                <div className={styles.trophyIcon}>🏆</div>
+              </div>
+            )}
+            <div className={isThirdPlace ? styles.thirdPlaceTitle : styles.finalTitle}>{title}</div>
           </div>
           <div className={styles.finalBody}>
             <div className={`${styles.finalTeam} ${homeWon ? styles.winner : ''}`}>
@@ -127,19 +128,22 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
               <span className={styles.finalTeamName}>{home.name}</span>
             </div>
             
-            <div className={styles.finalScoreBox}>
-              <span className={styles.finalScore}>{m?.status === 'finished' ? m.home_score : '-'}</span>
-              <span className={styles.finalScoreDivider}>:</span>
-              <span className={styles.finalScore}>{m?.status === 'finished' ? m.away_score : '-'}</span>
+            <div className={styles.finalCenterInfo}>
+              {m ? <div className={styles.finalTime}>{formatTime(m.kickoff_time)}</div> : <div className={styles.finalTime}>Chưa có lịch</div>}
+              <div className={styles.finalScoreBox}>
+                <span className={styles.finalScore}>{m?.status === 'finished' ? m.home_score : '-'}</span>
+                <span className={styles.finalScoreDivider}>:</span>
+                <span className={styles.finalScore}>{m?.status === 'finished' ? m.away_score : '-'}</span>
+              </div>
             </div>
             
             <div className={`${styles.finalTeam} ${awayWon ? styles.winner : ''}`}>
-              <span className={styles.finalTeamName}>{away.name}</span>
               {away.flag ? (
                 <img src={away.flag} alt="flag" className={styles.finalFlag} />
               ) : (
                 <div className={styles.finalFlagPlaceholder}></div>
               )}
+              <span className={styles.finalTeamName}>{away.name}</span>
             </div>
           </div>
         </div>
@@ -178,9 +182,10 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
           </div>
         </div>
 
-        {/* CENTER FINAL */}
+        {/* CENTER FINAL & THIRD PLACE */}
         <div className={styles.bracketCenter}>
-          <FinalMatchCard num={104} />
+          <FinalMatchCard num={104} title="CHUNG KẾT" />
+          <FinalMatchCard num={103} title="TRANH HẠNG 3" isThirdPlace={true} />
         </div>
 
         {/* RIGHT BRACKET */}

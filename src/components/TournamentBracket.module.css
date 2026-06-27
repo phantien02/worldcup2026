@@ -135,6 +135,16 @@
   border-radius: 0;
 }
 
+.bracketCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  margin: 0 3rem;
+  min-width: 400px;
+}
+
 /* Final Match Card Styling */
 .finalMatchWrapper {
   position: relative;
@@ -153,11 +163,18 @@
   z-index: 2;
 }
 
+.thirdPlaceCard {
+  background: rgba(20, 20, 20, 0.85);
+  border: 2px solid rgba(180, 180, 180, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+}
+
 .finalHeader {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .trophyContainer {
@@ -178,25 +195,50 @@
   font-size: 1.2rem;
 }
 
-.finalTime {
-  font-size: 0.8rem;
+.thirdPlaceTitle {
+  font-weight: 800;
   color: #ccc;
-  margin-top: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1rem;
 }
 
-.finalBody {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.finalTeam {
+.finalCenterInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+}
+
+.finalTime {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #aaa;
+}
+
+.finalBody {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.finalTeam {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.8rem;
   flex: 1;
+}
+
+/* For the first team, right-align text and put flag on the right */
+.finalTeam:first-child {
+  justify-content: flex-end;
+}
+
+/* For the second team, left-align text and put flag on the left */
+.finalTeam:last-child {
+  justify-content: flex-start;
 }
 
 .finalFlag {
@@ -215,10 +257,10 @@
 }
 
 .finalTeamName {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #fff;
-  text-align: center;
+  white-space: nowrap;
 }
 
 .finalScoreBox {
@@ -229,6 +271,10 @@
   padding: 0.5rem 1rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.thirdPlaceCard .finalScoreBox {
+  border-color: rgba(180, 180, 180, 0.3);
 }
 
 .finalScore {
@@ -244,6 +290,10 @@
 
 .finalTeam.winner .finalTeamName {
   color: #ffd700;
+}
+
+.thirdPlaceCard .finalTeam.winner .finalTeamName {
+  color: #fff;
 }
 
 .matchCard {
