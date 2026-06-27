@@ -873,40 +873,32 @@ export default function HomePage() {
                 if (active && payload && payload.length) {
                   const matchData = chartData.find((d: any) => d.date === label);
                   return (
-                    <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', minWidth: '220px', backdropFilter: 'blur(8px)' }}>
+                    <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '10px 14px', borderRadius: '8px', boxShadow: '0 8px 16px rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
                       {chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag ? (
-                        <>
-                          <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 text-center">
-                            {label}
+                        <div className="flex flex-col items-center mb-2 pb-2 border-b border-white/10">
+                          <div className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1.5">{label}</div>
+                          <div className="flex items-center justify-center gap-1.5">
+                            <img src={matchData.homeFlag} alt="home" className="w-[18px] h-[12px] object-cover rounded-sm shadow-sm opacity-90" />
+                            <span className="text-gray-100 text-xs font-semibold">{matchData.homeName}</span>
+                            <span className="text-cyan-500 text-[9px] font-black italic mx-1 opacity-80">VS</span>
+                            <span className="text-gray-100 text-xs font-semibold">{matchData.awayName}</span>
+                            <img src={matchData.awayFlag} alt="away" className="w-[18px] h-[12px] object-cover rounded-sm shadow-sm opacity-90" />
                           </div>
-                          <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-white/10">
-                            <div className="flex flex-col items-center gap-1.5 flex-1" style={{ maxWidth: '80px' }}>
-                              <img src={matchData.homeFlag} alt="home" className="w-8 h-6 object-cover rounded shadow-sm border border-white/10" />
-                              <span className="text-white text-xs font-bold text-center w-full truncate" title={matchData.homeName}>{matchData.homeName}</span>
-                            </div>
-                            
-                            <div className="text-cyan-500 text-xs font-black italic">VS</div>
-                            
-                            <div className="flex flex-col items-center gap-1.5 flex-1" style={{ maxWidth: '80px' }}>
-                              <img src={matchData.awayFlag} alt="away" className="w-8 h-6 object-cover rounded shadow-sm border border-white/10" />
-                              <span className="text-white text-xs font-bold text-center w-full truncate" title={matchData.awayName}>{matchData.awayName}</span>
-                            </div>
-                          </div>
-                        </>
+                        </div>
                       ) : (
-                        <div className="text-gray-300 text-sm font-bold uppercase tracking-wider mb-3 pb-3 border-b border-white/10 text-center">
+                        <div className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-2 pb-2 border-b border-white/10 text-center">
                           {label}
                         </div>
                       )}
                       
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-1.5 mt-2">
                         {payload.map((entry: any, index: number) => (
-                          <div key={index} className="flex justify-between items-center gap-6">
+                          <div key={index} className="flex justify-between items-center gap-8">
                             <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: entry.color }}></div>
-                              <span className="text-gray-200 text-sm font-medium">{entry.name}</span>
+                              <div className="w-1.5 h-1.5 rounded-full opacity-80" style={{ backgroundColor: entry.color }}></div>
+                              <span className="text-gray-300 text-xs font-medium">{entry.name}</span>
                             </div>
-                            <span style={{ color: entry.color }} className="text-base font-black drop-shadow-md">{entry.value}</span>
+                            <span style={{ color: entry.color }} className="text-[13px] font-black">{entry.value}</span>
                           </div>
                         ))}
                       </div>
