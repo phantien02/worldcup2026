@@ -94,6 +94,9 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
           </div>
         </div>
       </div>
+    );
+  };
+
   const FinalMatchCard = ({ num }: { num: number }) => {
     const m = matchMap.get(num);
     
