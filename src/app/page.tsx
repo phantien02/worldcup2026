@@ -11,6 +11,7 @@ import ProfileUpdateForm from '@/components/ProfileUpdateForm';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '../data/matchMapping.json';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import TournamentBracket from '@/components/TournamentBracket';
 
 type Profile = {
   id: string;
@@ -34,6 +35,7 @@ type Match = {
   penalty_away?: number | null;
   winner_id?: string | null;
   globalIndex?: number;
+  matchNumber?: number;
 };
 
 export default function HomePage() {
@@ -51,6 +53,7 @@ export default function HomePage() {
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterVote, setFilterVote] = useState('All');
   const [myPredictions, setMyPredictions] = useState<any[]>([]);
+  const [viewMode, setViewMode] = useState<'list' | 'bracket'>('list');
   
   // User Stats Modal State
   const [selectedUserStats, setSelectedUserStats] = useState<any>(null);
@@ -1050,6 +1053,25 @@ export default function HomePage() {
                         ))}
                       </select>
                     </div>
+
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <label className="text-[11px] md:text-[1.1rem] font-bold whitespace-nowrap ml-1 md:ml-2 text-gray-300 md:text-white">Xem nhánh đấu:</label>
+                      <select 
+                        value={viewMode}
+                        onChange={(e) => setViewMode(e.target.value as 'list' | 'bracket')}
+                        className="bg-[#0a0a0a] text-white font-bold border md:border-2 border-[#ff9900] rounded-lg md:rounded-xl outline-none cursor-pointer appearance-none text-[11px] md:text-[1.1rem] py-1.5 px-2 md:py-3 md:px-6 pr-5 md:pr-10 w-[90px] md:min-w-[120px] md:w-auto"
+                        style={{
+                          backgroundImage: `url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")`,
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'right 0.35rem top 50%',
+                          backgroundSize: '0.5rem auto',
+                        }}
+                      >
+                        <option value="list">Danh sách</option>
+                        <option value="bracket">Nhánh đấu</option>
+                      </select>
+                    </div>
+
                   </div>
                 )}
               </div>
@@ -1060,6 +1082,8 @@ export default function HomePage() {
                     <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⚽</div>
                     {matches.length === 0 ? 'Chưa có trận đấu nào được lên lịch. Admin sẽ sớm cập nhật!' : 'Không có trận đấu nào trong vòng này.'}
                   </div>
+                ) : viewMode === 'bracket' ? (
+                  <TournamentBracket matches={matches} />
                 ) : (
                   filteredMatches.map((match) => {
                     const globalIndex = match.globalIndex || 1;

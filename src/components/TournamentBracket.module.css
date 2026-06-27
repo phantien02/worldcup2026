@@ -1,0 +1,229 @@
+.bracketContainer {
+  width: 100%;
+  overflow-x: auto;
+  padding: 2rem 0;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 1rem;
+}
+
+/* Custom Scrollbar for horizontal scrolling */
+.bracketContainer::-webkit-scrollbar {
+  height: 8px;
+}
+.bracketContainer::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.bracketContainer::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 136, 0.5);
+  border-radius: 4px;
+}
+.bracketContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 136, 0.8);
+}
+
+.bracketScroll {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 1400px;
+  padding: 0 2rem;
+}
+
+.bracketHalf {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+}
+
+.bracketHalfRight {
+  flex-direction: row-reverse;
+}
+
+.round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 1.5rem;
+}
+
+.matchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Horizontal connectors */
+.bracketHalf > .round:not(:last-child) .matchWrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 2rem;
+  border-top: 2px solid rgba(255, 255, 255, 0.15);
+  z-index: 1;
+}
+
+.leftSide::after {
+  right: -2rem;
+}
+
+.rightSide::after {
+  left: -2rem;
+}
+
+.matchCard {
+  width: 150px;
+  background: rgba(20, 20, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.6rem;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.matchCard:hover {
+  transform: scale(1.05);
+  border-color: rgba(0, 255, 136, 0.4);
+  background: rgba(30, 30, 30, 0.9);
+}
+
+.matchHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.2rem;
+}
+
+.matchNumber {
+  color: #00ff88;
+  font-weight: 800;
+}
+
+.matchTime {
+  font-weight: 500;
+}
+
+.team {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.3rem 0;
+}
+
+.teamInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.flag {
+  width: 18px;
+  height: 13px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.flagPlaceholder {
+  width: 18px;
+  height: 13px;
+  background: #333;
+  border-radius: 2px;
+}
+
+.teamName {
+  font-size: 0.75rem;
+  color: #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 85px;
+  font-weight: 500;
+}
+
+.score {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.winner .teamName {
+  color: #00ff88;
+  font-weight: 700;
+}
+
+.winner .score {
+  color: #000;
+  background: #00ff88;
+}
+
+.bracketCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 0 2rem;
+  min-width: 160px;
+}
+
+.trophyContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.trophyIcon {
+  font-size: 5rem;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.finalLabel {
+  font-weight: 900;
+  color: #ffd700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 1.1rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.4);
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.bracketCenter .matchCard {
+  width: 180px;
+  border-color: rgba(255, 215, 0, 0.4);
+  background: rgba(30, 25, 0, 0.8);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+}
+
+.bracketCenter .matchNumber {
+  color: #ffd700;
+}
+
+.bracketCenter .winner .teamName {
+  color: #ffd700;
+}
+.bracketCenter .winner .score {
+  color: #000;
+  background: #ffd700;
+}
