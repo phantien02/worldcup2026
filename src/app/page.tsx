@@ -845,7 +845,11 @@ export default function HomePage() {
                 const historyArray = chartType === 'rank' ? user.rankHistory : user.pointsHistory;
                 historyArray?.forEach((record: any) => {
                   if (!datesMap.has(record.date)) {
-                    datesMap.set(record.date, { date: record.date });
+                    datesMap.set(record.date, { 
+                      date: record.date,
+                      homeFlag: record.homeFlag,
+                      awayFlag: record.awayFlag 
+                    });
                   }
                   datesMap.get(record.date)[user.display_name] = chartType === 'rank' ? record.rank : record.points;
                 });
