@@ -848,7 +848,9 @@ export default function HomePage() {
                     datesMap.set(record.date, { 
                       date: record.date,
                       homeFlag: record.homeFlag,
-                      awayFlag: record.awayFlag 
+                      awayFlag: record.awayFlag,
+                      homeName: record.homeName,
+                      awayName: record.awayName 
                     });
                   }
                   datesMap.get(record.date)[user.display_name] = chartType === 'rank' ? record.rank : record.points;
@@ -867,25 +869,40 @@ export default function HomePage() {
                 );
               };
 
-              const CustomXAxisTick = (props: any) => {
-                const { x, y, payload } = props;
-                const matchData = chartData.find((d: any) => d.date === payload.value);
-                
-                if (chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag) {
+              const CustomTooltip = ({ active, payload, label }: any) => {
+                if (active && payload && payload.length) {
+                  const matchData = chartData.find((d: any) => d.date === label);
                   return (
-                    <g transform={`translate(${x},${y})`}>
-                      <image href={matchData.homeFlag} x={-18} y={5} height={12} width={16} />
-                      <text x={0} y={15} fill="#a3a3a3" fontSize={10} textAnchor="middle">vs</text>
-                      <image href={matchData.awayFlag} x={2} y={5} height={12} width={16} />
-                    </g>
+                    <div style={{ backgroundColor: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                      {chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag ? (
+                        <div className="flex flex-col mb-3 pb-3 border-b border-white/10">
+                          <div className="text-gray-400 text-[11px] uppercase font-bold mb-2">{label}</div>
+                          <div className="flex items-center gap-2">
+                            <img src={matchData.homeFlag} alt="home" style={{ width: '20px', height: '14px', borderRadius: '2px' }} />
+                            <span className="text-white text-sm font-bold">{matchData.homeName}</span>
+                          </div>
+                          <div className="text-gray-500 text-[10px] font-bold text-center my-1">VS</div>
+                          <div className="flex items-center gap-2">
+                            <img src={matchData.awayFlag} alt="away" style={{ width: '20px', height: '14px', borderRadius: '2px' }} />
+                            <span className="text-white text-sm font-bold">{matchData.awayName}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p style={{ color: '#fff', fontWeight: 'bold', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>{label}</p>
+                      )}
+                      
+                      <div className="flex flex-col gap-1">
+                        {payload.map((entry: any, index: number) => (
+                          <div key={index} className="flex justify-between gap-4">
+                            <span style={{ color: entry.color, fontSize: '13px', fontWeight: 'bold' }}>{entry.name}</span>
+                            <span style={{ color: entry.color, fontSize: '14px', fontWeight: '900' }}>{entry.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   );
                 }
-
-                return (
-                  <text x={x} y={y + 15} fill="#a3a3a3" textAnchor="middle" fontSize={12} fontWeight="bold">
-                    {payload.value}
-                  </text>
-                );
+                return null;
               };
 
               const ChartComponent = chartType === 'rank' ? LineChart : BarChart;
@@ -897,7 +914,7 @@ export default function HomePage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <ChartComponent key={chartType} data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                        <XAxis dataKey="date" stroke="#a3a3a3" tick={<CustomXAxisTick />} tickMargin={10} interval={0} />
+                        <XAxis dataKey="date" stroke="#a3a3a3" tick={{ fill: '#a3a3a3' }} tickMargin={10} minTickGap={20} />
                         <YAxis 
                           reversed={chartType === 'rank'} 
                           domain={chartType === 'rank' ? [1, maxRank] : ['auto', 'auto']} 
@@ -906,10 +923,7 @@ export default function HomePage() {
                           tick={{ fill: '#a3a3a3' }}
                           width={40}
                         />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
-                          itemStyle={{ fontWeight: 'bold' }}
-                        />
+                        <Tooltip content={<CustomTooltip />} />
                         {leaderboard.map((user, idx) => {
                           if (hiddenPlayers.includes(user.display_name)) return null;
                           const color = colors[leaderboard.findIndex(u => u.id === user.id) % colors.length];

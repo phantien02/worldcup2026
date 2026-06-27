@@ -138,7 +138,9 @@ export async function GET() {
           points: pointsEarnedInThisMatch[u.id],
           cumulativePoints: userStatsTracker[u.id].totalPts,
           homeFlag: Array.isArray(hTeam) ? hTeam[0]?.flag_url : hTeam?.flag_url,
-          awayFlag: Array.isArray(aTeam) ? aTeam[0]?.flag_url : aTeam?.flag_url
+          awayFlag: Array.isArray(aTeam) ? aTeam[0]?.flag_url : aTeam?.flag_url,
+          homeName: Array.isArray(hTeam) ? hTeam[0]?.name : hTeam?.name,
+          awayName: Array.isArray(aTeam) ? aTeam[0]?.name : aTeam?.name
         });
       });
     });
