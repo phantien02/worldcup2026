@@ -877,12 +877,12 @@ export default function HomePage() {
                       {chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag ? (
                         <div className="flex flex-col mb-3 pb-3 border-b border-white/10">
                           <div className="text-gray-400 text-[11px] font-bold uppercase tracking-widest text-center mb-2">{label}</div>
-                          <div className="flex items-center justify-center gap-1.5">
-                            <img src={matchData.homeFlag} alt="home" style={{ width: '14px', height: '14px', objectFit: 'contain', display: 'inline-block' }} />
-                            <span className="text-gray-100 text-[13px] font-semibold">{matchData.homeName}</span>
-                            <span className="text-cyan-500 text-[10px] font-black italic mx-1 opacity-80">VS</span>
-                            <span className="text-gray-100 text-[13px] font-semibold">{matchData.awayName}</span>
-                            <img src={matchData.awayFlag} alt="away" style={{ width: '14px', height: '14px', objectFit: 'contain', display: 'inline-block' }} />
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', flexWrap: 'nowrap' }}>
+                            <div style={{ width: '16px', height: '11px', backgroundImage: `url(${matchData.homeFlag})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '2px', flexShrink: 0 }} />
+                            <span style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>{matchData.homeName}</span>
+                            <span style={{ color: '#22d3ee', fontSize: '9px', fontWeight: 900, fontStyle: 'italic', margin: '0 2px', opacity: 0.8 }}>VS</span>
+                            <span style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}>{matchData.awayName}</span>
+                            <div style={{ width: '16px', height: '11px', backgroundImage: `url(${matchData.awayFlag})`, backgroundSize: 'cover', backgroundPosition: 'center', borderRadius: '2px', flexShrink: 0 }} />
                           </div>
                         </div>
                       ) : (
