@@ -135,26 +135,32 @@ export default function HomePage() {
       if (matchesData) {
         let validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
         
-        // Compute chronological global index FIRST
+        // Compute chronological global index FIRST for group stage fallback
         validMatches.sort((a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
-        validMatches = validMatches.map((m: any, index: number) => ({ ...m, globalIndex: index + 1 }));
+        
+        validMatches = validMatches.map((m: any, index: number) => {
+          let matchNum = index + 1; // Default chronological index
+          if (m.home_team && m.away_team) {
+             const tag = (matchMapping as any)[`${m.home_team.name} vs ${m.away_team.name}`];
+             if (tag) {
+                const parsed = parseInt(tag.replace(/\\D/g, ''));
+                if (!isNaN(parsed)) matchNum = parsed;
+             }
+          }
+          return { ...m, globalIndex: matchNum, matchNumber: matchNum }; 
+        });
         
         // Sort by status (unfinished first, finished last)
-        // For unfinished matches: chronological order (soonest first)
-        // For finished matches: reverse chronological order (most recently finished first)
         validMatches.sort((a: any, b: any) => {
           const aFinished = a.status === 'finished';
           const bFinished = b.status === 'finished';
           if (aFinished && !bFinished) return 1;
           if (!aFinished && bFinished) return -1;
           
-          const timeA = new Date(a.kickoff_time).getTime();
-          const timeB = new Date(b.kickoff_time).getTime();
-          
           if (aFinished && bFinished) {
-            return timeB - timeA; // Most recent first
+            return b.matchNumber - a.matchNumber; // Highest match number first for finished
           }
-          return timeA - timeB; // Soonest first
+          return a.matchNumber - b.matchNumber; // Lowest match number first for pending
         });
         
         setMatches(validMatches);
