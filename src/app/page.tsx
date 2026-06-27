@@ -733,16 +733,38 @@ export default function HomePage() {
             </div>
             
             {leaderboardView === 'chart' && (
-              <div className="flex justify-center gap-3 w-full mt-2">
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', width: '100%', marginTop: '12px' }}>
                 <button
-                  className={`px-4 md:px-8 py-2 md:py-3 rounded-lg text-sm md:text-lg font-bold transition-colors shadow-md border ${chartType === 'rank' ? 'bg-[#2563eb] text-white border-[#3b82f6]' : 'bg-[#374151] text-gray-300 border-[#4b5563] hover:bg-[#4b5563]'}`}
                   onClick={() => setChartType('rank')}
+                  style={{
+                    backgroundColor: chartType === 'rank' ? '#2563eb' : '#374151',
+                    color: chartType === 'rank' ? '#ffffff' : '#d1d5db',
+                    padding: '12px 28px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    border: chartType === 'rank' ? '2px solid #60a5fa' : '2px solid #4b5563',
+                    transition: 'all 0.2s ease',
+                    boxShadow: chartType === 'rank' ? '0 4px 12px rgba(37,99,235,0.5)' : '0 2px 4px rgba(0,0,0,0.5)',
+                    cursor: 'pointer'
+                  }}
                 >
                   🏆 Thứ hạng
                 </button>
                 <button
-                  className={`px-4 md:px-8 py-2 md:py-3 rounded-lg text-sm md:text-lg font-bold transition-colors shadow-md border ${chartType === 'points' ? 'bg-[#2563eb] text-white border-[#3b82f6]' : 'bg-[#374151] text-gray-300 border-[#4b5563] hover:bg-[#4b5563]'}`}
                   onClick={() => setChartType('points')}
+                  style={{
+                    backgroundColor: chartType === 'points' ? '#2563eb' : '#374151',
+                    color: chartType === 'points' ? '#ffffff' : '#d1d5db',
+                    padding: '12px 28px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    border: chartType === 'points' ? '2px solid #60a5fa' : '2px solid #4b5563',
+                    transition: 'all 0.2s ease',
+                    boxShadow: chartType === 'points' ? '0 4px 12px rgba(37,99,235,0.5)' : '0 2px 4px rgba(0,0,0,0.5)',
+                    cursor: 'pointer'
+                  }}
                 >
                   ⭐️ Điểm số
                 </button>
