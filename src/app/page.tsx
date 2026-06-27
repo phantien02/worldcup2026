@@ -873,29 +873,40 @@ export default function HomePage() {
                 if (active && payload && payload.length) {
                   const matchData = chartData.find((d: any) => d.date === label);
                   return (
-                    <div style={{ backgroundColor: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                    <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '12px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', minWidth: '220px', backdropFilter: 'blur(8px)' }}>
                       {chartType === 'points' && matchData?.homeFlag && matchData?.awayFlag ? (
-                        <div className="flex flex-col mb-3 pb-3 border-b border-white/10">
-                          <div className="text-gray-400 text-[11px] uppercase font-bold mb-2">{label}</div>
-                          <div className="flex items-center gap-2">
-                            <img src={matchData.homeFlag} alt="home" style={{ width: '20px', height: '14px', borderRadius: '2px' }} />
-                            <span className="text-white text-sm font-bold">{matchData.homeName}</span>
+                        <>
+                          <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 text-center">
+                            {label}
                           </div>
-                          <div className="text-gray-500 text-[10px] font-bold text-center my-1">VS</div>
-                          <div className="flex items-center gap-2">
-                            <img src={matchData.awayFlag} alt="away" style={{ width: '20px', height: '14px', borderRadius: '2px' }} />
-                            <span className="text-white text-sm font-bold">{matchData.awayName}</span>
+                          <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-white/10">
+                            <div className="flex flex-col items-center gap-1.5 flex-1" style={{ maxWidth: '80px' }}>
+                              <img src={matchData.homeFlag} alt="home" className="w-8 h-6 object-cover rounded shadow-sm border border-white/10" />
+                              <span className="text-white text-xs font-bold text-center w-full truncate" title={matchData.homeName}>{matchData.homeName}</span>
+                            </div>
+                            
+                            <div className="text-cyan-500 text-xs font-black italic">VS</div>
+                            
+                            <div className="flex flex-col items-center gap-1.5 flex-1" style={{ maxWidth: '80px' }}>
+                              <img src={matchData.awayFlag} alt="away" className="w-8 h-6 object-cover rounded shadow-sm border border-white/10" />
+                              <span className="text-white text-xs font-bold text-center w-full truncate" title={matchData.awayName}>{matchData.awayName}</span>
+                            </div>
                           </div>
-                        </div>
+                        </>
                       ) : (
-                        <p style={{ color: '#fff', fontWeight: 'bold', marginBottom: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>{label}</p>
+                        <div className="text-gray-300 text-sm font-bold uppercase tracking-wider mb-3 pb-3 border-b border-white/10 text-center">
+                          {label}
+                        </div>
                       )}
                       
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-2">
                         {payload.map((entry: any, index: number) => (
-                          <div key={index} className="flex justify-between gap-4">
-                            <span style={{ color: entry.color, fontSize: '13px', fontWeight: 'bold' }}>{entry.name}</span>
-                            <span style={{ color: entry.color, fontSize: '14px', fontWeight: '900' }}>{entry.value}</span>
+                          <div key={index} className="flex justify-between items-center gap-6">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full shadow-sm" style={{ backgroundColor: entry.color }}></div>
+                              <span className="text-gray-200 text-sm font-medium">{entry.name}</span>
+                            </div>
+                            <span style={{ color: entry.color }} className="text-base font-black drop-shadow-md">{entry.value}</span>
                           </div>
                         ))}
                       </div>
