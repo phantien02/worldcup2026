@@ -885,7 +885,6 @@ export default function HomePage() {
               };
 
               const ChartComponent = chartType === 'rank' ? LineChart : BarChart;
-              const DataComponent = chartType === 'rank' ? Line : Bar;
 
               return (
                 <div className="flex flex-col md:flex-row gap-6 w-full" style={{ minHeight: '500px', padding: '1rem 0' }}>
@@ -907,22 +906,31 @@ export default function HomePage() {
                           contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
                           itemStyle={{ fontWeight: 'bold' }}
                         />
-                        {leaderboard.map((user, idx) => (
-                          !hiddenPlayers.includes(user.display_name) && (
-                            <DataComponent 
+                        {leaderboard.map((user, idx) => {
+                          if (hiddenPlayers.includes(user.display_name)) return null;
+                          const color = colors[leaderboard.findIndex(u => u.id === user.id) % colors.length];
+                          
+                          return chartType === 'rank' ? (
+                            <Line 
                               key={user.id}
                               type="linear" 
                               dataKey={user.display_name} 
-                              stroke={chartType === 'rank' ? colors[leaderboard.findIndex(u => u.id === user.id) % colors.length] : undefined}
-                              fill={chartType === 'points' ? colors[leaderboard.findIndex(u => u.id === user.id) % colors.length] : undefined}
+                              stroke={color}
                               strokeWidth={3}
                               dot={{ r: 4, strokeWidth: 2 }}
                               activeDot={{ r: 6 }}
                               isAnimationActive={true}
-                              radius={chartType === 'points' ? [4, 4, 0, 0] : undefined}
                             />
-                          )
-                        ))}
+                          ) : (
+                            <Bar 
+                              key={user.id}
+                              dataKey={user.display_name} 
+                              fill={color}
+                              isAnimationActive={true}
+                              radius={[4, 4, 0, 0] as any}
+                            />
+                          );
+                        })}
                       </ChartComponent>
                     </ResponsiveContainer>
                   </div>
