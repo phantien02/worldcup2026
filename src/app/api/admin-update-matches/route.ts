@@ -2,108 +2,25 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-server';
 
 export async function GET(req: Request) {
-  // Vòng 32 - Cập nhật đội + giờ đấu (giờ UTC)
-  // Ảnh gốc hiển thị giờ EDT (UTC-4)
+  // Chỉ cập nhật cặp đấu (home/away team), GIỮ NGUYÊN giờ thi đấu đã có trong DB
   const updates = [
-    {
-      id: 'dcb4ea25-edcd-4b22-b525-aa3c314cf221',
-      homeName: 'Nam Phi', awayName: 'Canada',
-      kickoff: '2026-06-29T06:00:00Z',  // Jun 29, 2:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '09e95a63-e5a7-4516-a877-c55fcd30ec67',
-      homeName: 'Brazil', awayName: 'Nhật Bản',
-      kickoff: '2026-06-30T04:00:00Z',  // Jun 30, 12:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: 'ee85ff66-0d2b-4ccb-85f7-47a22295652b',
-      homeName: 'Đức', awayName: 'Paraguay',
-      kickoff: '2026-06-30T07:30:00Z',  // Jun 30, 3:30 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '32455a36-a8b1-45ea-93a7-41d584ebbaab',
-      homeName: 'Hà Lan', awayName: 'Marocco',
-      kickoff: '2026-06-30T12:00:00Z',  // Jun 30, 8:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '6518f2ef-4e19-4551-81fb-2c760ded9dc5',
-      homeName: 'Bờ Biển Ngà', awayName: 'Na Uy',
-      kickoff: '2026-07-01T04:00:00Z',  // Jul 1, 12:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '757782dd-2975-4815-a6ee-3846c8762e16',
-      homeName: 'Pháp', awayName: 'Thụy Điển',
-      kickoff: '2026-07-01T08:00:00Z',  // Jul 1, 4:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '24623cb4-55eb-40d3-bf8f-60d4ea4d97bd',
-      homeName: 'Mexico', awayName: 'Ecuador',
-      kickoff: '2026-07-01T12:00:00Z',  // Jul 1, 8:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: 'fd-england-congo', // sẽ lookup bằng tên nếu không có ID cố định
-      homeName: 'Anh', awayName: 'CH Congo',
-      kickoff: '2026-07-02T03:00:00Z',  // Jul 1, 11:00 PM EDT
-      round: 'Vòng 32 Đội',
-      lookupByName: true
-    },
-    {
-      id: '0f29e77a-6db5-472e-a596-81cf416f40cb',
-      homeName: 'Bỉ', awayName: 'Senegal',
-      kickoff: '2026-07-02T07:00:00Z',  // Jul 2, 3:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: 'c1f5a56f-c57d-4393-b397-6ad8b4444e95',
-      homeName: 'Mỹ', awayName: 'Bosnia',
-      kickoff: '2026-07-02T11:00:00Z',  // Jul 2, 7:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '9db3381a-1314-4528-98ce-ef2d057f999e',
-      homeName: 'Tây Ban Nha', awayName: 'Áo',
-      kickoff: '2026-07-03T06:00:00Z',  // Jul 3, 2:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: 'fd-portugal-croatia',
-      homeName: 'Bồ Đào Nha', awayName: 'Croatia',
-      kickoff: '2026-07-03T10:00:00Z',  // Jul 3, 6:00 AM EDT
-      round: 'Vòng 32 Đội',
-      lookupByName: true
-    },
-    {
-      id: '8ac18879-c14d-41d7-a52a-61d12229180b',
-      homeName: 'Thụy Sĩ', awayName: 'Algeria',
-      kickoff: '2026-07-03T14:00:00Z',  // Jul 3, 10:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '9cd98f4a-e6d9-4323-9a8b-5bb144b700dd',
-      homeName: 'Úc', awayName: 'Ai Cập',
-      kickoff: '2026-07-04T05:00:00Z',  // Jul 4, 1:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: '72303942-7ac0-4dce-965c-ced65e2e1b49',
-      homeName: 'Argentina', awayName: 'Cape Verde',
-      kickoff: '2026-07-04T09:00:00Z',  // Jul 4, 5:00 AM EDT
-      round: 'Vòng 32 Đội'
-    },
-    {
-      id: 'fd-colombia-ghana',
-      homeName: 'Colombia', awayName: 'Ghana',
-      kickoff: '2026-07-04T12:30:00Z',  // Jul 4, 8:30 AM EDT
-      round: 'Vòng 32 Đội',
-      lookupByName: true
-    },
+    { id: 'dcb4ea25-edcd-4b22-b525-aa3c314cf221', homeName: 'Nam Phi',     awayName: 'Canada'     },
+    { id: '09e95a63-e5a7-4516-a877-c55fcd30ec67', homeName: 'Brazil',      awayName: 'Nhật Bản'   },
+    { id: 'ee85ff66-0d2b-4ccb-85f7-47a22295652b', homeName: 'Đức',         awayName: 'Paraguay'   },
+    { id: '32455a36-a8b1-45ea-93a7-41d584ebbaab', homeName: 'Hà Lan',      awayName: 'Marocco'    },
+    { id: '6518f2ef-4e19-4551-81fb-2c760ded9dc5', homeName: 'Bờ Biển Ngà', awayName: 'Na Uy'      },
+    { id: '757782dd-2975-4815-a6ee-3846c8762e16', homeName: 'Pháp',        awayName: 'Thụy Điển'  },
+    { id: '24623cb4-55eb-40d3-bf8f-60d4ea4d97bd', homeName: 'Mexico',      awayName: 'Ecuador'    },
+    { id: '0f29e77a-6db5-472e-a596-81cf416f40cb', homeName: 'Bỉ',          awayName: 'Senegal'    },
+    { id: 'c1f5a56f-c57d-4393-b397-6ad8b4444e95', homeName: 'Mỹ',          awayName: 'Bosnia'     },
+    { id: '9db3381a-1314-4528-98ce-ef2d057f999e', homeName: 'Tây Ban Nha', awayName: 'Áo'         },
+    { id: '8ac18879-c14d-41d7-a52a-61d12229180b', homeName: 'Thụy Sĩ',     awayName: 'Algeria'    },
+    { id: '9cd98f4a-e6d9-4323-9a8b-5bb144b700dd', homeName: 'Úc',          awayName: 'Ai Cập'     },
+    { id: '72303942-7ac0-4dce-965c-ced65e2e1b49', homeName: 'Argentina',   awayName: 'Cape Verde' },
+    // Các trận cần lookup theo tên đội (chưa có ID cố định)
+    { homeName: 'Anh',        awayName: 'CH Congo',  lookupByName: true },
+    { homeName: 'Bồ Đào Nha', awayName: 'Croatia',   lookupByName: true },
+    { homeName: 'Colombia',   awayName: 'Ghana',     lookupByName: true },
   ];
 
   try {
@@ -113,10 +30,10 @@ export async function GET(req: Request) {
     const teamMap: Record<string, string> = {};
     teams?.forEach(t => teamMap[t.name] = t.id);
 
-    // Fetch existing matches to find ones by team name
+    // Fetch tất cả match vòng 32 để lookup theo team
     const { data: existingMatches } = await supabaseAdmin
       .from('matches')
-      .select('id, home_team_id, away_team_id, round')
+      .select('id, home_team_id, away_team_id')
       .eq('round', 'Vòng 32 Đội');
 
     const results = [];
@@ -125,49 +42,28 @@ export async function GET(req: Request) {
       const homeId = teamMap[update.homeName];
       const awayId = update.awayName ? teamMap[update.awayName] : null;
 
-      let matchId = update.id;
+      if (!homeId) {
+        results.push({ match: `${update.homeName} vs ${update.awayName}`, action: 'skip_no_home_team' });
+        continue;
+      }
 
-      // For matches without a fixed ID, find by team name match
-      if (update.lookupByName) {
+      let matchId = (update as any).id;
+
+      // Lookup by existing team assignment for matches without fixed ID
+      if ((update as any).lookupByName) {
         const found = existingMatches?.find(m =>
-          (homeId && m.home_team_id === homeId) ||
-          (awayId && m.away_team_id === awayId)
+          m.home_team_id === homeId || (awayId && m.away_team_id === awayId)
         );
         if (found) {
           matchId = found.id;
         } else {
-          // Need to create this match
-          if (homeId && awayId) {
-            const { data: inserted, error: insertErr } = await supabaseAdmin
-              .from('matches')
-              .insert({
-                home_team_id: homeId,
-                away_team_id: awayId,
-                kickoff_time: update.kickoff,
-                status: 'pending',
-                round: update.round
-              })
-              .select('id')
-              .single();
-
-            if (!insertErr && inserted) {
-              results.push({ match: `${update.homeName} vs ${update.awayName}`, action: 'inserted', id: inserted.id });
-            } else {
-              results.push({ match: `${update.homeName} vs ${update.awayName}`, action: 'insert_error', error: insertErr?.message });
-            }
-            continue;
-          } else {
-            results.push({ match: `${update.homeName} vs ${update.awayName}`, action: 'skipped_missing_team', homeFound: !!homeId, awayFound: !!awayId });
-            continue;
-          }
+          results.push({ match: `${update.homeName} vs ${update.awayName}`, action: 'not_found_in_db' });
+          continue;
         }
       }
 
-      // Build payload
-      const payload: any = {
-        kickoff_time: update.kickoff,
-        round: update.round
-      };
+      // Chỉ update team IDs, không đổi giờ
+      const payload: any = {};
       if (homeId) payload.home_team_id = homeId;
       if (awayId) payload.away_team_id = awayId;
 
