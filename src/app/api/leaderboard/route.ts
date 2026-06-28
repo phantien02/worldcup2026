@@ -158,12 +158,18 @@ export async function GET() {
       return false;
     };
 
+    // Pre-compute how many finished matches belong to each round type
+    const groupMatchCount = validMatches.filter(m => isGroupStage(m.round)).length;
+    const knockoutMatchCount = validMatches.filter(m => !isGroupStage(m.round)).length;
+
     const leaderboard = users.map(p => {
       let correctResults = 0;
       let exactScores = 0;
       let exactDiffs = 0;
       let groupPoints = 0;
       let knockoutPoints = 0;
+      let groupActualPreds = 0;
+      let knockoutActualPreds = 0;
 
       const userPreds = predictions.filter(pred => pred.user_id === p.id);
 
@@ -188,12 +194,14 @@ export async function GET() {
           }
         }
 
-        // Accumulate points by round type
+        // Accumulate points and pred counts by round type
         const earned = pred.points_earned || 0;
         if (isGroupStage(m.round)) {
           groupPoints += earned;
+          groupActualPreds++;
         } else {
           knockoutPoints += earned;
+          knockoutActualPreds++;
         }
       });
 
@@ -214,7 +222,11 @@ export async function GET() {
           actualPreds: userPreds.length,
           correctResults,
           exactScores,
-          exactDiffs
+          exactDiffs,
+          groupMatchCount,
+          knockoutMatchCount,
+          groupActualPreds,
+          knockoutActualPreds,
         },
         rankHistory: history,
         pointsHistory: ptsHistory,

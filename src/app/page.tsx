@@ -863,7 +863,12 @@ export default function HomePage() {
                           {getPoints(user)}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#a3a3a3', fontWeight: '600', fontSize: '1.1rem' }}>
-                          {user.stats?.actualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
+                          {pointsFilter === 'total'
+                            ? <>{user.stats?.actualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span></>
+                            : pointsFilter === 'group'
+                            ? <>{user.stats?.groupActualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.groupMatchCount || 0}</span></>
+                            : <>{user.stats?.knockoutActualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.knockoutMatchCount || 0}</span></>
+                          }
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00d2ff', fontWeight: '600', fontSize: '1.1rem' }}>
                           {user.stats?.correctResults || 0}
