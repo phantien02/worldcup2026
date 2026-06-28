@@ -90,6 +90,7 @@ export default function HomePage() {
   const [leaderboardView, setLeaderboardView] = useState<'list' | 'chart'>('list');
   const [chartType, setChartType] = useState<'rank' | 'points'>('rank');
   const [hiddenPlayers, setHiddenPlayers] = useState<string[]>([]);
+  const [pointsFilter, setPointsFilter] = useState<'total' | 'group' | 'knockout'>('total');
   const [initializedChart, setInitializedChart] = useState(false);
 
   useEffect(() => {
@@ -780,6 +781,46 @@ export default function HomePage() {
               </div>
             ) : leaderboardView === 'list' ? (
               <div style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                {/* Points Filter Tabs */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  {([
+                    { key: 'total', label: '🏆 Điểm tổng' },
+                    { key: 'group', label: '🔵 Vòng bảng' },
+                    { key: 'knockout', label: '⚡ Vòng loại' },
+                  ] as const).map(({ key, label }) => (
+                    <button
+                      key={key}
+                      onClick={() => setPointsFilter(key)}
+                      style={{
+                        padding: '8px 18px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s',
+                        backgroundColor: pointsFilter === key ? '#2563eb' : 'rgba(255,255,255,0.08)',
+                        color: pointsFilter === key ? '#fff' : '#9ca3af',
+                        boxShadow: pointsFilter === key ? '0 2px 12px rgba(37,99,235,0.4)' : 'none',
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {/* Leaderboard Table */}
+                {(() => {
+                  const getPoints = (u: any) => pointsFilter === 'total' ? (u.calculatedTotalPoints || 0) : pointsFilter === 'group' ? (u.groupPoints || 0) : (u.knockoutPoints || 0);
+                  const sorted = [...leaderboard].sort((a, b) => {
+                    const diff = getPoints(b) - getPoints(a);
+                    if (diff !== 0) return diff;
+                    const scoreDiff = (b.stats?.exactScores || 0) - (a.stats?.exactScores || 0);
+                    if (scoreDiff !== 0) return scoreDiff;
+                    const diffDiff = (b.stats?.exactDiffs || 0) - (a.stats?.exactDiffs || 0);
+                    if (diffDiff !== 0) return diffDiff;
+                    return (a.display_name || '').localeCompare(b.display_name || '');
+                  });
+                  return (
                 <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 10px', fontSize: '0.95rem', textAlign: 'left', minWidth: '700px' }}>
                   <thead style={{ color: '#a3a3a3', fontSize: '0.85rem', textTransform: 'uppercase', fontWeight: 'bold' }}>
                     <tr>
@@ -793,14 +834,14 @@ export default function HomePage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {leaderboard.map((user, idx) => (
+                    {sorted.map((user, idx) => (
                       <tr key={user.id} className="hover-card" style={{ background: 'rgba(0,0,0,0.3)', transition: 'background-color 0.2s' }}>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', fontWeight: '900', fontSize: '1.25rem', color: idx === 0 ? '#ffd700' : idx === 1 ? '#c0c0c0' : idx === 2 ? '#cd7f32' : '#6b7280', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>
                           <div className="flex flex-col items-center gap-1">
                             <span>#{idx + 1}</span>
-                            {user.rankTrend > 0 && <span style={{ color: '#00ff88', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▲ {user.rankTrend}</span>}
-                            {user.rankTrend < 0 && <span style={{ color: '#ff4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▼ {Math.abs(user.rankTrend)}</span>}
-                            {user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ 0</span>}
+                            {pointsFilter === 'total' && user.rankTrend > 0 && <span style={{ color: '#00ff88', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▲ {user.rankTrend}</span>}
+                            {pointsFilter === 'total' && user.rankTrend < 0 && <span style={{ color: '#ff4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>▼ {Math.abs(user.rankTrend)}</span>}
+                            {pointsFilter === 'total' && user.rankTrend === 0 && <span style={{ color: '#888', fontSize: '0.75rem', display: 'flex', alignItems: 'center' }}>⏺ 0</span>}
                           </div>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', fontWeight: 600, fontSize: '1.1rem', whiteSpace: 'nowrap' }}>
@@ -819,7 +860,7 @@ export default function HomePage() {
                           </div>
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: '900', fontSize: '1.25rem' }}>
-                          {user.calculatedTotalPoints || 0}
+                          {getPoints(user)}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#a3a3a3', fontWeight: '600', fontSize: '1.1rem' }}>
                           {user.stats?.actualPreds || 0}<span style={{ opacity: 0.4, fontSize: '0.85rem', fontWeight: 'normal' }}>/{user.stats?.totalPreds || 0}</span>
@@ -837,6 +878,8 @@ export default function HomePage() {
                     ))}
                   </tbody>
                 </table>
+                  );
+                })()}
               </div>
             ) : (() => {
               // Build Chart Data

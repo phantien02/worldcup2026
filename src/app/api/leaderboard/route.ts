@@ -146,10 +146,24 @@ export async function GET() {
     });
 
     // 3. Build final leaderboard
+    // Helper: classify a round as group stage or knockout
+    // Group stage = any round starting with "bảng" / "vòng bảng" / containing "group"
+    // Everything else (vòng 32, 16, tứ kết, bán kết, hạng 3, chung kết...) = knockout
+    const isGroupStage = (round: string) => {
+      if (!round) return false;
+      const lower = round.toLowerCase().trim();
+      // Explicitly classify group-stage keywords
+      if (lower.startsWith('bảng') || lower.startsWith('vòng bảng') || lower.includes('group')) return true;
+      // Everything else — including "tranh hạng 3", "hạng 3", "chung kết", etc. — is knockout
+      return false;
+    };
+
     const leaderboard = users.map(p => {
       let correctResults = 0;
       let exactScores = 0;
       let exactDiffs = 0;
+      let groupPoints = 0;
+      let knockoutPoints = 0;
 
       const userPreds = predictions.filter(pred => pred.user_id === p.id);
 
@@ -172,6 +186,14 @@ export async function GET() {
           } else if (isExactDiff) {
             exactDiffs++;
           }
+        }
+
+        // Accumulate points by round type
+        const earned = pred.points_earned || 0;
+        if (isGroupStage(m.round)) {
+          groupPoints += earned;
+        } else {
+          knockoutPoints += earned;
         }
       });
 
@@ -197,6 +219,8 @@ export async function GET() {
         rankHistory: history,
         pointsHistory: ptsHistory,
         rankTrend: rankTrend,
+        groupPoints,
+        knockoutPoints,
         calculatedTotalPoints: ptsHistory.length > 0 ? ptsHistory[ptsHistory.length - 1].cumulativePoints : 0
       };
     });
