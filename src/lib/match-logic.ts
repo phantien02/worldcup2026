@@ -44,6 +44,8 @@ export async function internalUpdateMatchResult(
   // Fetch match to get kickoff_time for rule versioning
   const { data: matchData } = await supabaseAdmin.from('matches').select('kickoff_time').eq('id', matchId).single();
   const isNewRules = matchData?.kickoff_time ? new Date(matchData.kickoff_time).getTime() >= new Date('2026-06-24T17:00:00Z').getTime() : true;
+  // Underdog bonus <= 20% (thay vì < 20%) áp dụng từ 00:00 ngày 29/6 giờ VN (= 17:00 UTC ngày 28/6)
+  const isBonusV2   = matchData?.kickoff_time ? new Date(matchData.kickoff_time).getTime() >= new Date('2026-06-28T17:00:00Z').getTime() : false;
 
   // Fetch all predictions for this match
   const { data: predictions } = await supabaseAdmin
@@ -84,9 +86,10 @@ export async function internalUpdateMatchResult(
         points += 10; // Đoán đúng đội đi tiếp
 
         if (isNewRules) {
-          // Điểm mạo hiểm Knockout (< 20%)
+          // Điểm mạo hiểm Knockout (< 20% hoặc <= 20% tuỳ phiên bản)
           const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
-          if (pickRate < 0.2) {
+          const underdogThresholdMet = isBonusV2 ? pickRate <= 0.2 : pickRate < 0.2;
+          if (underdogThresholdMet) {
             points += 10;
           }
         }
@@ -125,15 +128,15 @@ export async function internalUpdateMatchResult(
             }
           }
 
-          // 3. Điểm mạo hiểm Vòng bảng (< 20%)
+          // 3. Điểm mạo hiểm Vòng bảng (< 20% hoặc <= 20% tuỳ phiên bản)
           let pickRate = 0;
           if (totalPredictions > 0) {
             if (p.prediction_result === 'home_win') pickRate = homeWinCount / totalPredictions;
             else if (p.prediction_result === 'away_win') pickRate = awayWinCount / totalPredictions;
             else if (p.prediction_result === 'draw') pickRate = drawCount / totalPredictions;
           }
-          
-          if (pickRate < 0.2) {
+          const underdogThresholdMet = isBonusV2 ? pickRate <= 0.2 : pickRate < 0.2;
+          if (underdogThresholdMet) {
             points += 5;
           }
         }
