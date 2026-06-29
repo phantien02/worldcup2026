@@ -477,7 +477,7 @@ export default function HomePage() {
                 <h3 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h3>
                 <p className="mb-2">Phần thưởng đặc biệt dành cho những người chơi có lối đi riêng.</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>từ 20% trở xuống (<= 20%)</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
+                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>từ 20% trở xuống (&lt;= 20%)</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                 </ul>
               </div>
 
@@ -572,7 +572,7 @@ export default function HomePage() {
                 <h4 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>1. Dự đoán Đội đi tiếp</h4>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Đoán trúng đội đi tiếp / chiến thắng: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
-                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>từ 20% trở xuống (<= 20%)</strong> số người chơi lựa chọn, bạn được thưởng thêm điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
+                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>từ 20% trở xuống (&lt;= 20%)</strong> số người chơi lựa chọn, bạn được thưởng thêm điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                 </ul>
               </div>
 
