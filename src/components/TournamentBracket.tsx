@@ -65,7 +65,7 @@ export default function TournamentBracket({ matches }: TournamentBracketProps) {
         <div className={styles.matchConnector}></div>
         <div className={styles.matchCard}>
           <div className={styles.matchHeader}>
-            <span className={styles.matchNumber}>MD{num}</span>
+            <span className={styles.matchNumber}>W{num}</span>
             {m ? <span className={styles.matchTime}>{formatTime(m.kickoff_time)}</span> : <span className={styles.matchTime}>Chưa có lịch</span>}
           </div>
           <div className={styles.matchBody}>
