@@ -50,7 +50,7 @@ export default function AdminPage() {
     const { data: teamsData } = await supabase.from('teams').select('*').order('name');
     if (teamsData) setTeams(teamsData as any);
 
-    const { data: matchesData } = await supabase.from('matches').select('id, status, home_score, away_score, kickoff_time, round, home_team:home_team_id(name, flag_url, code), away_team:away_team_id(name, flag_url, code)').order('kickoff_time', { ascending: true });
+    const { data: matchesData } = await supabase.from('matches').select('id, status, home_score, away_score, kickoff_time, round, home_team_id, away_team_id, home_team:home_team_id(name, flag_url, code), away_team:away_team_id(name, flag_url, code)').order('kickoff_time', { ascending: true });
     if (matchesData) {
       const validMatches = (matchesData as any).filter((m: any) => m.round !== 'DELETED');
       validMatches.sort((a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
