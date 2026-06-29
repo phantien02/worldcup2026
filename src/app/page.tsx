@@ -477,7 +477,7 @@ export default function HomePage() {
                 <h3 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>3. Điểm mạo hiểm (Underdog Bonus)</h3>
                 <p className="mb-2">Phần thưởng đặc biệt dành cho những người chơi có lối đi riêng.</p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>dưới 20%</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
+                  <li>Nếu kết quả bạn chọn (Thắng/Thua/Hòa) có <strong>từ 20% trở xuống (<= 20%)</strong> số người chơi trên toàn hệ thống lựa chọn, bạn được thưởng thêm: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                 </ul>
               </div>
 
@@ -491,7 +491,7 @@ export default function HomePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div style={{ backgroundColor: 'rgba(0,0,0,0.4)', padding: '1.5rem', borderRadius: '12px', borderLeft: '4px solid #00ff87' }}>
-                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng tuyệt đối + mạo hiểm (&lt; 20%)</h4>
+                  <h4 className="font-bold text-white text-lg mb-2">Trường hợp 1: Đúng tuyệt đối + mạo hiểm (≤ 20%)</h4>
                   <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>Thực tế: Đội A thắng 2-1 Đội B</p>
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: Đội A thắng 2-1 Đội B (cửa thắng chỉ có 12% chọn)</p>
                   <ul className="text-sm space-y-1">
@@ -572,7 +572,7 @@ export default function HomePage() {
                 <h4 className="font-bold text-white text-xl mb-3" style={{ color: '#00d2ff' }}>1. Dự đoán Đội đi tiếp</h4>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Đoán trúng đội đi tiếp / chiến thắng: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
-                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>dưới 20%</strong> số người chơi lựa chọn, bạn được thưởng thêm điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
+                  <li>Nếu đội bạn dự đoán đi tiếp có <strong>từ 20% trở xuống (<= 20%)</strong> số người chơi lựa chọn, bạn được thưởng thêm điểm mạo hiểm: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                 </ul>
               </div>
 
@@ -603,7 +603,7 @@ export default function HomePage() {
                   <p className="text-sm mb-3" style={{ color: '#a3a3a3' }}>Dự đoán: A đi tiếp (mạo hiểm), tỷ số 2-1</p>
                   <ul className="text-sm space-y-1">
                     <li>Đúng đội đi tiếp: <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
-                    <li>Điểm mạo hiểm (&lt; 20%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
+                    <li>Điểm mạo hiểm (≤ 20%): <strong style={{ color: '#00ff87' }}>+10 điểm</strong></li>
                     <li>Đúng chính xác tỷ số: <strong style={{ color: '#00ff87' }}>+5 điểm</strong></li>
                     <li>Đúng số bàn 2 đội (1+1): <strong style={{ color: '#00ff87' }}>+2 điểm</strong></li>
                   </ul>

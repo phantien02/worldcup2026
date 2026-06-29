@@ -22,6 +22,7 @@ export async function GET(req: Request) {
       const isKnockout = match.round && knockoutRounds.includes(match.round);
       const matchKickoffTime = match.kickoff_time ? new Date(match.kickoff_time).getTime() : 0;
       const isNewRules = matchKickoffTime >= NEW_RULE_CUTOFF;
+      const isBonusV2 = matchKickoffTime >= new Date('2026-06-28T17:00:00Z').getTime();
 
       const { data: predictions, error: predsErr } = await supabaseAdmin
         .from('predictions')
@@ -57,12 +58,10 @@ export async function GET(req: Request) {
           if (p.advancing_team_id) {
             if (p.advancing_team_id === match.winner_id) {
               points += 10;
-              if (p.predicted_win_method === match.win_method) {
-                points += 5;
-              }
               if (isNewRules) {
                 const pickRate = totalPredictions > 0 ? advancingTeamCounts[p.advancing_team_id] / totalPredictions : 0;
-                if (pickRate < 0.2) {
+                const underdogThresholdMet = isBonusV2 ? pickRate <= 0.2 : pickRate < 0.2;
+                if (underdogThresholdMet) {
                   points += 10;
                 }
               }
@@ -103,7 +102,8 @@ export async function GET(req: Request) {
                 else if (p.prediction_result === 'draw') pickRate = drawCount / totalPredictions;
               }
               
-              if (pickRate < 0.2) {
+              const underdogThresholdMet = isBonusV2 ? pickRate <= 0.2 : pickRate < 0.2;
+              if (underdogThresholdMet) {
                 points += 5;
               }
             }
