@@ -148,7 +148,7 @@ export default function HomePage() {
           if (m.home_team && m.away_team) {
              const tag = (matchMapping as any)[`${m.home_team.name} vs ${m.away_team.name}`];
              if (tag) {
-                const parsed = parseInt(tag.replace(/\\D/g, ''));
+                const parsed = parseInt(tag.replace(/\D/g, ''));
                 if (!isNaN(parsed)) matchNum = parsed;
              }
           }
