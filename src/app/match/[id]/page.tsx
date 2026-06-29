@@ -496,9 +496,17 @@ export default function MatchPage() {
                 </>
               )}
             </div>
-          ) : (
+          ) : (() => {
+              const isPlaceholderTeam = (name: string) => /^(Thắng|Thua|Nhất|Nhì|Thứ\s*3)/i.test(name);
+              const teamsUndetermined = isKnockout && (isPlaceholderTeam(home.name) || isPlaceholderTeam(away.name));
+              if (teamsUndetermined) return (
+                <div className="text-center" style={{ padding: '1.5rem', background: 'rgba(255,165,0,0.1)', borderRadius: '16px', border: '1px solid var(--warning)' }}>
+                  <p style={{ color: 'var(--warning)', marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '1.1rem' }}>⚠️ Chưa xác định đủ 2 đội!</p>
+                  <p style={{ opacity: 0.8 }}>Trận đấu này chưa xác định đầy đủ 2 đội tham gia. Bạn chỉ có thể dự đoán sau khi cả 2 đội đã được xác định.</p>
+                </div>
+              );
+              return (
             <form onSubmit={handleSavePrediction} className="flex flex-col gap-8">
-              
               {isKnockout ? (
                 <>
                   <div>
@@ -609,7 +617,8 @@ export default function MatchPage() {
                 {saving ? 'Đang lưu...' : 'XÁC NHẬN DỰ ĐOÁN'}
               </button>
             </form>
-          )}
+              );
+            })()}
         </div>
 
         {/* Stats Chart */}

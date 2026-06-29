@@ -38,6 +38,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Match predictions are locked 45 minutes before kickoff.' }, { status: 400 });
     }
 
+    // Block predictions on knockout matches where teams are not yet determined
+    const koRoundsCheck = ['Vòng 16 đội', 'Tứ kết', 'Bán kết', 'Tranh hạng ba', 'Tranh hạng 3', 'Chung kết'];
+    if (koRoundsCheck.includes(match.round || '')) {
+      const { data: homeTeam } = await supabaseAdmin.from('teams').select('name').eq('id', match.home_team_id).single();
+      const { data: awayTeam } = await supabaseAdmin.from('teams').select('name').eq('id', match.away_team_id).single();
+      const isPlaceholder = (name: string) => /^(Thắng|Thua|Nhất|Nhì|Thứ\s*3)/i.test(name);
+      if (isPlaceholder(homeTeam?.name || '') || isPlaceholder(awayTeam?.name || '')) {
+        return NextResponse.json({ error: 'Chưa thể dự đoán trận này vì chưa xác định đủ 2 đội tham gia!' }, { status: 400 });
+      }
+    }
+
     // SANITIZE PAYLOAD to prevent injection of 'points_earned' or other sensitive fields
     const safePayload = {
       user_id: payload.user_id,
