@@ -85,12 +85,27 @@ export async function GET(request: Request) {
              if (pred.advancing_team_id && pred.advancing_team_id === m.winner_id) {
                breakdown.push('Đúng đội đi tiếp: +10');
                calculatedBasePoints += 10;
-               if (pred.predicted_win_method === m.win_method) {
-                 breakdown.push('Đúng hình thức: +5');
-                 calculatedBasePoints += 5;
-               }
              } else if (pred.advancing_team_id && m.winner_id) {
                breakdown.push('Sai đội đi tiếp: 0');
+             }
+
+             if (pred.home_score !== null && m.home_score !== null && pred.home_score === m.home_score) {
+               breakdown.push(`Đúng số bàn ${(m.home_team as any)?.name || 'Đội nhà'}: +1`);
+               calculatedBasePoints += 1;
+             }
+             if (pred.away_score !== null && m.away_score !== null && pred.away_score === m.away_score) {
+               breakdown.push(`Đúng số bàn ${(m.away_team as any)?.name || 'Đội khách'}: +1`);
+               calculatedBasePoints += 1;
+             }
+
+             if (pred.home_score !== null && pred.away_score !== null && m.home_score !== null && m.away_score !== null) {
+               if (pred.home_score === m.home_score && pred.away_score === m.away_score) {
+                 breakdown.push('Đúng chính xác tỷ số: +5');
+                 calculatedBasePoints += 5;
+               } else if (pred.home_score - pred.away_score === m.home_score - m.away_score) {
+                 breakdown.push('Đúng hiệu số: +1');
+                 calculatedBasePoints += 1;
+               }
              }
           } else {
              if (isNewRules) {
