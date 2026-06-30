@@ -10,6 +10,7 @@ import TopScorers, { TopScorer } from '@/components/TopScorers';
 import ProfileUpdateForm from '@/components/ProfileUpdateForm';
 import { resolvePlaceholderTeam } from '@/utils/standings';
 import matchMapping from '../data/matchMapping.json';
+import kickoffToMatch from '../data/kickoffToMatch.json';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import TournamentBracket from '@/components/TournamentBracket';
 
@@ -144,7 +145,9 @@ export default function HomePage() {
         validMatches.sort((a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
         
         validMatches = validMatches.map((m: any, index: number) => {
-          let matchNum = index + 1; // Default chronological index
+          let matchNum = (kickoffToMatch as any)[m.kickoff_time];
+          if (!matchNum) matchNum = index + 1; // Default chronological index if not found (shouldn't happen for WC matches)
+          
           if (m.home_team && m.away_team) {
              const tag = (matchMapping as any)[`${m.home_team.name} vs ${m.away_team.name}`];
              if (tag) {
