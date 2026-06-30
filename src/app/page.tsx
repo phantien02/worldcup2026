@@ -871,13 +871,25 @@ export default function HomePage() {
                           }
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00d2ff', fontWeight: '600', fontSize: '1.1rem' }}>
-                          {user.stats?.correctResults || 0}
+                          {pointsFilter === 'total' 
+                            ? (user.stats?.correctResults || 0) 
+                            : pointsFilter === 'group' 
+                              ? (user.stats?.groupCorrectResults || 0) 
+                              : (user.stats?.knockoutCorrectResults || 0)}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#00ff88', fontWeight: '600', fontSize: '1.1rem' }}>
-                          {user.stats?.exactScores || 0}
+                          {pointsFilter === 'total' 
+                            ? (user.stats?.exactScores || 0) 
+                            : pointsFilter === 'group' 
+                              ? (user.stats?.groupExactScores || 0) 
+                              : (user.stats?.knockoutExactScores || 0)}
                         </td>
                         <td style={{ padding: '1.2rem 1rem', textAlign: 'center', color: '#fbbf24', fontWeight: '600', fontSize: '1.1rem', borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>
-                          {user.stats?.exactDiffs || 0}
+                          {pointsFilter === 'total' 
+                            ? (user.stats?.exactDiffs || 0) 
+                            : pointsFilter === 'group' 
+                              ? (user.stats?.groupExactDiffs || 0) 
+                              : (user.stats?.knockoutExactDiffs || 0)}
                         </td>
                       </tr>
                     ))}

@@ -166,6 +166,15 @@ export async function GET() {
       let correctResults = 0;
       let exactScores = 0;
       let exactDiffs = 0;
+      
+      let groupCorrectResults = 0;
+      let groupExactScores = 0;
+      let groupExactDiffs = 0;
+      
+      let knockoutCorrectResults = 0;
+      let knockoutExactScores = 0;
+      let knockoutExactDiffs = 0;
+
       let groupPoints = 0;
       let knockoutPoints = 0;
       let groupActualPreds = 0;
@@ -178,9 +187,11 @@ export async function GET() {
         if (!m) return; // safeguard
         
         const actualResult = m.home_score > m.away_score ? 'home_win' : m.home_score === m.away_score ? 'draw' : 'away_win';
+        const isGroup = isGroupStage(m.round);
         
         if (pred.prediction_result === actualResult) {
           correctResults++;
+          if (isGroup) groupCorrectResults++; else knockoutCorrectResults++;
         }
 
         if (pred.home_score !== null && pred.away_score !== null && m.home_score !== null && m.away_score !== null) {
@@ -189,14 +200,16 @@ export async function GET() {
           
           if (isExactScore) {
             exactScores++;
+            if (isGroup) groupExactScores++; else knockoutExactScores++;
           } else if (isExactDiff) {
             exactDiffs++;
+            if (isGroup) groupExactDiffs++; else knockoutExactDiffs++;
           }
         }
 
         // Accumulate points and pred counts by round type
         const earned = pred.points_earned || 0;
-        if (isGroupStage(m.round)) {
+        if (isGroup) {
           groupPoints += earned;
           groupActualPreds++;
         } else {
@@ -223,6 +236,12 @@ export async function GET() {
           correctResults,
           exactScores,
           exactDiffs,
+          groupCorrectResults,
+          groupExactScores,
+          groupExactDiffs,
+          knockoutCorrectResults,
+          knockoutExactScores,
+          knockoutExactDiffs,
           groupMatchCount,
           knockoutMatchCount,
           groupActualPreds,
