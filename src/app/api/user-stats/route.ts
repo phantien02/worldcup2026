@@ -174,6 +174,15 @@ export async function GET(request: Request) {
           const isOwner = viewerId === userId;
           const isHidden = !isOwner && !isLocked;
 
+          let predicted_advancing_team = null;
+          if (pred.advancing_team_id) {
+            if (pred.advancing_team_id === (m.home_team as any)?.id) {
+              predicted_advancing_team = (m.home_team as any)?.name;
+            } else if (pred.advancing_team_id === (m.away_team as any)?.id) {
+              predicted_advancing_team = (m.away_team as any)?.name;
+            }
+          }
+
           return {
             match_id: m.id,
             home_team: (m.home_team as any)?.name || 'Đội nhà',
@@ -185,6 +194,7 @@ export async function GET(request: Request) {
             kickoff_time: m.kickoff_time,
             predicted_home_score: isHidden ? null : pred.home_score,
             predicted_away_score: isHidden ? null : pred.away_score,
+            predicted_advancing_team: isHidden ? null : predicted_advancing_team,
             points_earned: pointsEarned,
             is_hidden: isHidden,
             is_missing: false,

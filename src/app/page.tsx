@@ -1436,7 +1436,16 @@ export default function HomePage() {
                                     fontSize: pred.is_hidden || pred.is_missing ? '0.9rem' : '1.125rem', 
                                     letterSpacing: pred.is_hidden || pred.is_missing ? 'normal' : '0.1em' 
                                   }}>
-                                    {pred.is_hidden ? '🔒 BẢO MẬT' : pred.is_missing ? 'Không dự đoán' : `${pred.predicted_home_score} - ${pred.predicted_away_score}`}
+                                    {pred.is_hidden ? '🔒 BẢO MẬT' : pred.is_missing ? 'Không dự đoán' : (
+                                      <div className="flex flex-col items-center">
+                                        <div>{pred.predicted_home_score} - {pred.predicted_away_score}</div>
+                                        {pred.predicted_advancing_team && (
+                                          <div style={{ fontSize: '0.75rem', color: '#fbbf24', marginTop: '0.25rem', letterSpacing: 'normal' }}>
+                                            Đi tiếp: {pred.predicted_advancing_team}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 </td>
                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'center', position: 'relative' }}>
