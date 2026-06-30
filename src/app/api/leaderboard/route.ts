@@ -10,7 +10,7 @@ export async function GET() {
 
     const { data: matches, error: matchErr } = await supabaseAdmin
       .from('matches')
-      .select('id, home_score, away_score, status, round, kickoff_time, home_team:home_team_id(name, flag_url), away_team:away_team_id(name, flag_url)')
+      .select('id, home_score, away_score, status, round, kickoff_time, winner_id, home_team:home_team_id(name, flag_url), away_team:away_team_id(name, flag_url)')
       .eq('status', 'finished');
     if (matchErr) throw matchErr;
 
@@ -28,7 +28,7 @@ export async function GET() {
         while (true) {
           const { data: preds, error: predErr } = await supabaseAdmin
             .from('predictions')
-            .select('user_id, match_id, home_score, away_score, prediction_result, points_earned')
+            .select('user_id, match_id, home_score, away_score, prediction_result, points_earned, advancing_team_id')
             .in('match_id', validMatchIds)
             .range(from, from + step - 1);
             
@@ -189,9 +189,16 @@ export async function GET() {
         const actualResult = m.home_score > m.away_score ? 'home_win' : m.home_score === m.away_score ? 'draw' : 'away_win';
         const isGroup = isGroupStage(m.round);
         
-        if (pred.prediction_result === actualResult) {
-          correctResults++;
-          if (isGroup) groupCorrectResults++; else knockoutCorrectResults++;
+        if (isGroup) {
+          if (pred.prediction_result === actualResult) {
+            correctResults++;
+            groupCorrectResults++;
+          }
+        } else {
+          if (m.winner_id && pred.advancing_team_id === m.winner_id) {
+            correctResults++;
+            knockoutCorrectResults++;
+          }
         }
 
         if (pred.home_score !== null && pred.away_score !== null && m.home_score !== null && m.away_score !== null) {
