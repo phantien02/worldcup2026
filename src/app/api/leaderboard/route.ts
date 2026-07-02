@@ -28,8 +28,9 @@ export async function GET() {
         while (true) {
           const { data: preds, error: predErr } = await supabaseAdmin
             .from('predictions')
-            .select('user_id, match_id, home_score, away_score, prediction_result, points_earned, advancing_team_id')
+            .select('id, user_id, match_id, home_score, away_score, prediction_result, points_earned, advancing_team_id')
             .in('match_id', validMatchIds)
+            .order('id', { ascending: true })
             .range(from, from + step - 1);
             
           if (predErr) throw predErr;
