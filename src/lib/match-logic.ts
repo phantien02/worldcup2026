@@ -193,10 +193,8 @@ export async function internalUpdateMatchResult(
         const awayName = (currentMatch.away_team as any)?.name;
         
         // Find match name like "Trận 49"
-        const matchMappingJson = require('@/data/matchMapping.json');
-        const matchName1 = matchMappingJson[`${homeName} vs ${awayName}`];
-        const matchName2 = matchMappingJson[`${awayName} vs ${homeName}`];
-        const currentMatchName = matchName1 || matchName2;
+        const matchIdMappingJson = require('@/data/matchIdMapping.json');
+        const currentMatchName = matchIdMappingJson[matchId];
         
         if (currentMatchName) {
           // Identify loserId

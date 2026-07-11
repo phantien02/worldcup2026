@@ -9,17 +9,13 @@ export async function GET() {
     teams?.forEach((t: any) => teamMap[t.id] = t);
 
     let fixedCount = 0;
-    const matchMappingJson = require('@/data/matchMapping.json');
+    const matchIdMappingJson = require('@/data/matchIdMapping.json');
 
     if (matches && teams) {
       for (const match of matches) {
         if (match.status === 'finished' && match.round !== 'Vòng bảng' && match.winner_id) {
-          const homeName = teamMap[match.home_team_id]?.name;
-          const awayName = teamMap[match.away_team_id]?.name;
           
-          const matchName1 = matchMappingJson[`${homeName} vs ${awayName}`];
-          const matchName2 = matchMappingJson[`${awayName} vs ${homeName}`];
-          const currentMatchName = matchName1 || matchName2;
+          const currentMatchName = matchIdMappingJson[match.id];
           
           if (currentMatchName) {
             const winnerId = match.winner_id;
