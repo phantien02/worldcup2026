@@ -152,10 +152,14 @@ export async function analyzeWithGemini(text: string, homeTeam: string, awayTeam
 
   const prompt = `Bạn là chuyên gia phân tích bóng đá. Hãy đọc văn bản sau và tìm tỷ số hiện tại (nếu đang đá) hoặc tỷ số chung cuộc (nếu đã kết thúc) của trận đấu giữa "${homeTeam}" (hay "${homeEn}") (Đội nhà) và "${awayTeam}" (hay "${awayEn}") (Đội khách).
 
+CỰC KỲ QUAN TRỌNG: Đội nhà là "${homeTeam}" và đội khách là "${awayTeam}".
+home_score PHẢI là bàn thắng của "${homeTeam}", away_score PHẢI là bàn thắng của "${awayTeam}".
+Dù bài báo viết theo bất kỳ thứ tự nào (ví dụ "${awayTeam} 2-1 ${homeTeam}"), bạn PHẢI gán tỷ số đúng theo tên đội.
+
 Trả về một JSON object duy nhất, định dạng chính xác như sau:
 {
-  "home_score": <số bàn thắng của đội nhà, hoặc null>,
-  "away_score": <số bàn thắng của đội khách, hoặc null>,
+  "home_score": <số bàn thắng của ${homeTeam}, hoặc null>,
+  "away_score": <số bàn thắng của ${awayTeam}, hoặc null>,
   "status": "finished" (nếu trận đấu đã kết thúc), "live" (nếu đang diễn ra), hoặc "pending" (nếu chưa bắt đầu/không tìm thấy),
   "match_time": "FT" hoặc null,
   "evidence": "<trích nguyên văn đoạn text ngắn nhất chứa tỷ số mà bạn dùng để kết luận>"
@@ -388,16 +392,32 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
 
   // --- 1. TÌM TRONG KẾT QUẢ API-FOOTBALL (ƯU TIÊN 1) ---
   if (apiFixtures && apiFixtures.length > 0) {
-    // Tìm trận đấu khớp với tất cả các tên có thể có
+    // Tìm trận đấu khớp với tất cả các tên có thể có (kiểm tra cả 2 chiều home-away)
     let match = apiFixtures.find(f => {
       const apiHome = f.teams.home.name.toLowerCase();
       const apiAway = f.teams.away.name.toLowerCase();
       
-      const homeMatches = homeAliases.some(alias => apiHome.includes(alias) || alias.includes(apiHome));
-      const awayMatches = awayAliases.some(alias => apiAway.includes(alias) || alias.includes(apiAway));
+      const homeMatchesHome = homeAliases.some(alias => apiHome.includes(alias) || alias.includes(apiHome));
+      const awayMatchesAway = awayAliases.some(alias => apiAway.includes(alias) || alias.includes(apiAway));
       
-      return homeMatches && awayMatches;
+      return homeMatchesHome && awayMatchesAway;
     });
+
+    // Nếu không tìm thấy theo thứ tự chuẩn, thử tìm theo thứ tự đảo (API đảo home/away)
+    if (!match) {
+      match = apiFixtures.find(f => {
+        const apiHome = f.teams.home.name.toLowerCase();
+        const apiAway = f.teams.away.name.toLowerCase();
+        
+        const homeMatchesAway = homeAliases.some(alias => apiAway.includes(alias) || alias.includes(apiAway));
+        const awayMatchesHome = awayAliases.some(alias => apiHome.includes(alias) || alias.includes(apiHome));
+        
+        return homeMatchesAway && awayMatchesHome;
+      });
+      if (match) {
+        console.log(`[API-Football] 🔄 THỨ TỰ ĐẢO NGƯỢC! API: ${match.teams.home.name}(home) vs ${match.teams.away.name}(away) | DB: ${homeTeam}(home) vs ${awayTeam}(away)`);
+      }
+    }
 
     // CẢI TIẾN: Nếu text match thất bại, ném cho AI "hiểu"
     if (!match) {
@@ -412,6 +432,14 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
       console.log(`[API-Football] 🎯 Đã xác định trận ${homeTeam} vs ${awayTeam} trong dữ liệu API! Trạng thái: ${match.fixture.status.short}`);
       const statusShort = match.fixture.status.short;
       
+      // === KIỂM TRA THỨ TỰ HOME/AWAY ĐỂ TRÁNH HOÁN ĐỔI TỶ SỐ ===
+      const apiHomeName = match.teams.home.name.toLowerCase();
+      const isSwapped = !homeAliases.some(alias => apiHomeName.includes(alias) || alias.includes(apiHomeName));
+      
+      if (isSwapped) {
+        console.log(`[API-Football] 🔄 HOÁN ĐỔI TỶ SỐ! API home="${match.teams.home.name}" ≠ DB home="${homeTeam}" → Swap scores!`);
+      }
+
       let finalStatus: 'pending' | 'live' | 'finished' = 'pending';
       const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO'];
       const liveStatuses = ['1H', 'HT', '2H', 'ET', 'BT', 'P', 'SUSP', 'INT', 'LIVE'];
@@ -420,18 +448,21 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
       else if (liveStatuses.includes(statusShort)) finalStatus = 'live';
 
       if (finalStatus !== 'pending') {
-        const homeScore = match.goals.home;
-        const awayScore = match.goals.away;
+        // GÁN TỶ SỐ THEO ĐÚNG THỨ TỰ DB (hoán đổi nếu API đảo)
+        const homeScore = isSwapped ? match.goals.away : match.goals.home;
+        const awayScore = isSwapped ? match.goals.home : match.goals.away;
         
-        // Nếu penalty
+        // Nếu penalty - cũng phải hoán đổi
         let eventsData = null;
         if (statusShort === 'PEN') {
+           const penHome = isSwapped ? (match.score.penalty.away || 0) : (match.score.penalty.home || 0);
+           const penAway = isSwapped ? (match.score.penalty.home || 0) : (match.score.penalty.away || 0);
            eventsData = {
               home_events: [],
               away_events: [],
               shootout: {
-                 home_score: match.score.penalty.home || 0,
-                 away_score: match.score.penalty.away || 0,
+                 home_score: penHome,
+                 away_score: penAway,
                  home_kicks: [],
                  away_kicks: []
               }
@@ -439,12 +470,13 @@ export async function scrapeLiveScore(homeTeam: string, awayTeam: string, kickof
         }
 
         if (homeScore !== null && awayScore !== null) {
+          console.log(`[API-Football] ✅ Tỷ số CHÍNH XÁC (sau hoán đổi nếu cần): ${homeTeam} ${homeScore}-${awayScore} ${awayTeam}`);
           return {
             home_score: homeScore,
             away_score: awayScore,
             status: finalStatus,
             match_time: statusShort,
-            evidence: 'Dữ liệu được cập nhật từ API-Football',
+            evidence: `Dữ liệu được cập nhật từ API-Football${isSwapped ? ' (đã hoán đổi thứ tự home/away)' : ''}`,
             events: eventsData
           };
         }

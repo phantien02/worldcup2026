@@ -1,0 +1,12 @@
+
+> world-cup-2026-predictor@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.2.8:3000
+- Environments: .env.local
+✓ Ready in 1575ms
+
+ GET / 200 in 2.7s (next.js: 1063ms, application-code: 1675ms)
+ GET / 200 in 73ms (next.js: 13ms, application-code: 60ms)
