@@ -11,11 +11,12 @@ export async function GET() {
     let fixedCount = 0;
     const matchIdMappingJson = require('@/data/matchIdMapping.json');
 
-    // FORCE FIX MATCH 102
+    // FORCE FIX MATCH 102: Anh vs Argentina (không phải Thụy Sĩ)
     const anh = teams?.find((t: any) => t.name === 'Anh');
+    const argentina = teams?.find((t: any) => t.name === 'Argentina');
     const match102_id = '9ddbb25c-4dcb-4f9f-8ff3-34ad3c9d61e3';
-    if (anh) {
-      await supabaseAdmin.from('matches').update({ home_team_id: anh.id }).eq('id', match102_id);
+    if (anh && argentina) {
+      await supabaseAdmin.from('matches').update({ home_team_id: anh.id, away_team_id: argentina.id }).eq('id', match102_id);
     }
     // FORCE FIX TAY BAN NHA FLAG
     const tbn = teams?.find((t: any) => t.name === 'Tây Ban Nha');
