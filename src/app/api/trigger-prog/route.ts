@@ -17,11 +17,10 @@ export async function GET() {
     if (anh) {
       await supabaseAdmin.from('matches').update({ home_team_id: anh.id }).eq('id', match102_id);
     }
-    
     // FORCE FIX TAY BAN NHA FLAG
     const tbn = teams?.find((t: any) => t.name === 'Tây Ban Nha');
     if (tbn) {
-      await supabaseAdmin.from('teams').update({ flag_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Bandera_de_Espa%C3%B1a.svg/1200px-Bandera_de_Espa%C3%B1a.svg.png' }).eq('id', tbn.id);
+      await supabaseAdmin.from('teams').update({ flag_url: 'https://flagcdn.com/w80/es.png' }).eq('id', tbn.id);
     }
 
     if (matches && teams) {
