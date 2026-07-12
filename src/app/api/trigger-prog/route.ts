@@ -11,6 +11,13 @@ export async function GET() {
     let fixedCount = 0;
     const matchIdMappingJson = require('@/data/matchIdMapping.json');
 
+    // FORCE FIX MATCH 102
+    const anh = teams?.find((t: any) => t.name === 'Anh');
+    const match102_id = '9ddbb25c-4dcb-4f9f-8ff3-34ad3c9d61e3';
+    if (anh) {
+      await supabaseAdmin.from('matches').update({ home_team_id: anh.id }).eq('id', match102_id);
+    }
+
     if (matches && teams) {
       for (const match of matches) {
         if (match.status === 'finished' && match.round !== 'Vòng bảng' && match.winner_id) {
